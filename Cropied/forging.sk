@@ -1,0 +1,100 @@
+options:
+	coalOre: coal ore named "&eCoal Ore" with lore "&7&lCOMMON"
+	ironOre: iron ore named "&eIron Ore" with lore "&7&lCOMMON"
+	goldOre: gold ore named "&eGold Ore" with lore "&b&lRARE"
+	diamondOre: diamond ore named "&eDiamond Ore" with lore "&d&lEPIC"
+	emeraldOre: emerald ore named "&eEmerald Ore" with lore "&e&lLEGENDARY"
+	redstoneOre: redstone ore named "&eRedstone Ore" with lore "&a&lEXOTIC"
+	exoticKey: tripwire hook named "&aExotic Key" with lore "&7Use at /crates"
+	omegaKey: nether star named "&6Omega Key" with lore "&7Use at /crates"
+	oreKey: tripwire hook named "&eO&dr&ae &eCr&d&aa&et&de" with lore "&7Use at /crates"
+
+command /material <text> <integer> <player>:
+	permission: admin
+	aliases: /mat
+	trigger:
+		if arg-1 is "coal":
+			give arg-3 arg-2 of {@coalOre}
+		else if arg-1 is "iron":
+			give arg-3 arg-2 of {@ironOre}
+		else if arg-1 is "gold":
+			give arg-3 arg-2 of {@goldOre}
+		else if arg-1 is "diamond":
+			give arg-3 arg-2 of {@diamondOre}
+		else if arg-1 is "emerald":
+			give arg-3 arg-2 of {@emeraldOre}
+		else if arg-1 is "redstone":
+			give arg-3 arg-2 of {@redstoneOre}
+
+on right click on jukebox:
+	execute player command "/totembag"
+
+command /forge [<text>]:
+	trigger:
+		if arg-1 is not set:
+			create a gui with virtual chest inventory with 3 rows named "Forging":
+				make gui slot 10 with totem of undying named "&e&lSELL TOTEM" with lore "&fIncreases the value of drops", "", "&eRequires", "&e¬ &f100x Coal Ore", "&e¬ &f25x Gold Ore", "&e¬ &f3x Emerald Ore", "", and "&8Left-Click to forge this item":
+					if player's inventory contains 100 {@coalOre}, 25 {@goldOre} and 3 {@emeraldOre}:
+						remove 100 of {@coalOre} from player's inventory
+						remove 25 {@goldOre} from player's inventory
+						remove 3 {@emeraldOre} from player's inventory
+						give player 1 of getSellTotem(getRandomRarity())
+						send "%getPrefix()% &fYou forged &e1x Sell Totem&f!"
+						play sound "block.smithing_table.use" to player
+					else:
+						send "%getPrefix()% &fYou do not have enough materials!"
+						play sound "entity.villager.no" to player
+				make gui slot 11 with totem of undying named "&e&lORE TOTEM" with lore "&fIncreases the chance of Ores from Mining", "", "&eRequires", "&e¬ &f80x Iron Ore", "&e¬ &f12x Diamond Ore", "&e¬ &f3x Emerald Ore", "", and "&8Left-Click to forge this item":
+					if player's inventory contains 80 {@ironOre}, 12 {@diamondOre} and 3 {@emeraldOre}:
+						remove 80 {@ironOre} from player's inventory
+						remove 12 {@diamondOre} from player's inventory
+						remove 3 {@emeraldOre} from player's inventory
+						give player 1 of getOreTotem(getRandomRarity())
+						send "%getPrefix()% &fYou forged &e1x Ore Totem&f!"
+						play sound "block.smithing_table.use" to player
+					else:
+						send "%getPrefix()% &fYou do not have enough materials!"
+						play sound "entity.villager.no" to player
+				make gui slot 12 with totem of undying named "&e&lKEY TOTEM" with lore "&fIncreases the chance of Keys", "", "&eRequires", "&e¬ &f125x Coal Ore", "&e¬ &f75x Iron Ore", "&e¬ &f3x Emerald Ore", "", and "&8Left-Click to forge this item":
+					if player's inventory contains 125 {@coalOre}, 75 {@ironOre} and 3 {@emeraldOre}:
+						remove 125 {@coalOre} from player's inventory
+						remove 75 {@ironOre} from player's inventory
+						remove 3 {@emeraldOre} from player's inventory
+						give player 1 of getKeyTotem(getRandomRarity())
+						send "%getPrefix()% &fYou forged &e1x Key Totem&f!"
+						play sound "block.smithing_table.use" to player
+					else:
+						send "%getPrefix()% &fYou do not have enough materials!"
+						play sound "entity.villager.no" to player
+				make gui slot 13 with totem of undying named "&e&lTOKEN TOTEM" with lore "&fIncreases Token yield", "", "&eRequires", "&e¬ &f25x Gold Ore", "&e¬ &f25x Diamond Ore", "&e¬ &f3x Emerald Ore", "", and "&8Left-Click to forge this item":
+					if player's inventory contains 25 {@goldOre}, 25 {@diamondOre} and 3 {@emeraldOre}:
+						remove 25 {@goldOre} from player's inventory
+						remove 25 {@diamondOre} from player's inventory
+						remove 3 {@emeraldOre} from player's inventory
+						give player 1 of getTokenTotem(getRandomRarity())
+						send "%getPrefix()% &fYou forged &e1x Token Totem&f!"
+						play sound "block.smithing_table.use" to player
+					else:
+						send "%getPrefix()% &fYou do not have enough materials!"
+						play sound "entity.villager.no" to player
+				make gui slot 14 with tripwire hook named "&e&lEXOTIC KEY" with lore "&fUse at /crates", "", "&eRequires", "&e¬ &f75x Gold Ore", "&e¬ &f15x Redstone Ore", "", and "&8Left-Click to forge this item":
+					if player's inventory contains 75 {@goldOre} and 15 {@redstoneOre}:
+						remove 75 {@goldOre} from player's inventory
+						remove 15 {@redstoneOre} from player's inventory
+						give player 1 of {@exoticKey}
+						send "%getPrefix()% &fYou forged &e1x Exotic Key&f!"
+						play sound "block.smithing_table.use" to player
+					else:
+						send "%getPrefix()% &fYou do not have enough materials!"
+						play sound "entity.villager.no" to player
+				make gui slot 15 with tripwire hook named "&e&lOMEGA KEY" with lore "&fUse at /crates", "", "&eRequires", "&e¬ &f25x Emerald Ore", "&e¬ &f40x Redstone Ore", "", and "&8Left-Click to forge this item":
+					if player's inventory contains 25 {@emeraldOre} and 40 {@redstoneOre}:
+						remove 25 {@emeraldOre} from player's inventory
+						remove 40 {@redstoneOre} from player's inventory
+						give player 1 of {@omegaKey}
+						send "%getPrefix()% &fYou forged &e1x Omega Key&f!"
+						play sound "block.smithing_table.use" to player
+					else:
+						send "%getPrefix()% &fYou do not have enough materials!"
+						play sound "entity.villager.no" to player
+				open last gui to player

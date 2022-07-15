@@ -1,0 +1,95 @@
+#every 15 minutes:
+#	updateTokens()
+#	updateLevel()
+#	broadcast "&6[Cropied] &7Leaderboards have updated!"
+
+function updateLevel():
+	load all yaml from directory "plugins/Gens/playerdata"
+	loop all loaded yaml from directory "plugins/Gens/playerdata":
+		set {_name} to loop-value
+		replace all "plugins/Gens/playerdata/" in {_name} with ""
+		replace all ".yml" in {_name} with ""
+		set {_level::%{_name}%} to yaml value "Level.Current" from loop-value
+		yaml "plugins/Gens/Economy/playerdata/%{_name}%.yml" is not loaded:
+			unload yaml loop-value
+		chance of 3%:
+			wait 1 tick
+	set {_sorted::*} to sortlb((indices of {_level::*}), {_level::*})
+	loop 10 times:
+		set {_name} to {_sorted::%loop-number%}
+		set {_name} to "%{_name}%" parsed as an offlineplayer
+		load yaml "plugins/Gens/playerdata/%{_sorted::%loop-number%}%.yml" as "plugins/Gens/playerdata/%{_sorted::%loop-number%}%.yml"
+		set {_lvl} to yaml value "Level.Current" from "plugins/Gens/playerdata/%{_sorted::%loop-number%}%.yml"
+		yaml "plugins/Gens/Economy/playerdata/%{_sorted::%loop-number%}%.yml" is not loaded:
+			unload yaml "plugins/Gens/playerdata/%{_sorted::%loop-number%}%.yml"
+		execute console command "/hologram setline lvltop %loop-number + 2% &e&l##%loop-number% &f%{_name}% &7- &eLv. %{_lvl} ? 0%"
+		
+		
+function sortlb(indices: strings, values: numbers, descending: boolean = true) :: strings:
+	loop {_indices::*}:
+		set {_whole} to rounded down {_values::%loop-index%}
+		set {_fraction} to mod({_values::%loop-index%}, 1) * 1E+10
+		set {_sort::%{_whole}%.%{_fraction}%::%loop-index%} to loop-value
+	loop indices of {_sort::*}:
+		loop {_sort::%loop-value%::*}:
+			add 1 to {_index}
+			set {_final::%{_index}%} to loop-value-2
+	return (reversed {_final::*}) if {_descending} is true, else {_final::*}
+	
+	
+
+function updateTokens():
+	loop {tokens::*}:
+		wait 1 tick
+		add 1 to {_size}
+		if {_low.to.high.list::%loop-value%} is not set:
+			set {_low.to.high.list::%loop-value%} to loop-index
+		else:
+			set {_n} to 0
+			loop {_size} times:
+				set {_n} to {_n}+1
+				{_low.to.high.list::%loop-value-1%.%{_n}%} is not set
+				set {_low.to.high.list::%loop-value-1%.%{_n}%} to loop-index
+				stop loop
+	set {_n} to size of {_low.to.high.list::*}
+	loop {_low.to.high.list::*}:
+		set {_high.to.low.list::%{_n}%} to loop-value
+		set {_n} to {_n}-1
+	set {_s} to 0
+	set {_topnumber} to 2
+	loop {_high.to.low.list::*}:
+		set {_s::%loop-index%} to loop-value parsed as offline player
+		execute console command "/hologram setline tleader %{_topnumber}% &e&l##%loop-index% &f%{_s::%loop-index%}% &7- &e%{tokens::%loop-value%}% &eTokens"
+#		add 1 to {_s}
+		add 1 to {_topnumber}
+		if {_topnumber} > 12:
+			stop
+
+#			execute console command "hd setline topTokens %{_topnumber}% &a##%loop-index% &b%loop-value% &8» &7%short({tokens::%loop-value%})%"
+
+
+	
+
+command /update <text>:
+	aliases: /lb, /leaderboard
+	permission: admin
+	trigger:
+		if arg-1 is set:
+			if arg-1 is "token" or "t":
+				broadcast "&6[Cropied] &7Leaderboards are updating please expect lag..."
+				updateTokens()
+			else if arg-1 is "level" or "l":
+				broadcast "&6[Cropied] &7Leaderboards are updating please expect lag..."
+				updateLevel()
+			else if arg-1 is "all":
+				broadcast "&6[Cropied] &7Leaderboards are updating please expect lag..."
+				updateTokens()
+				updateLevel()
+			else:
+				send "&cInvalid Leaderboard. Try again"
+				stop
+#			broadcast "&6[Cropied] &7Leaderboards have updated!"
+		else:
+			send "&cIncorrect usage. /update <leaderboard | all>"
+
+

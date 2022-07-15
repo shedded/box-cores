@@ -1,0 +1,98 @@
+
+command /setguardianspawn:
+	permission: *
+	trigger:
+		set {mobspawnlocations::%location at player%} to location at player
+		send "Guardian spawn point set!"
+command /deleteguardianpawn:
+	permission: *
+	trigger:
+		delete {mobspawnlocations::*}
+		send "Guardian spawn points removed!" to player
+
+		
+		if "%region at player%" contains "mine":
+			remove 1 of player's tool from player's tool
+			spawn a giant at player's location
+			set the maximum health of spawned creature to 300
+			set health of spawned creature to 300
+			set name of spawned creature to "&3&lGodly Mine Guardian"
+			set last spawned entity's tool to diamond sword of sharpness 20
+			apply fire resistance to the spawned creature for 10 hours
+			broadcast "%player's displayname%&f spawned a &3&lGodly Mine Guardian! &e&l/mine!"
+		else:
+			send "&cYou cannot spawn this in a safezone." to player
+every 1 minutes:
+	loop {mobspawnlocations::*}:
+		if {mobspawnlocations::%loop-value%} is set:
+			set {_loc} to {mobspawnlocations::%loop-value%}
+			set {_level} to random integer between 1 and 10
+			set {_health} to 7 * {_level}
+			set {_name} to "&c&lMine Guardian &f[Level %{_level}%]"
+			chance of 1%:
+				spawn a giant at {_loc}
+				set the maximum health of spawned creature to 300
+				set health of spawned creature to 300
+				set name of spawned creature to "&3&lGodly Mine Guardian"
+				set last spawned entity's tool to diamond sword of sharpness 20
+
+				equip last spawned entity with diamond boots of protection 4
+				apply fire resistance to the spawned creature for 10 hours
+				apply speed 3 to the spawned creature for 10 hours
+				set {_giant} to true
+			else:
+				if {_level} is between 1 and 4:
+					spawn a zombie at {_loc}
+					set the maximum health of spawned creature to {_health}
+					set health of spawned creature to {_health}
+					set name of spawned creature to "%{_name}%"
+					set last spawned entity's tool to diamond sword of sharpness 20
+					equip last spawned entity with leather helmet of unbreaking 999
+					equip last spawned entity with gold chestplate of unbreaking 999
+					equip last spawned entity with leather leggings of unbreaking 999
+					equip last spawned entity with gold boots of unbreaking 999
+					apply fire resistance to the spawned creature for 10 hours
+				else if {_level} is between 6 and 8:
+					spawn a skeleton at {_loc}
+					set the maximum health of spawned creature to {_health}
+					set health of spawned creature to {_health}
+					set name of spawned creature to "%{_name}%"
+					set last spawned entity's tool to diamond sword of sharpness 30
+					equip last spawned entity with diamond helmet of unbreaking 999
+					equip last spawned entity with gold chestplate of unbreaking 999
+					equip last spawned entity with iron leggings of unbreaking 999
+					equip last spawned entity with diamond boots of unbreaking 999
+					apply fire resistance to the spawned creature for 10 hours
+					apply speed 1 to the spawned creature for 10 hours
+				else:
+					spawn a wither skeleton at {_loc}
+					set the maximum health of spawned creature to {_health}
+					set health of spawned creature to {_health}
+					set name of spawned creature to "%{_name}%"
+					set last spawned entity's tool to bow of power 15 and flame 4 and punch 2
+					equip last spawned entity with diamond chestplate of unbreaking 999
+					equip last spawned entity with diamond boots of unbreaking 999
+					apply fire resistance to the spawned creature for 10 hours
+					apply speed 2 to the spawned creature for 10 hours
+	broadcast "%nl%&c&lMine Guardians have spawned, Kill them for free loot!%nl%&7Mine Guardians will despawn in 10 minutes! &e&l/mine!%nl% "
+	if {_giant} is true:
+		broadcast "&3&lGodly Mine Guardian has spawned in!"
+	wait 9 minutes
+	loop all entities:
+		if name of loop-entity contains "&c&lMine Guardian":
+			kill loop-entity
+on death:
+	if name of victim contains "&c&lMine Guardian &f[":
+		clear drops
+		cancel drops
+		if attacker is a player:
+			set {_level} to name of victim
+			replace "&c&lMine Guardian &f[Level " with "" in {_level}
+			replace "]" with "" in {_level}
+			set {_level} to {_level} parsed as integer
+			set {_reward} to 5000000 * {_level}
+			send "&7You killed a &3Level %{_level}%&7 Mine Guardian! &a&l(+$%format({_reward})%&a&l)" to attacker
+			add {_reward} to attacker's balance
+			
+
+

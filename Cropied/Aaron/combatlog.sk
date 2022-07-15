@@ -1,0 +1,94 @@
+options:
+	Prefix: &8&l[&c&l!&8&l]
+	CT-Time: 10
+
+command /combattag:
+	aliases: /combatlog,/ct,/cl
+	trigger:
+		if {combatlog::*} contains player:
+			set {_CT.span} to difference between {%player%.combatlog.time} and now
+			set {_CT.cd} to "{@CT-Time} seconds" parsed as timespan
+			send "{@Prefix} &fYou are Combat Tagged for &e%difference between {_CT.span} and {_CT.cd}%"
+		else:
+			send "{@Prefix} &fYou are not Combat Tagged"
+on unload:
+	delete {combatlog::*}
+	delete {combatlag.blocked-cmds::*}
+	delete {kill.combat::*}
+
+on skript load:
+	add "spawn" to {combatlag.blocked-cmds::*}
+	add "mine" to {combatlog.blocked-cmds::*}
+	add "plot home" to {combat.blocked-cmds::*}
+	add "p h" to {combat.blocked-cmds::*}
+	add "fly" to {combatlag.blocked-cmds::*}
+
+on damage:
+	if attacker is player:
+		if attacker is not victim:
+			if {combatlog::*} doesn't contain "%attacker%":
+				if attacker doesn't have permission "bypass.ct":
+					add "%attacker%" to {combatlog::*}
+					send "{@Prefix} &fYou are &cCombat Tag &fwith &e%victim%" to attacker
+					console command "/fly %attacker% disable"
+			if {combatlog::*} doesn't contain "%victim%":
+				if victim doesn't have permission "bypass.ct":   
+					add "%victim%" to {combatlog::*}
+					send "{@Prefix} &fYou are &cCombat Tag &fwith &e%attacker%" to victim
+					console command "/fly %victim% disable"
+			set {%attacker%.combatlog.time} to now
+			set {%victim%.combatlog.time} to now
+
+on command:
+	if player has permission "*":
+		stop
+
+	else if {combatlog::*} contains player:
+		cancel event
+		send "{@Prefix} &fYou can't use that command while &cCombat Tagged" to player
+
+on join:
+	if {kill.combat::*} contains player:
+		wait 1 second
+		console command "/kill %player%"
+		remove player from {kill.combat::*}
+
+on quit:
+	if {combatlog::*} contains player:
+		
+		add player to {kill.combat::*}
+		remove player from {combatlog::*}
+
+on death of player:
+	if {combatlog::*} contains player:
+		remove player from {combatlog::*}
+	if attacker is not a player:
+		damage was caused by lava
+		broadcast " "
+		broadcast "&c&l✘ &c&l%victim%&7 thought swimming in lava was a good idea.. &c&l ✘"
+		broadcast " "
+	else if victim is a player:
+
+		add " was destroyed by " to {randomMessage::*}
+		add " got chewed up by " to {randomMessage::*}
+		add " thought they could escape " to {randomMessage::*}
+		add " got curb stomped by " to {randomMessage::*}
+		add " was obliterated by " to {randomMessage::*}
+		add " got completely outclassed by " to {randomMessage::*}
+		add " was brutally backstabbed by " to {randomMessage::*}
+		add " was decimated by " to {randomMessage::*}
+		add " was beaten to death by " to {randomMessage::*}
+		add " is too weak for " to {randomMessage::*}
+		add " could not stand against " to {randomMessage::*}
+
+		set {_rmessage} to a random element out of {randomMessage::*}
+
+		broadcast "&c&l✘ &c&l%victim%&7%{_rmessage}%&c&l%attacker%&c&l ✘"
+
+every 1 second:
+	loop {combatlog::*}:
+		set {_combatlog.gettime} to difference between {%loop-value%.combatlog.time} and now
+		if {_combatlog.gettime} > {@CT-Time} seconds:
+			remove loop-value from {combatlog::*}
+			send "{@Prefix} &fYou are no longer &cCombat Tagged" to loop-value parsed as player
+

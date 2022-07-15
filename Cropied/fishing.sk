@@ -1,0 +1,386 @@
+options:
+	rareKey: tripwire hook named "&bRare Key" with lore "&7Use at /crates"
+	mythicKey: tripwire hook named "&dMythic Key" with lore "&7Use at /crates"
+	legendKey: tripwire hook named "&eLegend Key" with lore "&7Use at /crates"
+	rankKey: tripwire hook named "&cRank Key" with lore "&7Use at /crates"
+	exoticKey: tripwire hook named "&aExotic Key" with lore "&7Use at /crates"
+	omegaKey: nether star named "&6Omega Key" with lore "&7Use at /crates"
+	oreKey: tripwire hook named "&eO&dr&ae &eCr&d&aa&et&de" with lore "&7Use at /crates"
+	coalOre: coal ore named "&eCoal Ore" with lore "&7&lCOMMON"
+	ironOre: iron ore named "&eIron Ore" with lore "&7&lCOMMON"
+	goldOre: gold ore named "&eGold Ore" with lore "&b&lRARE"
+	diamondOre: diamond ore named "&eDiamond Ore" with lore "&d&lEPIC"
+	emeraldOre: emerald ore named "&eEmerald Ore" with lore "&e&lLEGENDARY"
+	redstoneOre: redstone ore named "&eRedstone Ore" with lore "&a&lEXOTIC"
+	barrelClock: clock named "&eBarrel Clock" with lore "&aRight-Click &fto respawn all Barrels!" and "&d&lEPIC"
+
+on rightclick with clock:
+	name of player's tool is "&eBarrel Clock"
+	remove 1 of player's tool from player's tool
+	execute console command "/barrelstart"
+
+on craft of fishing rod:
+	cancel event
+
+on craft of armor stand:
+	cancel event
+
+command /fishingrod [<player>]:
+	permission: admin
+	permission message: &6&lC&e&lr&6&lo&e&lp&6&li&e&le&6&ld &8> &7Not enough permission!
+	trigger:
+		give arg-1 1 of unbreakable fishing rod of lure 1 named "&e&lSILVER REEL" with lore "&8¬ &fLure 1", "&8¬ &fShiny 0", "&8¬ &fColossal 0", "&8¬ &fItemFinder 0", "&8¬ &fExpFinder 0", "&8¬ &fPresent 0", "&8¬ &fClone 0", "", and "&8Right-Click to upgrade" with all flags hidden
+
+on rightclick:
+	player is sneaking
+	name of player's tool is "&e&lSILVER REEL"
+	cancel event
+	fishingGUI(player)
+
+function fishingGUI(player: player):
+	create a gui with virtual chest inventory with 3 rows named "Silver Reel":
+		playSound({_player}, "chest", 1, 1)
+		make gui slot (integers from 0 to 26) with black stained glass pane named ""
+		set {_lure} to level of lure on {_player}'s tool
+		set {_cost} to {_lure} * 1500 + 1500
+		make gui slot 10 with fishing rod named "&e&lLURE" with lore "&fLevel: &e%{_lure}%&e/5", "&fCost: &e%{_cost}%&e⭐", "&7&o(Click to buy)" and "&8Increases time to fish" with all flags hidden:
+			if {_lure} >= 5:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < {_cost}:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Lure %{_lure}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 1 of lore of {_player}'s tool to "&8¬ &fLure %{_lure}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+		set {_shiny} to level of unbreaking on {_player}'s tool ? 0
+		set {_cost} to {_shiny} * 17500 + 1750
+		make gui slot 11 with glowstone dust named "&e&lSHINY" with lore "&fLevel: &e%{_shiny}%&e/20", "&fCost: &e%{_cost}%&e⭐", "&7&o(Click to buy)" and "&8Chance to gain Shiny Fish" with all flags hidden:
+			if {_shiny} >= 20:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < {_cost}:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Unbreaking %{_shiny}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 2 of lore of {_player}'s tool to "&8¬ &fShiny %{_shiny}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+		set {_colossal} to level of thorns on {_player}'s tool ? 0
+		set {_cost} to {_colossal} * 1500 + 1500
+		make gui slot 13 with anvil named "&e&lCOLOSSAL" with lore "&fLevel: &e%{_colossal}%&e/15", "&fCost: &e%{_cost}%&e⭐", "&7&o(Click to buy)" and "&8Increases the Fish weight, which increases value" with all flags hidden:
+			if {_colossal} >= 15:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < {_cost}:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Thorns %{_colossal}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 3 of lore of {_player}'s tool to "&8¬ &fColossal %{_colossal}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+		set {_itemfinder} to level of looting on {_player}'s tool ? 0
+		set {_cost} to {_itemfinder} * 650 + 150
+		make gui slot 12 with barrel named "&e&lITEMFINDER" with lore "&fLevel: &e%{_itemfinder}%&e/100", "&fCost: &e%{_cost}%&e⭐", "&7&o(Click to buy)" and "&8Chance to find random items" with all flags hidden:
+			if {_itemfinder} >= 100:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < {_cost}:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Looting %{_itemfinder}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 4 of lore of {_player}'s tool to "&8¬ &fItemFinder %{_itemfinder}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+		set {_expfinder} to level of protection on {_player}'s tool ? 0
+		make gui slot 14 with experience bottle named "&e&lEXPFINDER" with lore "&fLevel: &e%{_expfinder}%&e/1", "&fCost: &e25000⭐", "&7&o(Click to buy)" and "&8Gain Level XP while Fishing" with all flags hidden:
+			if {_expfinder} >= 1:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < 25000:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Protection %{_expfinder}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 5 of lore of {_player}'s tool to "&8¬ &fExpFinder %{_expfinder}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+		set {_present} to level of efficiency on {_player}'s tool ? 0
+		set {_cost} to {_present} * 1000 + 1000
+		make gui slot 15 with chest named "&e&lPRESENT" with lore "&fLevel: &e%{_present}%&e/25", "&fCost: &e%{_cost}%&e⭐", "&7&o(Click to buy)" and "&8Chance to gift all players online Tokens" with all flags hidden:
+			if {_present} >= 25:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < {_cost}:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Efficiency %{_present}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 6 of lore of {_player}'s tool to "&8¬ &fPresent %{_present}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+		set {_clone} to level of respiration on {_player}'s tool ? 0
+		set {_cost} to {_clone} * 2500 + 2500
+		make gui slot 16 with blue glazed terracotta named "&e&lCLONE" with lore "&fLevel: &e%{_clone}%&e/15", "&fCost: &e%{_cost}%&e⭐", "&7&o(Click to buy)" and "&8Chance to gain 2 Fish from 1" with all flags hidden:
+			if {_clone} >= 15:
+				send "%getPrefix()% This enchantment is already maxed!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			if getTokens({_player}) < {_cost}:
+				send "%getPrefix()% Not enough Tokens available!"
+				playSound({_player}, "no", 1, 1)
+				stop
+			set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%uuid of {_player}%.yml" to getTokens(player) - {_cost}
+			set {_enchant} to "Respiration %{_clone}+1%" parsed as enchantment type
+			enchant {_player}'s tool with {_enchant}
+			set line 7 of lore of {_player}'s tool to "&8¬ &fClone %{_clone}+1%"
+			send "%getPrefix()% Your rod was enchanted!"
+			playSound({_player}, "experience", 1, 1)
+			fishingGUI({_player})
+	open last gui to {_player}
+
+on fish:
+	if fishing state is "BITE":
+		send title "&e&lFISH LURED" with subtitle "&7&oA fish has been baited!" to player
+		playSound(player, "work", 1, 1)
+	else if fishing state is "CAUGHT_FISH":
+		delete caught entity
+		set {_a} to amount of yaml node list "Cooler" from "plugins/Gens/playerdata/%player's uuid%.yml" ? 0
+		if {_a} ? 0 >= (yaml value "Cooler-Size" from "plugins/Gens/playerdata/%player's uuid%.yml" ? 45):
+			send title "&c&lCOOLER FULL" with subtitle "&7&oYour cooler is full!" to player
+			playSound(player, "no", 1, 1)
+			stop
+		if {_a} ? 0 >= (yaml value "Cooler-Size" from "plugins/Gens/playerdata/%player's uuid%.yml" ? (45 - 3)):
+			send "%getPrefix()% Your cooler is almost full!"
+			playSound(player, "no", 2, 1)
+		set {_item} to player's tool
+		playSound(player, "experience", 1, 1)
+		set {_random} to random integer between 1 and 100
+		set yaml value "Fish.Caught" from "plugins/Gens/Economy/playerdata/%player's uuid%.yml" to yaml value "Fish.Caught" from "plugins/Gens/Economy/playerdata/%player's uuid%.yml" + 1
+		if {_random} <= 40:
+			set {_fish} to "Cod"
+		else if {_random} <= 80:
+			set {_fish} to "Salmon"
+		else if {_random} <= 95:
+			set {_fish} to "Clownfish"
+		else:
+			set {_fish} to "Pufferfish"
+		send title "&e&l%uppercase {_fish}% CAUGHT" with subtitle "&7&oA fish has been caught!" to player
+
+		set {_shiny} to level of unbreaking on {_item} ? 0
+		set {_colossal} to level of thorns on {_item} ? 0
+		set {_expfinder} to level of protection on {_item} ? 0
+		set {_present} to level of efficiency on {_item} ? 0
+		set {_clone} to level of respiration on {_item} ? 0
+		set {_itemfinder} to level of looting on {_item} ? 0
+
+		chance of 0.4*({_shiny} + ({purchased::Fish::%player's uuid%} ? 0))%:
+			set {_fish} to "Shiny %{_fish}%"
+
+		set {_max} to 8+ ({_colossal} + ({purchased::Fish::%player's uuid%} ? 0)/2)
+		set {_weight} to random number between 2 and {_max}
+
+		chance of ({_itemfinder} + ({purchased::Fish::%player's uuid%} ? 0)) / 2.5%:
+			set {_random} to random number between 1 and 500
+			if {_random} <= 100:
+				give player 3 of {@mythicKey}
+			else if {_random} <= 200:
+				give player 3 of {@rareKey}
+			else if {_random} <= 300:
+				give player 2 of {@legendKey}
+			else if {_random} <= 390:
+				give player 1 of {@coalOre}
+			else if {_random} <= 410:
+				give player 1 of {@ironOre}
+			else if {_random} <= 430:
+				give player 1 of {@goldOre}
+			else if {_random} <= 450:
+				give player 1 of {@diamondOre}
+			else if {_random} <= 470:
+				give player 1 of {@emeraldOre}
+			else if {_random} <= 480:
+				give player 1 of {@redstoneOre}
+			else if {_random} <= 490:
+				give player 1 of {@barrelClock}
+			else if {_random} <= 495:
+				give player 1 of {@oreKey}
+			else if {_random} <= 498:
+				give player 1 of {@exoticKey}
+			else:
+				give player 1 of {@omegaKey}
+
+		if {_expfinder} > 0:
+			chance of 20%:
+				playSound(player, "level", 1, 1)
+				set {_level} to yaml value "Level.Current" from "plugins/Gens/playerdata/%uuid of player%.yml"
+				set {_xp} to yaml value "Level.xp" from "plugins/Gens/playerdata/%uuid of player%.yml"
+				add 1 to {_level}
+				set {_needed} to xpNeeded({_level})
+				remove 1 from {_level}
+				if {_level} <= 100:
+					set {_needed} to {_needed} / 100
+					set yaml value "Level.xp" from "plugins/Gens/playerdata/%uuid of player%.yml" to {_xp} + {_needed}
+				else if {_level} <= 200:
+					set {_needed} to {_needed} / 200
+					set yaml value "Level.xp" from "plugins/Gens/playerdata/%uuid of player%.yml" to {_xp} + {_needed}
+				else if {_level} <= 300:
+					set {_needed} to {_needed} / 500
+					set yaml value "Level.xp" from "plugins/Gens/playerdata/%uuid of player%.yml" to {_xp} + {_needed}
+				else:
+					set {_needed} to {_needed} / 750
+					set yaml value "Level.xp" from "plugins/Gens/playerdata/%uuid of player%.yml" to {_xp} + {_needed}
+				checkLevel(player)
+
+		chance of 0.25*({_present} + ({purchased::Fish::%player's uuid%} ? 0))%:
+			set {_tokens} to random integer between 100 and 200
+			broadcast "%getPrefix()% &e%player% &fjust activated &ePresent &fand gave everyone &e%{_tokens}%⭐"
+			loop all players:
+				playSound(loop-player, "chest", 1, 1)
+				addTokens(player, {_tokens})
+		chance of ({_clone} + ({purchased::Fish::%player's uuid%} ? 0))%:
+			set {_a} to amount of yaml node list "Cooler" from "plugins/Gens/playerdata/%player's uuid%.yml" ? 0
+			set yaml value "Cooler.%{_a} + 1%" from "plugins/Gens/playerdata/%player's uuid%.yml" to "%{_fish}%|%{_weight}%"
+			playSound(player, "warp", 1, 1)
+		set {_a} to amount of yaml node list "Cooler" from "plugins/Gens/playerdata/%player's uuid%.yml" ? 0
+		set {_b} to (yaml value "Cooler-Size" from "plugins/Gens/playerdata/%player's uuid%.yml")
+		set {_b} to ({_b} ? 45)
+		if {_a} < {_b}:
+			set yaml value "Cooler.%{_a} + 1%" from "plugins/Gens/playerdata/%player's uuid%.yml" to "%{_fish}%|%{_weight}%"
+			set {_t} to yaml value "Cooler.%{_a} + 1%" from "plugins/Gens/playerdata/%player's uuid%.yml"
+
+command /cooler:
+	cooldown: 5 ticks
+	cooldown message: %getPrefix()% &fSlow down!
+	trigger:
+		playSound(player, "experience", 2, 1)
+		create a gui with virtual chest inventory with 6 rows named "Cooler":
+			set {_index} to 0
+			loop 54 times:
+				make gui slot {_index} with air
+				add 1 to {_index} 
+			set {_index} to 0
+			set {_worth} to 0
+			loop yaml node list "Cooler" from "plugins/Gens/playerdata/%player's uuid%.yml":
+				set {_t} to yaml value loop-value from "plugins/Gens/playerdata/%player's uuid%.yml"
+				set {_fish::*} to split {_t} at "|"
+				set {_fish} to {_fish::1}
+				set {_weight} to {_fish::2} parsed as number
+				set {_price} to getPrice({_fish})
+				set {_price} to round({_price}*({_weight}/4))
+				if {_fish} contains "Shiny":
+					make gui slot {_index} with glowing getFish({_fish}) named "&e&l%uppercase {_fish}%" with lore "&fThis fish weighs %{_weight}% pounds!", "&fThe value of this fish is &e%{_price}%⭐" and "&7&o%getDescription({_fish})%"
+				else:
+					make gui slot {_index} with getFish({_fish}) named "&e&l%uppercase {_fish}%" with lore "&fThis fish weighs %{_weight}% pounds!", "&fThe value of this fish is &e%{_price}%⭐" and "&7&o%getDescription({_fish})%"
+				add 1 to {_index}
+				add {_price} to {_worth}
+			make gui slot 49 with prismarine shard named "&e&lSELL" with lore "&fYour cooler is worth &e%{_worth}%&e⭐" and "&7&oClick to sell your fish!":
+				delete yaml node list "Cooler" from "plugins/Gens/playerdata/%player's uuid%.yml"
+				send "%getPrefix()% Sold your cooler successfully for &e%{_worth}%&e⭐!"
+				addTokens(player, {_worth})
+				playSound(player, "level", 1, 1)
+				execute player command "/cooler"
+		open last gui to player
+
+function getFish(fish: text) :: itemtype:
+	if {_fish} is "Cod":
+		return raw cod
+	else if {_fish} is "Shiny Cod":
+		return raw cod
+	else if {_fish} is "Salmon":
+		return raw salmon
+	else if {_fish} is "Shiny Salmon":
+		return raw salmon
+	else if {_fish} is "Pufferfish":
+		return pufferfish
+	else if {_fish} is "Shiny Pufferfish":
+		return pufferfish
+	else if {_fish} is "Clownfish":
+		return tropical fish
+	else if {_fish} is "Shiny Clownfish":
+		return tropical fish
+
+function getPrice(fish: text) :: number:
+	if {_fish} is "Cod":
+		return 22
+	else if {_fish} is "Shiny Cod":
+		return 220
+	else if {_fish} is "Salmon":
+		return 23
+	else if {_fish} is "Shiny Salmon":
+		return 230
+	else if {_fish} is "Pufferfish":
+		return 27
+	else if {_fish} is "Shiny Pufferfish":
+		return 270
+	else if {_fish} is "Clownfish":
+		return 32
+	else if {_fish} is "Shiny Clownfish":
+		return 320
+
+function getDescription(fish: text) :: text:
+	if {_fish} is "Cod":
+		return "Call of Duty fish?"
+	else if {_fish} is "Shiny Cod":
+		return "Shiny Call of Duty fish?"
+	else if {_fish} is "Salmon":
+		return "Tonight's biggest loser"
+	else if {_fish} is "Shiny Salmon":
+		return "Tonight's biggest winner"
+	else if {_fish} is "Pufferfish":
+		return "As thick as your mother"
+	else if {_fish} is "Shiny Pufferfish":
+		return "As thick as your father"
+	else if {_fish} is "Clownfish":
+		return "Found in your Mom!"
+	else if {_fish} is "Shiny Clownfish":
+		return "Found in your Dad!"
+
+command /fisherman:
+	trigger:
+		create a gui with virtual chest inventory with 3 rows named "Fisherman":
+			set {_index} to 0
+			loop 27 times:
+				make gui slot {_index} with air
+				add 1 to {_index}
+			playSound(player, "experience", 2, 1)
+			make gui slot 11 with glowing fishing rod named "&e&lSILVER REEL" with lore "&7&o(Click to purchase)", "&fA rod that can be enchanted", "&fwith unique enchantments to", "&fhelp your fishing experience" and "&fCost: &e$10,000" with all flags hidden:
+				if player's balance >= 10000:
+					execute console command "/fishingrod %player%"
+					send "%getPrefix()% You have purchased a Fishing Rod!"
+					playSound(player, "forge", 2, 1)
+					remove 10000 from player's balance
+				else:
+					send "%getPrefix()% Not enough money!"
+					playSound(player, "no", 1, 1)
+			make gui slot 15 with raw salmon named "&e&lCOOLER" with lore "&7&o(Click to open)", "&fAll of your fish caught", "&fare stored in this cooler." and "&fAccessable via /cooler":
+				execute player command "/cooler"
+		open last gui to player

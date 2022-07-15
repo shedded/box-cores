@@ -1,0 +1,17 @@
+on right click:
+    if player is in region "shulkerplace":
+        if player's held item is water bucket:
+            send "&d&lYou can't place water in the shulkerroom!"
+            cancel event
+
+on right click:
+    if player is in region "shulkerarea2":
+        if player's held item is water bucket:
+            send "&d&lYou can't place water in the shulkerroom!"
+            cancel event
+
+on right click:
+    if player is in region "pressureplate":
+        if player's held item is water bucket:
+            send "&d&lYou can't place water in the shulkerroom!"
+            cancel event

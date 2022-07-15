@@ -1,0 +1,24 @@
+on skript load:
+	set {servUP} to now
+
+command /uptime:
+	permission: *
+	trigger:
+		send "&e&lUptime &8➥ &7Server has been online for &e%time since {servUP}%&7!" to player
+
+command /playtime [<offline player>]:
+	trigger:
+		if arg-1 is not set:
+			set {_t} to time played of sender
+			send ""
+			send "&e&l▛"
+			send "&e&l▌ &6&lPLAYTIME &8• &aYou've played for: &d%{_t}%"
+			send "&e&l▙"
+			send ""
+		else:
+			set {_t} to time played of arg-1
+			send ""
+			send "&e&l▛"
+			send "&e&l▌ &6&lPLAYTIME &8• &a%arg-1%'s playtime: &d%time played of arg-1%"
+			send "&e&l▙"
+			send ""

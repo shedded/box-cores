@@ -1,0 +1,55 @@
+#Clearlag with mobcap
+#Version 1.2
+#Author: muyao
+
+#-------------------------- CONFIG --------------------------
+
+
+#define the max amount of mobs you want at a time (EXAMPLE 800)
+moblimit: 
+
+
+#-------------------------- MAIN --------------------------
+
+
+every 5 minutes:
+	broadcast " ", "&4&lCLEARLAG &8| &7Clearing lag in 10 seconds", " "
+	wait 10 seconds
+	broadcast " ", "&4&lCLEARLAG &8| &7Clearing lag...", " "
+	console command "/minecraft:kill @e[type=!player,type=!villager]"
+	console command "/execute in minecraft:overworld run gamerule doMobSpawning true"
+	console command "/execute in minecraft:the_end run gamerule doMobSpawning true"
+	console command "/execute in minecraft:the_nether run gamerule doMobSpawning true"
+	clear {mobcap}
+	clear {setcap}
+	
+command /clearlag:
+	permission: op
+	trigger:
+		broadcast " ", "&4&lCLEARLAG &8| &7Clearing lag in 10 seconds", " "
+		wait 10 seconds
+		broadcast " ", "&4&lCLEARLAG &8| &7Clearing lag...", " "
+		console command "/minecraft:kill @e[type=!player,type=!villager]"
+		console command "/execute in minecraft:overworld run gamerule doMobSpawning true"
+		console command "/execute in minecraft:the_end run gamerule doMobSpawning true"
+		console command "/execute in minecraft:the_nether run gamerule doMobSpawning true"
+		clear {mobcap}
+		clear {setcap}
+	
+
+#-------------------------- MOBCAP --------------------------
+
+
+on spawn of monster:
+	if spawn reason is natural:
+		add 1 to {mobcap}
+		if {mobcap} > {@moblimit}:
+			if {setcap} isn't set:
+				console command "/execute in minecraft:overworld run gamerule doMobSpawning false"
+				console command "/execute in minecraft:the_end run gamerule doMobSpawning false"
+				console command "/execute in minecraft:the_nether run gamerule doMobSpawning false"
+				set {setcap} to true
+
+
+#-------------------------- END --------------------------
+		

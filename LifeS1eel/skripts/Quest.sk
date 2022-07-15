@@ -1,0 +1,145 @@
+#LifeS1eel Questing
+#Version 1
+#Author: muyao
+
+
+command /resetquests:
+	permission: op
+	trigger:
+		broadcast " ", "&4&lQUESTS HAS BEEN RESET BY DEBUG", " "
+		loop all players:
+			clear {completed1.%loop-player's uuid%}
+
+command /quest:
+	trigger:
+		create a gui with virtual chest inventory with 3 rows named "                &4&lQuest":
+			make gui slot (integers between 0 and 9) and (integers between 17 and 26) to gray stained glass pane named ""
+			if {completed1.%player's uuid%} isn't set:
+				make gui slot 10, 11, 12, 14, 15, 16 to lime stained glass pane named ""
+			else:
+				make gui slot 10, 11, 12, 14, 15, 16 to red stained glass pane named ""
+			if {completed1.%player's uuid%} isn't set:
+				set {_cool} to "&cYour quest is available!"
+			else:
+				set {_cool} to "&c%{completed1.%player's uuid%}% minutes until you can quest again"
+			make gui slot 13 to chest named "&4&lByHourly Quest" with lore " ", "&7Every two hours, you can get", "&7a quest to gain 2-5 hearts!", " ", "&7Click me to start your quest", " ", "&c%{_cool}%":
+				if {completed1.%player's uuid%} isn't set:
+					getquest(player)
+					set {completed1.%player's uuid%} to 120
+					play sound "entity.experience_orb.pickup" to player
+					close player's inventory
+				else:
+					send "&cYou have to wait %{completed1.%player's uuid%}% minutes before doing your next quest!"
+					close player's inventory
+		open last gui to player
+
+			
+every minute:
+	loop all players:
+		if {completed1.%loop-player's uuid%} > 0:
+			reduce {completed1.%loop-player's uuid%} by 1
+		else:
+			clear {completed1.%loop-player's uuid%}
+
+function getquest(p:player):
+	set {_u} to uuid of {_p}
+	set {_i} to random integer between 1 and 6
+	if {_i} is 1:
+		set {quest1.%{_u}%} to "iron"
+		set {questprogress1.%{_u}%} to 0
+		set {questmsg1.%{_u}%} to "&7Mine 20 iron ore"
+		set {questcomplete1.%{_u}%} to 20
+		message " " to {_p}
+		message "&4&lQuest &8| &7Mine 20 iron ore" to {_p}
+		message " " to {_p}
+	if {_i} is 2:
+		set {quest1.%{_u}%} to "gold"
+		set {questprogress1.%{_u}%} to 0
+		set {questmsg1.%{_u}%} to "&7Mine 20 gold ore"
+		set {questcomplete1.%{_u}%} to 20
+		message " " to {_p}
+		message "&4&lQuest &8| &7Mine 20 gold ore" to {_p}
+		message " " to {_p}
+	if {_i} is 3:
+		set {quest1.%{_u}%} to "mob"
+		set {questprogress1.%{_u}%} to 0
+		set {questmsg1.%{_u}%} to "&7Kill 20 entities"
+		set {questcomplete1.%{_u}%} to 20
+		message " " to {_p}
+		message "&4&lQuest &8| &7Kill 20 entities" to {_p}
+		message " " to {_p}
+	if {_i} is 4:
+		set {quest1.%{_u}%} to "mob1"
+		set {questprogress1.%{_u}%} to 0
+		set {questmsg1.%{_u}%} to "&7Kill 40 entities"
+		set {questcomplete1.%{_u}%} to 40
+		message " " to {_p}
+		message "&4&lQuest &8| &7Kill 40 entities" to {_p}
+		message " " to {_p}
+	if {_i} is 5:
+		set {quest1.%{_u}%} to "place"
+		set {questprogress1.%{_u}%} to 0
+		set {questmsg1.%{_u}%} to "&7Place 200 blocks"
+		set {questcomplete1.%{_u}%} to 200
+		message " " to {_p}
+		message "&4&lQuest &8| &7Mine 20 coal ore" to {_p}
+		message " " to {_p}
+	if {_i} is 6:
+		set {quest1.%{_u}%} to "kill"
+		set {questprogress1.%{_u}%} to 0
+		set {questmsg1.%{_u}%} to "&7Kill 3 players"
+		set {questcomplete1.%{_u}%} to 3
+		message " " to {_p}
+		message "&4&lQuest &8| &7Kill 3 players" to {_p}
+		message " " to {_p}
+		
+function checkfinish(p: player):
+	set {_u} to {_p}'s uuid
+	if {questprogress1.%{_u}%} >= {questcomplete1.%{_u}%}:
+		play sound "ui.toast.challenge_complete" to {_p}
+		clear {questprogress1.%{_u}%}
+		clear {quest1.%{_u}%}
+		clear {questmsg1.%{_u}%}
+		set {_rand} to random integer between 2 and 5
+		message " " to {_p}
+		message "&4&lQuest &8| &7You have finished your quest! You have been given &c%{_rand}% Hearts" to {_p}
+		message " " to {_p}
+		console command "/lsadmin add %{_p}% %{_rand}%"
+		
+on join:
+	while player is online:
+		wait 1 second
+		if {quest1.%player's uuid%} is set:
+			clear player's scoreboard
+			set title of player's scoreboard to "&4&lQuest"
+			set line 13 of player's scoreboard to ""
+			set line 12 of player's scoreboard to "&7%{questmsg1.%player's uuid%}% &8[&c%{questprogress1.%player's uuid%}%&8/&c%{questcomplete1.%player's uuid%}%&8]"
+			set line 11 of player's scoreboard to ""
+		else:
+			clear player's scoreboard
+			
+on break:
+	if event-block is gold ore:
+		if {quest1.%player's uuid%} is "gold":
+			add 1 to {questprogress1.%player's uuid%}
+			checkfinish(player)
+	if event-block is iron ore:
+		if {quest1.%player's uuid%} is "iron":
+			add 1 to {questprogress1.%player's uuid%}
+			checkfinish(player)
+
+on place:
+	if {quest1.%player's uuid%} is "place":
+		add 1 to {questprogress1.%player's uuid%}
+		checkfinish(player)
+		
+on death:
+	if {quest1.%attacker's uuid%} is "mob" or "mob1":
+		add 1 to {questprogress1.%attacker's uuid%}
+		checkfinish(attacker)
+
+on death of player:
+	if {quest1.%attacker's uuid%} is "kill":
+		add 1 to {questprogress1.%attacker's uuid%}
+		checkfinish(attacker)
+		

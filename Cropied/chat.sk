@@ -1,0 +1,352 @@
+
+on chat:
+	if time played of player < 2 minutes:
+		cancel event
+		send ""
+		send "&c&lYou must play for 2 minutes before talking!"
+		send ""
+
+
+on tab complete:
+	event-string is "/sado":
+		set tab completions for position 1 to all players and "*"
+
+
+
+
+command /sado [<text>] [<text>]:
+	permission: op
+	trigger:
+		if arg-1 is "*":
+			make all players say arg-2
+			stop
+		set {_p} to "%arg-1%" parsed as a player
+		make {_p} say arg-2
+
+
+
+
+
+
+
+command /rename [<text>]:
+	permission: admin
+	trigger:
+		set name of player's tool to colored arg-1
+		send action bar "&dYou renamed your tool!" to player
+
+
+
+
+
+#CROPIED SKRIPTS YESSASDDDDDDDDDASFFFFFFFFFFFFFFFFFFFFF
+
+#Add staff bypass
+
+every 12 minutes:
+	broadcast " "
+	broadcast "                               &8➥ &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+	broadcast " "
+	broadcast " &a&lA &e&l30%% &a&lsale is currently active on &e&l/buy!&r"
+	broadcast " "
+	wait 3 minutes
+	broadcast " "
+	broadcast "                               &8➥ &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+	broadcast " "
+	broadcast " &a&lCropied & Mega crates are currently buy 1 get 1 free on &e&l/buy!&r"
+	broadcast " "
+	wait 3 minutes
+	broadcast " "
+	broadcast "                               &8➥ &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+	broadcast " "
+	broadcast " &a&lGet incredible rewards with &e&l/link!&r"
+	broadcast " "
+	wait 3 minutes
+	broadcast " "
+	broadcast "                               &8➥ &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+	broadcast " "
+	broadcast " &a&lOffer: Get 20x Exotic Keys on &e&l/buy &a&lfor a good price!&r"
+	broadcast " "
+
+
+#on command:
+#	full command contains "bc" or "broadcast"
+#	sender has permission "op"
+#	make sender execute command "/cm %full command%"
+#	stop
+
+on chat:
+	if {Captcha::%player's uuid%} is set:
+		cancel event
+		stop
+	if {option::chat::price::%player's uuid%} is set:
+		cancel event
+		set {_price} to "%message%" parsed as a number                                                                                                                   
+		if {_price} is not set:
+			send ""
+			send "&e&lC&6&lo&e&li&6&ln&e&lf&6&ll&e&li&6&lp &8• &7You must set a valid price!"
+			send ""
+			stop
+		delete {gonnaClose::%player's uuid%}
+		auctionSell(player, {_price}, {option::chat::price::%player's uuid%}, {option::chat::price::%player's uuid%})
+		stop
+	if {searching::%player's uuid%} is set:
+		cancel event
+		if {cf::config::%player's uuid%::choice} is not set:
+			cf(player, message, -1)
+		else if message don't contain "cancel":
+			set {_i} to message parsed as an integer
+			cf(player, "%{cf::config::%player's uuid%::choice}%", {_i})
+		else:
+			cf(player, "cancel", -1)
+		stop
+	if message contains "PickaxeChat" or "ChattCraft":
+		send "&cSome features might be disabled with Mobile Minecraft!"
+		cancel event
+		stop
+	if message contains "[tokens]" or "[bal]" or "[balance]" or "[money]" or "[multi]":
+
+		replace all "[tokens]" with "&eⓉ%format(getTokens(player))%%getColor(player)%" in message
+
+		replace all "[multi]" with "&dx%format(getMulti(player))%%getColor(player)%" in message
+
+		replace all "[bal]", "[money]" and "[balance]" with "&a&l$%format(player's balance)%%getColor(player)%" in message
+	if {mutechat} is true:
+		if player does not have permission "bypass.mutechat":
+			cancel event
+			send "&cChat is muted!"
+			stop
+	if message contains "start" and ("how" or "where"):
+		send centered " &8➥ &6&lC&e&lr&6&lo&e&lp&6&li&e&le&6&ld" to player
+		send centered "&6Get started by typing &e/start&6!|" to player
+		message centered "test" to player with "-"
+		send centered "&6" to player
+		send centered "&6" to player
+		cancel event
+		stop
+	if message contains "hopper" and ("no" or "dont" or "don't" or "broken" or "broke") and ("work" or "broken" or "broke"):
+		send "&e&l[Cropied Bot]"
+		send "&eHoppers only collect &d&lCompacted items."
+		send "&eCompacted items are items that are 64x of a drop"
+		send "&eThese items sell for 64x the price of normal items"
+		send "&eThis is to save storage and help server performance."
+		cancel event
+		stop
+	if {staffchat::%player's uuid%} is true:
+		cancel event
+		send " " to all players where [{staffchat.line::%input's uuid%} is true]
+		send "&8[&eStaff&6&lChat&8] &r%player's prefix%&7%player%&7: &e%message%" to all players where [input has permission "helper"]
+		send " " to all players where [{staffchat.line::%input's uuid%} is true]
+		stop
+	if {punish::mute::%uuid of player%} is true:
+		send "&c&lYou're currently Permanently Muted!"
+		send "&fReason: &7%{punish::mute::reason::%uuid of player%}%"
+		send "&fExpiry time: &7Never."
+		cancel event
+		stop
+	if {punish::tempmute::%uuid of player%} is set:
+		set {_waited} to difference between now and {punish::tempmute::%uuid of player%}
+		if {_waited} is more than {punish::tempmute::timespan::%uuid of player%}:
+			delete {punish::tempmute::%uuid of player%}
+			delete {punish::tempmute::timespan::%uuid of player%}
+			add "&a&lMute Expired." to {history::%uuid of player%::mutes::*}
+			delete {punish::mute::reason::%uuid of player%}
+		else:
+			set {_time} to "%difference between {punish::tempmute::timespan::%uuid of player%} and {_waited}%"
+			send "&3&lYou're currently Temporarily Muted!"
+			send "&fReason: &7%{punish::mute::reason::%uuid of player%}%"
+			send "&fExpiry time: &7%{_time}%."
+			cancel event
+			stop
+	if message contains "nigga" or "nigger"  or "n1gger" or "n1gg3r" or "n1gger":
+		set {_message} to "I love Cropied!"
+	if message contains "faggot" or "fagg0t" or "f4gg0t" or "fagot":
+		set {_message} to "I love Cropied!"
+	if message contains "https://discord.com" or "https://discord.gg":
+		if player does not have permission "staff":
+			cancel event
+			send "&cDiscord links are not allowed in the chat."
+			play "ENTITY_VILLAGER_NO" to player at volume 10
+			stop
+	set {_prestige} to {prestige::%uuid of player%}
+	set {_level} to yaml value "Level.Current" of "plugins/Gens/playerdata/%uuid of player%.yml"
+	set {_level} to "&8• &e%{_level} ? 1%"
+	if {_prestige} is greater than 0:
+		set {_pprefix} to "&8[&e&ki&f&l%{_prestige}%&e&ki&8] "
+	else:
+		set {_pprefix} to ""
+	set {_lprefix} to "%{_level}% &r%{_pprefix}%"
+	if {tag::%uuid of player%::tag} is set:
+		set {_tag} to {tag::%uuid of player%::tag}
+		if {tag::%uuid of player%::color} is set:
+			set {_tagc} to {tag::%uuid of player%::color}
+		else:
+			set {_tagc} to "&f&l"
+		set {_suf} to "&r&7[%{_tagc}%&l%{_tag}%&7] &r"
+	else:
+		set {_suf} to "&r"
+	set {_name} to display name of player
+	replace all player's prefix in {_name} with ""
+	
+	if {chatmute} is true:
+		player does not have permission "helper"
+		cancel event
+		send " "
+		send "              &c&l➥ Chat is Muted"
+		send " "
+		send "&7Please wait until staff unmute the chat!"
+		send " "
+		cancel event
+		stop
+	if {slowchat} is true:
+		player does not have permission "helper"
+		if difference between {word::%player's uuid%} and now < {slowchattimer}:
+			cancel event
+			send ""
+			send "              &c&l➥ Talk Slower"
+			send ""
+			send "&7((Your message was removed because you are chatting too fast!))"
+			send ""
+			cancel event
+			stop
+	if {antispam} is true:
+		player does not have permission "helper"
+		if {message::%player's uuid%} = "%message%":
+			cancel event
+			send ""
+			send "              &c&l➥ Do not repeat yourself"
+			send ""
+			send "&7((We have prevented you from sending your message because it is similar to your previous one))"
+			send ""
+			cancel event
+			stop
+	replace all "<3" with "&c❤%getColor(player)%" in message
+	replace all ":king:" with "&9♕%getColor(player)%" in message
+    #replace all "(:" and ":)" with "&aツ%getColor(player)%" in message
+	replace all ":eyes:" with "&b(◕‿ ◕)%getColor(player)%" in message
+	set {_p} to "%message%"
+	set {_msg::*} to {_p} split by " "
+	set {_players::*} to all players
+	loop {_msg::*}:
+		set {_p} to "%loop-value%"
+		if {_players::*} contains "%{_p}%":
+			replace all "%{_p}%" with "&a@%{_p}%%getColor(player)%" in message
+			set {_p} to {_p} parsed as a player
+			add {_p} to {_pings::*}
+	if {_message} is not set:
+		set {_message} to message
+	
+
+	
+
+	broadcast formatted "&r%{_lprefix}%%player's prefix%%{_name}% %getBadge(player)%&8⪼ %getColor(player)%%{_message}%"
+	#send "&r%{_lprefix}%%player's prefix%%{_name}% %getBadge(player)%&8⪼ %getColor(player)%%{_message}% &6[✓]" to all players where [input has permission "staff"]
+	cancel event
+	set {message::%player's uuid%} to "%message%"
+	set {word::%player's uuid%} to now
+	loop {_pings::*}:
+		set {_p} to "%loop-value%" parsed as a player
+		send action bar "&cPing in chat!" to {_p}
+
+on command "/minecraft:me":
+	cancel event
+
+
+options:
+	unlocked: &a&lUNLOCKED
+	locked: &c&lLOCKED
+
+command /chatcolor:
+	trigger:
+		create a gui with virtual chest inventory with 3 rows named "ChatColors":
+			make gui slot 10 with gray dye named "&eDefault" with lore "&fClick to select" and "&a&lUNLOCKED":
+				if player has permission "coal":
+					set {color::%player%} to "&f"
+				else:
+					set {color::%player%} to "&7"
+				send "&6[Cropied] &fDefault color selected"
+			#                  Red
+			if player has permission "chatcolor.red":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 11 with red dye named "&eRed" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "chatcolor.red":
+					send "&6[Cropied] &fRed color selected"
+					set {color::%player%} to "&c"
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			#                  Orange
+			if player has permission "chatcolor.orange":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 12 with orange dye named "&eOrange" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "chatcolor.orange":
+					send "&6[Cropied] &fOrange color selected"
+					set {color::%player%} to "&6"
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			#                  Yellow
+			if player has permission "chatcolor.yellow":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 13 with yellow dye named "&eYellow" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "chatcolor.yellow":
+					send "&6[Cropied] &fYellow color selected"
+					set {color::%player%} to "&e"
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			#                  Green
+			if player has permission "chatcolor.green":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 14 with lime dye named "&eGreen" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "chatcolor.green":
+					send "&6[Cropied] &fGreen color selected"
+					set {color::%player%} to "&a"
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			#                  Blue
+			if player has permission "chatcolor.blue":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 15 with light blue dye named "&eBlue" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "chatcolor.blue":
+					send "&6[Cropied] &fBlue color selected"
+					set {color::%player%} to "&b"
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			#                  Purple
+			if player has permission "chatcolor.purple":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 16 with magenta dye named "&ePurple" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "chatcolor.purple":
+					send "&6[Cropied] &fPurple color selected"
+					set {color::%player%} to "&d"
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			open last gui to player
+		
+function getColor(player: player) :: text:
+	if {color::%{_player}%} is not set:
+		if {_player} has permission "coal":
+			return "&f"
+		else:
+			return "&7"
+	return {color::%{_player}%}
+
+
+command /resetcolor <player>:
+	permission: admin
+	trigger:
+		set {color::%arg-1%} to "&f"
+
+
+
+

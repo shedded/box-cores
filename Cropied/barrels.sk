@@ -1,0 +1,103 @@
+options:
+	prefix: %getPrefix()%
+	wheatItem: hay bale named "&eWheat Generator" with lore "&7Output: &e$5" and "&7Tier: &e1"
+	melonItem: melon block named "&eMelon Generator" with lore "&7Output: &e$10" and "&7Tier: &e2"
+	pumpkinItem: pumpkin named "&ePumpkin Generator" with lore "&7Output: &e$20" and "&7Tier: &e3"
+	coalItem: coal block named "&eCoal Generator" with lore "&7Output: &e$35" and "&7Tier: &e4"
+	ironItem: iron block named "&eIron Generator" with lore "&7Output: &e$50" and "&7Tier: &e5"
+	goldItem: gold block named "&eGold Generator" with lore "&7Output: &e$75" and "&7Tier: &e6"
+	redstoneItem: redstone block named "&eRedstone Generator" with lore "&7Output: &e$100" and "&7Tier: &e7"
+	lapisItem: lapis block named "&eLapis Generator" with lore "&7Output: &e$150" and "&7Tier: &e8"
+	diamondItem: diamond block named "&eDiamond Generator" with lore "&7Output: &e$200" and "&7Tier: &e9"
+	emeraldItem: emerald block named "&eEmerald Generator" with lore "&7Output: &e$250" and "&7Tier: &e10"
+	magmaItem: magma block named "&eMagma Generator" with lore "&7Output: &e$300" and "&7Tier: &e11"
+	obsidianItem: obsidian named "&eObsidian Generator" with lore "&7Output: &e$400" and "&7Tier: &e12"
+	netheriteItem: netherite block named "&eNetherite Generator" with lore "&7Output: &e$500" and "&7Tier: &e13"
+	starItem: beacon named "&eStar Generator" with lore "&7Output: &e$750" and "&7Tier: &e14"
+	abyssItem: crying obsidian named "&eAbyss Generator" with lore "&7Output: &e$1000" and "&7Tier: &e15"
+	rareKey: tripwire hook named "&bRare Key" with lore "&7Use at /crates"
+	mythicKey: tripwire hook named "&dMythic Key" with lore "&7Use at /crates"
+	legendKey: tripwire hook named "&eLegend Key" with lore "&7Use at /crates"
+	rankKey: tripwire hook named "&cRank Key" with lore "&7Use at /crates"
+	exoticKey: tripwire hook named "&aExotic Key" with lore "&7Use at /crates"
+	omegaKey: nether star named "&6Omega Key" with lore "&7Use at /crates"
+	oreKey: tripwire hook named "&eO&dr&ae &eCr&d&aa&et&de" with lore "&7Use at /crates"
+	demonicKey: wither skeleton skull named "&8Demonic Key" with lore "&7Use at /crates"
+	coalOre: coal ore named "&eCoal Ore" with lore "&7&lCOMMON"
+	ironOre: iron ore named "&eIron Ore" with lore "&7&lCOMMON"
+	goldOre: gold ore named "&eGold Ore" with lore "&b&lRARE"
+	diamondOre: diamond ore named "&eDiamond Ore" with lore "&d&lEPIC"
+	emeraldOre: emerald ore named "&eEmerald Ore" with lore "&e&lLEGENDARY"
+	redstoneOre: redstone ore named "&eRedstone Ore" with lore "&a&lEXOTIC"
+
+
+command /setbarrel:
+	permission: admin
+	trigger:
+		add target block of player to {barrels::*}
+		send "&6%getPrefix()% &fAdded barrel"
+
+on right click on barrel:
+	"%region at player%" contains "mine"
+	set event-block to air
+
+	set metadata tag "barrel" of player to chest inventory with 3 rows named "Barrel"
+	set {_random} to random integer between 3 and 5
+	loop {_random} times:
+		set {_item} to random integer between 1 and 125
+		set {_slot} to random integer between 0 and 26
+		if {_item} <= 30:
+			set slot {_slot} of metadata tag "barrel" of player to 3 of {@legendKey}
+		else if {_item} <= 40:
+			set slot {_slot} of metadata tag "barrel" of player to 2 of {@legendKey}
+		else if {_item} <= 50:
+			set slot {_slot} of metadata tag "barrel" of player to 2 of {@diamondOre}
+		else if {_item} <= 60:
+			set slot {_slot} of metadata tag "barrel" of player to 2 of {@emeraldOre}
+		else if {_item} <= 70:
+			set slot {_slot} of metadata tag "barrel" of player to 2 of {@goldOre}
+		else if {_item} <= 80:
+			set slot {_slot} of metadata tag "barrel" of player to 2 of {@ironOre}
+		else if {_item} <= 93:
+			set slot {_slot} of metadata tag "barrel" of player to 2 of {@coalOre}
+		else if {_item} <= 96:
+			set slot {_slot} of metadata tag "barrel" of player to 1 of {@redstoneOre}
+		else if {_item} <= 97:
+			set slot {_slot} of metadata tag "barrel" of player to 1 of {@oreKey}
+		else if {_item} <= 98:
+			set slot {_slot} of metadata tag "barrel" of player to 1 of {@exoticKey}
+		else if {_item} <= 99:
+			set slot {_slot} of metadata tag "barrel" of player to 10 of {@legendKey}
+		else if {_item} <= 100:
+			set slot {_slot} of metadata tag "barrel" of player to 15 of {@legendKey}
+		else:
+			set slot {_slot} of metadata tag "barrel" of player to 3 of {@mythicKey}
+		
+	open (metadata tag "barrel" of player) to player
+
+
+	execute console command "/givekey %player% legend 3"
+	chance of 5%:
+		execute console command "/givekey %player% legend 2"
+	chance of 1%:
+		execute console command "/givekey %player% exotic 1"
+	broadcast "&e&l%player% &fjust opened a Barrel at &e&l/mine&f!"
+	set {_barrels} to {barrelsOpened::%player%} ? 0
+	set {barrelsOpened::%player%} to {_barrels}+1
+
+every 45 minutes:
+	loop {barrels::*}:
+		set block at loop-value to barrel
+	broadcast ""
+	broadcast "&eBarrels just spawned at /mine!"
+	broadcast ""
+
+
+command /barrelstart:
+	permission: *
+	trigger:
+		loop {barrels::*}:
+			set block at loop-value to barrel
+		broadcast ""
+		broadcast "&eBarrels just spawned at /mine!"
+		broadcast ""

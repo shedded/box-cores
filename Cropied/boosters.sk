@@ -1,0 +1,160 @@
+options:
+	perm: &cYou do not have the required permission to use this command.
+
+function openBoosters(p: player):
+	set {_uuid} to uuid of {_p}
+	create a gui with virtual chest inventory with 5 rows named "Boosters - %{_p}%":
+		make gui slot 0 with 1 of white stained glass pane named " "
+		make gui slot 1 with 1 of white stained glass pane named " "
+		set {_w} to yaml value "Boosters.active" from "plugins/Gens/Economy/config.yml"
+		set {_waited3} to difference between {_w} and now
+		if {_waited3} is less than 60 minutes:
+			set {_time} to "%difference between 60 minutes and {_waited3}%"
+			set {_time} to time({_time})
+			replace all " minutes" with "m" in {_time}
+			replace all " seconds" with "s" in {_time}
+			replace all " and" with "" in {_time}
+			set {_name} to yaml value "Boosters.player" from "plugins/Gens/Economy/config.yml"
+			set {_multi} to yaml value "Boosters.multi" from "plugins/Gens/Economy/config.yml"
+		else:
+			set {_time} to "None"
+			set {_name} to "No One"
+			set {_multi} to 1
+		make gui slot 2 with 1 of totem of undying named "&6&lGlobal Booster" with lore "&eMultiplier:&f %{_multi}%&fx", "&eTime Left:&f %{_time}%", "&eUsed By:&f %{_name}%", "", "&7Receive more money from sales", "" and "&7Click to refresh":
+			openBoosters({_p})
+		make gui slot 3 with 1 of white stained glass pane named " "
+		make gui slot 4 with 1 of white stained glass pane named " "
+		make gui slot 5 with 1 of white stained glass pane named " "
+		set {_w} to yaml value "Boosters.active" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml"
+		set {_waited3} to difference between {_w} and now
+		if {_waited3} is less than 60 minutes:
+			set {_time} to "%difference between 60 minutes and {_waited3}%"
+			set {_time} to time({_time})
+			replace all " minutes" with "m" in {_time}
+			replace all " seconds" with "s" in {_time}
+			replace all " and" with "" in {_time}
+			set {_multi} to yaml value "Boosters.multi" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml"
+		else:
+			set {_time} to "None"
+			set {_multi} to 1
+		make gui slot 6 with 1 of totem of undying named "&6&lPersonal Booster &7(Coming Soon)" with lore "&eMultiplier:&f %{_multi}%&fx", "&eTime Left:&f %{_time}%", "", "&7Receive more money from sales", "" and "&7Click to refresh":
+			openBoosters({_p})
+		make gui slot 7 with 1 of white stained glass pane named " "
+		make gui slot 8 with 1 of white stained glass pane named " "
+		loop yaml node list "GBoosters" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml":
+			if yaml value "GBoosters%loop-key%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" is greater than 0:
+				add 1 to {_boosters}
+				set {_quantity} to yaml value "GBoosters%loop-key%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml"
+				set {_multiplier} to "%loop-key%"
+				replace first "." in {_multiplier} with ""
+				make next gui slot with 1 of glowing sunflower named "&6&lGlobal Booster" with lore "&7Click to activate a", "&7global booster for &f1 hour&7.", "", and "&eMultiplier:&7 %{_multiplier}%" and "&eAmount:&7 %{_quantity}%":
+					close {_p}'s inventory
+					set {_w} to yaml value "Boosters.active" from "plugins/Gens/Economy/config.yml"
+					set {_waited} to difference between {_w} and now
+					if {_waited} is less than 60 minutes:
+						send "&cA Global Booster is already active." to {_p}
+					else:
+						if yaml value "GBoosters.%{_multiplier}%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" is greater than 0:
+							set yaml value "GBoosters.%{_multiplier}%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" to (yaml value "GBoosters.%{_multiplier}%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" - 1)
+							set yaml value "Boosters.active" from "plugins/Gens/Economy/config.yml" to now
+							set yaml value "Boosters.player" from "plugins/Gens/Economy/config.yml" to {_p}
+							set yaml value "Boosters.multi" from "plugins/Gens/Economy/config.yml" to "%{_multiplier}%" parsed as a number
+							broadcast "%nl%&e&l%{_p}%&f activated a &e&l%{_multiplier}%&e&lx &e&lGlobal Booster&f for &e60 minutes&f.%nl% &r"
+						else:
+							send "&cYou don't have any global boosters." to {_p}
+		loop yaml node list "PBoosters" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml":
+			if yaml value "PBoosters%loop-key%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" is greater than 0:
+				add 1 to {_boosters}
+				set {_quantity} to yaml value "PBoosters%loop-key%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml"
+				set {_multiplier} to "%loop-key%"
+				replace first "." in {_multiplier} with ""
+				make next gui slot with 1 of glowing snowball named "&6&lPersonal Booster" with lore "&7Click to activate a", "&7personal booster for &f1 hour&7.", "", and "&eMultiplier:&7 %{_multiplier}%" and "&eAmount:&7 %{_quantity}%":
+					close {_p}'s inventory
+					set {_w} to yaml value "Boosters.active" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml"
+					set {_waited} to difference between {_w} and now
+					if {_waited} is less than 60 minutes:
+						send "&cA Personal Booster is already active." to {_p}
+					else:
+						if yaml value "PBoosters.%{_multiplier}%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" is greater than 0:
+							set yaml value "PBoosters.%{_multiplier}%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" to (yaml value "PBoosters.%{_multiplier}%" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" - 1)
+							set yaml value "Boosters.active" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" to now
+							set yaml value "Boosters.player" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" to player
+							set yaml value "Boosters.multi" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" to "%{_multiplier}%" parsed as a number
+							send "%nl%&e&lYou&f have activated a &e&l%{_multiplier}%&e&lx &e&lBooster&f for &e60 minutes&f.%nl% &r" to {_p}
+						else:
+							send "&cYou don't have any personal boosters." to {_p}
+		if {_boosters} is not set:
+			make next gui slot with 1 of nether star named "&cYou have no boosters." with lore "&7You can obtain a global" and "&7booster from &f/buy&7."
+			loop 26 times:
+				make next gui slot with 1 of gray stained glass pane named " "
+		else:
+			loop (27-{_boosters}) times:
+				make next gui slot with 1 of gray stained glass pane named " "
+		make gui slot 36 with 1 of white stained glass pane named " "
+		make gui slot 37 with 1 of white stained glass pane named " "
+		make gui slot 38 with 1 of white stained glass pane named " "
+		make gui slot 39 with 1 of white stained glass pane named " "
+		make gui slot 40 with 1 of white stained glass pane named " "
+		make gui slot 41 with 1 of white stained glass pane named " "
+		make gui slot 42 with 1 of white stained glass pane named " "
+		make gui slot 43 with 1 of white stained glass pane named " "
+		make gui slot 44 with 1 of white stained glass pane named " "
+	open last gui to {_p}
+
+command /boosters:
+	aliases: /booster
+	trigger:
+		openBoosters(player)
+
+command /givebooster [<player>] [<number>]:
+	permission: admin
+	permission message: {@perm}
+	trigger:
+		if arg-1 is set:
+			if arg-2 is set:
+				send "&fYou received a global booster of &b%arg-2%&bx" to arg-1
+				send "&fYou gave a &b%arg-2%&bx global booster &fto &b%arg-1%&f." to player
+				set yaml value "GBoosters.%arg-2%" from "plugins/Gens/Economy/playerdata/%arg-1's uuid%.yml" to (yaml value "GBoosters.%arg-2%" from "plugins/Gens/Economy/playerdata/%arg-1's uuid%.yml" + 1)
+			else:
+				send "&cIncorrect usage: /givebooster (player) (multiplier)" to player
+		else:
+			send "&cIncorrect usage: /givebooster (player) (multiplier)" to player
+
+command /personalbooster [<player>] [<number>]:
+	permission: admin
+	permission message: {@perm}
+	trigger:
+		if arg-1 is set:
+			if arg-2 is set:
+				send "&fYou received a personal booster of &b%arg-2%&bx" to arg-1
+				send "&fYou gave a &b%arg-2%&bx personal booster &fto &b%arg-1%&f." to player
+				set yaml value "PBoosters.%arg-2%" from "plugins/Gens/Economy/playerdata/%arg-1's uuid%.yml" to (yaml value "PBoosters.%arg-2%" from "plugins/Gens/Economy/playerdata/%arg-1's uuid%.yml" + 1)
+			else:
+				send "&cIncorrect usage: /givebooster (player) (multiplier)" to player
+		else:
+			send "&cIncorrect usage: /givebooster (player) (multiplier)" to player
+
+command /endglobalbooster:
+	permission: admin
+	trigger:
+		delete yaml node list "Boosters" from "plugins/Gens/Economy/config.yml"
+
+command /endpersonalbooster <player>:
+	permission: admin
+	trigger:
+		delete yaml node list "Boosters" from "plugins/Gens/Economy/playerdata/%arg-1's uuid%.yml"
+
+function boosterTime() :: integer:
+	set {_w} to yaml value "Boosters.active" from "plugins/Gens/Economy/config.yml" ? now
+	set {_waited} to difference between {_w} and now
+	if difference between {_w} and now is less than 60 minutes:
+		return yaml value "Boosters.multi" from "plugins/Gens/Economy/config.yml"
+	return 1
+	
+function PboosterTime(p: player) :: integer:
+	set {_u} to uuid of {_p}
+	set {_w} to yaml value "Boosters.active" from "plugins/Gens/Economy/playerdata/%{_u}%.yml" ? now
+	set {_waited} to difference between {_w} and now
+	if difference between {_w} and now is less than 60 minutes:
+		return yaml value "Boosters.multi" from "plugins/Gens/Economy/playerdata/%{_u}%.yml"
+	return 1

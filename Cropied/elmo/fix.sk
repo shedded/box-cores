@@ -1,0 +1,3 @@
+on fish:
+  if "%region at player%" contains "mine":
+    cancel event

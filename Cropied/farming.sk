@@ -1,0 +1,421 @@
+#
+
+
+#						FARMING CORE 
+#					 BY kai1846456#0987
+
+#
+
+#						Configuration
+
+#
+
+options:
+
+	# PREFIX
+	prefix: %getPrefix()%
+		
+	# COLORS
+	color_first: &7
+	color_second: &c
+	color_third: &f
+	color_fourth: &8
+	color_error: &c
+
+	# MESSAGES | USE (0) FOR ARGUMENTS
+	not_enough_args: &4(!) &cIncorrect Usage! Correct Usage: &a(0)
+	no_console_allowed: &4(!) &cOnly players can execute this command!
+	no_permissions: &4(!) &cI'm sorry, But I can't let you do that! &7&o((0))
+	message_borders: &8&m	
+
+#
+
+#						File Management
+
+#
+
+on join:
+	load yaml "plugins/Farming/playerdata/%player's uuid%.yml" as "plugins/Farming/playerdata/%player's uuid%.yml"
+	while player is online:
+		wait 5 minutes
+		save yaml "plugins/Farming/playerdata/%player's uuid%.yml"
+		load yaml "plugins/Farming/playerdata/%player's uuid%.yml" as "plugins/Farming/playerdata/%player's uuid%.yml"
+		
+
+on quit:
+	save yaml "plugins/Farming/playerdata/%player's uuid%.yml"
+
+on load:
+	load yaml "plugins/Farming/config.yml" as "plugins/Farming/config.yml"
+	wait 1 tick
+	set yaml value "Price.wheat" from "plugins/Farming/config.yml" to 25
+	set yaml value "Price.carrot" from "plugins/Farming/config.yml" to 250
+	set yaml value "Price.potato" from "plugins/Farming/config.yml" to 1750
+	set yaml value "Price.melon" from "plugins/Farming/config.yml" to 8000
+	set yaml value "Price.pumpkin" from "plugins/Farming/config.yml" to 80000
+	save yaml "plugins/Farming/config.yml"
+	load yaml "plugins/Farming/config.yml" as "plugins/Farming/config.yml"
+on skript stop:
+	save yaml "plugins/Farming/config.yml"
+
+
+#
+
+#Crops:
+
+#	- Pumpkins | 175XP ea | $80000 ea | Cost 20b per Pumpkin | Req Lvl.200
+#	- Melons | 100XP ea | $8000 ea | Cost $1b per Melon | Req Lv.100
+#	- Potatoes | 50XP ea | $1750 ea | Cost $150m per potato | Req Lv.50
+#	- Carrots | 25XP ea | $250 ea | Cost $1m per carrot | Req Lv.10
+#	- Wheat | 10XP ea | $25 ea | Cost $1500 per seed | Req. Lv.1
+
+
+#
+
+#						Enchantments
+
+#	- Fortune | Drop more crops | Req Lv.5
+#	- Fertilizer | Chance to grow crop back to full after breaking | Req Lv.15
+#	- Seedy | Chance to gain a copy of the crop farmed | Req. Lv.25
+#	- Frenzy | Chance to double drops for a short time | Req Lv.40
+#	- Knowledge | Chance to double the XP from a crop | Req Lv.60
+#	- Merchant | Chance to automatically sell all your crops | Req Lv.100
+#	- Treasure | Find Loot when farming crops | Req Lv.150
+
+
+#NOTE: Using a tool with enchants without the required level will result in the tool being unusable for the player
+
+#
+
+#						Leveling
+
+#
+
+
+
+function xpAddFarm(p: player, a: integer):
+	set {_u} to {_p}'s uuid
+	set yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" to (yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" + {_a})
+
+function xpRemoveFarm(p: player, a: integer):
+	set {_u} to {_p}'s uuid
+	set yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" to (yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" - {_a})
+
+function xpSetFarm(p: player, a: integer):
+	set {_u} to {_p}'s uuid
+	set yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" to {_a}
+
+function xpNeededFarm(p: player) :: boolean:
+	set {_u} to {_p}'s uuid
+	set {_l} to yaml value "Level.Current" from "plugins/Farming/playerdata/%{_u}%.yml"
+	set {_x} to yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml"
+	{_x} is greater than or equal to ({_l}*25*2^(({_l}/10+1)/2)):
+		return true
+	return false
+
+function checkLevelFarm(p: player):
+	set {_u} to {_p}'s uuid
+	xpNeededFarm({_p}) is true:
+		set {_l} to yaml value "Level.Current" from "plugins/Farming/playerdata/%{_u}%.yml"	
+		set yaml value "Level.Current" from "plugins/Farming/playerdata/%{_u}%.yml" to {_l} + 1
+		set yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" to (yaml value "Level.xp" from "plugins/Farming/playerdata/%{_u}%.yml" - ({_l}*25*2^(({_l}/10+1)/2)))
+		send title "&b&lLevel Up!" with subtitle "&aYou reached &c&nFarming Level %{_l} + 1%" to {_p}
+
+#
+
+#						Enchanting
+
+#
+
+function upgradeEnchant(p: player, ench: enchantment, name: text, cost: integer, req: integer, max: integer):
+	set {_u} to {_p}'s uuid
+	set {_l} to yaml value "Level.Current" from "plugins/Farming/playerdata/%{_u}%.yml"	
+	{_p}'s held item is not a axe:
+		stop
+	{_l} >= {_req}:
+		getTokens({_p}) >= {_cost}:
+			(level of {_ench} of {_p}'s held item ? 0) < {_max}:
+				replace all "&8| &f%{_name}% %level of {_ench} of {_p}'s held item%" in lore of {_p}'s held item with "&8| &f%{_name}% %level of {_ench} of {_p}'s held item + 1%"
+				removeTokens({_p}, {_cost})
+				set {_l} to "%level of {_ench} of {_p}'s held item ? 0%" parsed as an integer
+				enchant {_p}'s held item with "%{_ench}% %level of {_ench} of {_p}'s held item + 1%" parsed as an enchantment type
+				set lore of {_p}'s tool to lore of {_p}'s tool and "&8| &f%{_name}% %level of {_ench} of {_p}'s held item%" if {_l} < 1
+				playSound(player, "level", 1, 1.25)
+				send "{@prefix} {@color_first}+1 %{_name}%!" to {_p}
+				stop
+			send "{@prefix} {@color_second}Enchant is already maxed!" to {_p}
+			playSound(player, "ENTITY_VILLAGER_HURT", 1, 1.25)
+			stop
+		send "{@prefix} {@color_second}Not enough tokens!" to {_p}
+		playSound(player, "ENTITY_VILLAGER_HURT", 1, 1.25)
+		stop
+	send "{@prefix} {@color_second}You don't have the required level!" to {_p}
+	playSound(player, "ENTITY_VILLAGER_HURT", 1, 1.25)
+	stop
+
+on rightclick:
+	player is holding diamond axe:
+		enchantGUIFarm(player)
+   
+function enchantGUIFarm(p: player):
+	set {_forCost} to round(1000 * (1.2^level of thorns of {_p}'s held item + 1))
+	set {_fertCost} to round(2000 * (1.25^level of protection of {_p}'s held item + 1))
+	set {_seedCost} to round(2500 * (1.3^level of fire protection of {_p}'s held item + 1))
+	set {_frenzyCost} to round(3500 * (1.35^level of projectile protection of {_p}'s held item + 1))
+	set {_knowCost} to round(5000 * (1.45^level of unbreaking of {_p}'s held item + 1))
+	set {_merchCost} to round(10000 * (1.6^level of smite of {_p}'s held item + 1))
+	set {_tCost} to round(25000 * (2^level of aqua affinity of {_p}'s held item + 1))
+	create a gui with virtual chest inventory with 3 rows named "&aEnchanting" with shape "xxxxxxxxx" and "x1234567x" and "xxxxxxxxx":
+		make gui slot "x" with black stained glass pane
+		make gui slot 10 with emerald named "&e&lFORTUNE" with lore "&8• &fCost: &e%{_forCost}% Tokens" and "&8• &fLevel: %level of thorns of {_p}'s held item ? 0%/25" and "&8• &fDescription: &eIncreases drops from crops" and "&cRequired Level: 5" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, thorns, "Fortune", {_forCost}, 5, 25)
+			enchantGUIFarm({_p})
+		make gui slot 11 with iron hoe named "&e&lFERTILIZER" with lore "&8• &fCost: &e%{_fertCost}% Tokens" and "&8• &fLevel: %level of protection of {_p}'s held item ? 0%/15" and "&8• &fDescription: &eChance to grow crop back to full state" and "&cRequired Level: 15" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, protection, "Fertilizer", {_fertCost}, 15, 15)
+			enchantGUIFarm({_p})
+		make gui slot 12 with wheat seeds named "&e&lSEEDY" with lore "&8• &fCost: &e%{_seedCost}% Tokens" and "&8• &fLevel: %level of fire protection of {_p}'s held item ? 0%/12" and "&8• &fDescription: &eChance to gain seed from crop" and "&cRequired Level: 25" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, fire protection, "Seedy", {_seedCost}, 25, 12)
+			enchantGUIFarm({_p})
+		make gui slot 13 with gold pickaxe named "&e&lFRENZY" with lore "&8• &fCost: &e%{_frenzyCost}% Tokens" and "&8• &fLevel: %level of projectile protection of {_p}'s held item ? 0%/10" and "&8• &fDescription: &eChance to double crop drops for a short time" and "&cRequired Level: 40" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, projectile protection, "Frenzy", {_frenzyCost}, 40, 10)
+			enchantGUIFarm({_p})
+		make gui slot 14 with book named "&e&lKNOWLEDGE" with lore "&8• &fCost: &e%{_knowCost}% Tokens" and "&8• &fLevel: %level of unbreaking of {_p}'s held item ? 0%/8" and "&8• &fDescription: &eChance to double XP from a crop" and "&cRequired Level: 60" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, unbreaking, "Knowledge", {_knowCost}, 60, 8)
+			enchantGUIFarm({_p})
+		make gui slot 15 with diamond named "&e&lMERCHANT" with lore "&8• &fCost: &e%{_merchCost}% Tokens" and "&8• &fLevel: %level of smite of {_p}'s held item ? 0%/5" and "&8• &fDescription: &eChance to sell your Silo at double price" and "&cRequired Level: 100" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, smite, "Merchant", {_knowCost}, 100, 5)
+			enchantGUIFarm({_p})
+		make gui slot 16 with chest named "&e&lTREASURE" with lore "&8• &fCost: &e%{_tCost}% Tokens" and "&8• &fLevel: %level of aqua affinity of {_p}'s held item ? 0%/3" and "&8• &fDescription: &eFind Loot when harvesting crops." and "&cRequired Level: 150" and "" and "&7&oClick to purchase a level!":
+			upgradeEnchant({_p}, aqua affinity, "Treasure", {_tCost}, 150, 3)
+			enchantGUIFarm({_p})
+	open last gui to {_p}
+
+#
+
+#						Farming
+
+#
+
+command /axe [<player = %player%>]:
+	trigger:
+		give arg-1 1 of unbreakable diamond axe of efficiency 10 named "&e&lCROP HARVESTER" with all flags hidden
+
+
+function farmTreasure(p: player) :: text:
+	set {_rnd} to random integer between 1 and 1000
+	{_rnd} is less than 100:
+		execute console command "/givekey %{_p}% legend 3"
+		return "3x Legend Key"
+	{_rnd} is less than 300:
+		addTokens({_p}, 1500)
+		return "1500x Tokens"
+	{_rnd} is less than 500:
+		execute console command "/givekey %{_p}% legend 5"
+		return "5x Legend Key"
+	{_rnd} is less than 900:
+		addTokens({_p}, 2500)
+		return "2500x Tokens"
+	{_rnd} is less than 975:
+		xpAddFarm({_p}, 15000)
+		return "15,000x Farming XP"
+	{_rnd} is less than 995:
+		execute console command "/givekey %{_p}% exotic 1"
+		return "1x Exotic Key"
+	{_rnd} is less than 1001:
+		execute console command "/givekey %{_p}% exotic 3"
+		return "3x Exotic Key"
+
+function getFarmXP(block: block) :: integer:
+	{_block} is pumpkin:
+		return 175
+	{_block} is melon:
+		return 100
+	{_block} is potato plant:
+		return 50
+	{_block} is carrot plant:
+		return 25
+	{_block} is wheat plant:
+		return 10 
+		
+function seedy(p: player, b: block):
+	{_b} is pumpkin:
+		give {_p} 1 of pumpkin seed
+		stop
+	{_b} is melon:
+		give {_p} 1 of melon seed
+		stop
+	{_b} is carrot plant:
+		give {_p} 1 of carrot
+		stop
+	{_b} is potato plant:
+		give {_p} 1 of potato
+		stop
+	{_b} is wheat:
+		give {_p} 1 of wheat seed
+		stop
+
+function checkFarmLv(p: player, b: block) :: boolean:
+	set {_u} to uuid of {_p}
+	set {_l} to (yaml value "Level.Current" from "plugins/Farming/playerdata/%{_u}%.yml") ? 0
+	{_b} is pumpkin:
+		{_l} >= 200:
+			return true
+		return false
+	{_b} is melon:
+		{_l} >= 100:
+			return true
+		return false
+	{_b} is potato plant:
+		{_l} >= 50:
+			return true
+		return false
+	{_b} is carrot plant:
+		{_l} >= 10:
+			return true
+		return false
+	return true
+		
+on break of pumpkin stem or attached pumpkin stem or melon stem or attached melon stem:
+	player is holding an axe:
+		cancel event
+	cancel drops
+	
+on rightclick on warped hyphae:
+	player's tool is wooden axe or stone axe or iron axe or golden axe or diamond axe or netherite axe
+	cancel event
+	
+on break of pumpkin or carrot plant or melon block or potato plant or wheat plant:
+	cancel drops
+	checkFarmLv(player, event-block) is false:
+		cancel event
+		send title "&c&lERROR" with subtitle "&bNeed a higher level to break this."
+		stop
+	event-block is carrot plant or potato plant or wheat plant:
+		"%block data of event-block%" is not "%raw name of event-block%[age=7]":
+			set block data of event-block to block data of event-block
+			stop
+		set {_d} to "%raw name of event-block%[age=0]" parsed as block data
+		set block data of event-block to {_d}
+	set {_xp} to getFarmXP(event-block)
+	chance of (0.1 * (level of aqua affinity of player's tool + ({purchased::Farm::%player's uuid%} ? 0)))%:
+		send "{@prefix} {@color_first}You recieved {@color_third}%farmTreasure(player)% {@color_first}from Treasure!"
+	chance of (0.85 * (level of fire protection of player's tool + ({purchased::Farm::%player's uuid%} ? 0)))%: # Seedy
+		seedy(player, event-block)
+	chance of (0.05 * (level of smite of player's tool + ({purchased::Farm::%player's uuid%} ? 0)))%: # Merchant
+		siloSell(player)
+	siloAdd(player, event-block, random integer between 1 and 1 + level of thorns of player's tool + ({purchased::Farm::%player's uuid%} ? 0)) # Fortune
+	xpAddFarm(player, {_xp})
+	chance of (12.5 * (level of unbreaking of player's tool + ({purchased::Farm::%player's uuid%} ? 0)))%: # Knowledge
+		xpAddFarm(player, {_xp})
+	chance of (1 * (level of protection of player's tool + ({purchased::Farm::%player's uuid%} ? 0)))%: # Fertilizer	
+		set event-block to event-block
+	chance of (0.01 * (level of projectile protection of player's tool + ({purchased::Farm::%player's uuid%} ? 0)))%:
+		set yaml value "Frenzy" from "plugins/Farming/playerdata/%player's uuid%.yml" to now
+		send title "&b&lFRENZY" with subtitle "&dFrenzy has begun!" to player
+	yaml value "Frenzy" from "plugins/Farming/playerdata/%player's uuid%.yml" is set: # Frenzy
+		set {_t} to yaml value "Frenzy" from "plugins/Farming/playerdata/%player's uuid%.yml"
+		difference between {_t} and now is less than 15 seconds:
+			xpAddFarm(player, {_xp})
+		delete yaml value "Frenzy" from "plugins/Farming/playerdata/%player's uuid%.yml"
+		send title "&b&lFRENZY" with subtitle "&cFrenzy has ended." to player
+	checkLevelFarm(player)
+#
+
+#						Silo
+
+#
+
+command /silo:
+	trigger:
+		openSilo(player)
+
+
+function siloAdd(p: player, b: item, amt: integer):
+	set {_u} to uuid of {_p}
+	set {_b} to raw name of {_b}
+	replace all "minecraft:" in {_b} with ""
+	replace first "carrots" in {_item} with "carrot"
+	replace first "potatoes" in {_item} with "potato"
+	set yaml value "Silo.%{_b}%" from "plugins/Farming/playerdata/%{_u}%.yml" to yaml value "Silo.%{_b}%" from "plugins/Farming/playerdata/%{_u}%.yml" + {_amt}
+
+
+function siloSell(p: player):
+	set {_u} to uuid of {_p}
+	set {_total} to 0
+	loop yaml node list "Silo" from "plugins/Farming/playerdata/%{_u}%.yml":
+		set {_item} to "%loop-key%"
+		replace first "." in {_item} with ""
+		set {_amt} to yaml value "Silo.%{_item}%" from "plugins/Farming/playerdata/%{_u}%.yml"
+		replace first "carrots" in {_item} with "carrot"
+		replace first "potatoes" in {_item} with "potato"
+		set {_price} to yaml value "Price.%{_item}%" from "plugins/Farming/config.yml"
+		set {_total} to {_total} + ({_amt} * {_price})
+	set {_m} to getMulti({_p}) 
+	set {_b} to boosterTime()
+	set {_c} to PboosterTime({_p})
+	set {_b} to {_b} + {_c}
+	set {_m} to ({_m} ? 1) * ({_b} ? 1)
+	set {_total} to {_total} * ({_m} ? 1) * ({purchased::Sell::%{_u}%} ? 1)
+	add {_total} to {_p}'s money
+	delete yaml node list "Silo" from "plugins/Farming/playerdata/%{_u}%.yml"
+	send "{@prefix} {@color_first}You sold {@color_second}%{_amt} ? 0% {@color_first}Items for {@color_third}$%{_total}%" to {_p}
+
+function openSilo(p: player):
+	set {_u} to {_p}'s uuid
+	set {_total} to 10
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+	add 2 to {_total}
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+		add 2 to {_total}
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+		add 2 to {_total}
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+	set {_swand} to 1
+	if {_p}'s held item is a blaze rod:
+		set {_swand::*} to name of {_p}'s held item split at "("
+		set {_swand::*} to {_swand::2} split at "x"
+		set {_swand::*} to {_swand::2} split at ")"
+		set {_swand} to {_swand::1}
+		set {_swand} to "%{_swand}%" parsed as an integer
+	create a gui with virtual chest inventory with 6 rows named "&5%{_p}%'s Silo":
+		loop 10 times:
+			make next gui slot with gray stained glass pane named ""
+		make gui slot 17 with gray stained glass pane named ""
+		make gui slot 18 with gray stained glass pane named ""
+		make gui slot 26 with gray stained glass pane named ""
+		make gui slot 27 with gray stained glass pane named ""
+		make gui slot 35 with gray stained glass pane named ""
+		make gui slot 36 with gray stained glass pane named ""
+		set {_loops} to 44
+		loop 10 times:
+			make gui slot {_loops} with gray stained glass pane named ""
+			add 1 to {_loops}
+		set {_m} to getMulti({_p})
+		make gui slot 49 with blaze rod named "&aSell all of your items" with lore ""," &8¬ &7Your multiplier: &f%{_m}%x","" and "&7Click to sell.":
+			siloSell({_p})
+			close {_p}'s inventory
+			openSilo({_p})
+		set {_slot} to 10
+		loop yaml node list "Silo" from "plugins/Farming/playerdata/%{_u}%.yml":
+			set {_item} to "%loop-key%"
+			replace first "." in {_item} with ""
+			set {_c} to yaml value "Silo.%{_item}%" from "plugins/Farming/playerdata/%{_u}%.yml"
+			{_c} is not 0
+			replace all "_" in {_item} with " "
+			set {_item} to {_item} parsed as an itemtype
+			set {_item} to {_item} named "&d%{_item}%"
+#			"%{_item}%" contains "hay bale":
+#				set {_item} to hay block named "&dhay block"
+			make gui slot {_slot} with {_item} with lore "&7&oNumber of items: &f%{_c}%"
+			{_slot} is 16 or 25 or 34 or 43:
+				add 2 to {_slot}
+			add 1 to {_slot}
+		open last gui to {_p}

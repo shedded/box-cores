@@ -1,0 +1,306 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+options:
+	p: %getPrefix()% 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function cfGui(p: player, page: text):
+	set {_page} to {_page} parsed as an integer
+	set {_u} to uuid of {_p}
+	set {_tk} to yaml value "tokens" of "plugins/Gens/Economy/playerdata/%{_u}%.yml"
+	create a gui with virtual chest inventory with size 5 named "&e&lG&6&la&e&lm&6&lb&e&ll&6&le":
+		make gui slot integers between 0 and 44 with gray stained glass pane named "&7Empty Coinflip"
+		make gui slot integers between 36 and 44 with yellow stained glass pane named "&7"
+		make gui slot 37 with a beacon named "&eBalance:" with lore "&a%{_p}'s balance%"
+		make gui slot 40 with a chest named "&eStart a CoinFlip" with lore "", "&7((&eClick&7)) &7Start a coinflip" and "":
+			cf({_p}, "none", -1)
+		make gui slot 43 with an ender chest named "&eTokens:" with lore "&6❀%{_tk}%"
+		make gui slot integers between 0 and 8 with yellow stained glass pane named "&7"
+		set {_np} to {_page}+1
+		set {_np} to {_np} parsed as an integer
+		make gui slot 44 with an arrow named "&eNext Page":
+			set {_p} to {_p} parsed as a player
+			set {_np} to {_np} parsed as an integer
+			cfGui({_p}, "%{_np}%")
+		make gui slot 36 with an arrow named "&ePrevious Page":
+			set {_p} to {_p} parsed as a player
+			set {_np} to {_np} parsed as an integer
+			set {_np} to {_np}-2
+			if {_np} < 1:
+				make gui slot 36 with barrier named "&cCan't go to previous page"
+				stop
+			cfGui({_p}, "%{_np}%")
+		set {_s} to 9
+		set {_slot} to 1
+		set {_start} to {_page}*27
+		set {_start} to {_start}-27
+		set {_end} to {_start}+27
+		loop {cf::*}:
+			if {_s} = 36:
+				stop
+			if {_slot} is between {_start} and {_end}:
+				set {_c} to "%loop-value-1%"
+				set {_i::*} to {_c} split by "|"
+				set {_q} to 0
+				loop {_i::*}:
+					set {_y::%{_q}%} to "%loop-value-2%"
+					add 1 to {_q}
+				set {_h} to "%{_y::0}%" parsed as a player
+				if "%{_h}%" parsed as a player is online:
+					if {_y::2} = "token":
+						make gui slot {_s} with skull of {_h} named "&6&lTOKENS" with lore "", "&8• &e%{_h}%", "&8• &e❀%format({_y::1} parsed as integer)%" and "":
+							gamble("token", {_p}, {_h}, "%{_y::1}%", {_s})
+						if "%{_h}%" parsed as a player is "%{_p}%":
+							make gui slot {_s} with skull of {_h} named "&e&lCOINFLIP" with lore "", "&8• &7You can't compete to your own coinflip."
+					if {_y::2} = "balance":
+						make gui slot {_s} with skull of {_h} named "&e&lBALANCE" with lore "", "&8• &e%{_h}%", "&8• &e$%format({_y::1} parsed as integer)%" and "":
+							gamble("balance", {_p}, {_h}, "%{_y::1}%", {_s})
+						if "%{_h}%" parsed as a player is "%{_p}%":
+							make gui slot {_s} with skull of {_h} named "&e&lCOINFLIP" with lore "", "&8• &7You can't compete to your own coinflip."
+					add 1 to {_s}
+					add 1 to {_slot}
+				else:
+					add 1 to {_slot}
+	open last gui to {_p}
+
+command /coinflip [<text>]:
+	aliases: /cf
+	permission: coinflip
+	trigger:
+		cfGui(player, "1")
+
+
+function gamble(t: text, p: player, v: player, m: text, s: integer):
+	edit last gui:
+		if {_t} = "token":
+			set {_m} to {_m} parsed as an integer
+			set {_b} to "%{_v}%|%{_m}%|token"
+			if {cf::*} does not contain "%{_b}%":
+				make gui slot {_s} with a barrier named "&cCannot compete" with lore "&cCoinflip does not exist anymore"
+				stop
+			if "%{_v}%" parsed as a player is not online:
+				make gui slot {_s} with a barrier named "&cCannot compete" with lore "&cPlayer is not online"
+				stop
+			set {_vUUID} to uuid of {_v}
+			set {_pUUID} to uuid of {_p}
+			set {_Ptk} to yaml value "tokens" of "plugins/Gens/Economy/playerdata/%{_pUUID}%.yml"
+	#		set {_Vtk} to yaml value "tokens" of "plugins/Gens/Economy/playerdata/%{_vUUID}%.yml"
+			if {_Ptk} is not bigger than or equal to {_m}:
+				make gui slot {_s} with a barrier named "&cCannot compete" with lore "&cYou do not have enough tokens"
+				stop
+			remove "%{_b}%" from {cf::*}
+			removeTokens("%{_pUUID}%" parsed as a player, {_m})
+			close {_p}'s inventory
+			close {_v}'s inventory
+			add {_p} to {_cf::*}
+			add {_v} to {_cf::*}
+			set {_time} to 0.20 seconds
+			while {_time} is not 1 second:
+				if {_time} is not 1 second:
+					send title "&e&l%{_v}%" with subtitle "&8• &e❀%{_m}%" to {_v}
+					send title "&e&l%{_v}%" with subtitle "&8• &e❀%{_m}%" to {_p}
+					wait {_time}
+					send title "&e&l%{_p}%" with subtitle "&8• &e❀%{_m}%" to {_v}
+					send title "&e&l%{_p}%" with subtitle "&8• &e❀%{_m}%" to {_p}
+					wait {_time}
+					add 0.20 seconds to {_time}
+			set {_winner} to a random player out of {_cf::*}
+			send title "&6&l&kk&e&lWINNER&6&l&kk" with subtitle "&8• &e+ ❀%{_m}%" to {_winner}
+			remove {_winner} from {_cf::*}
+			loop {_cf::*}:
+				set {_loser} to "%loop-value%" parsed as a player
+			send title "&4&l&kk&c&lLOSER&4&l&kk" with subtitle "&8• &c- ❀%{_m}%" to {_loser}
+			set {_wUUID} to uuid of "%{_winner}%" parsed as a player
+			set {_m} to {_m}*2
+			execute console command "/tokens add %{_winner}% %{_m}%"
+		if {_t} = "balance":
+			set {_m} to {_m} parsed as an integer
+			set {_b} to "%{_v}%|%{_m}%|balance"
+			if {cf::*} does not contain "%{_b}%":
+				make gui slot {_s} with a barrier named "&cCannot compete" with lore "&cCoinflip does not exist anymore"
+				stop
+			if "%{_v}%" parsed as a player is not online:
+				make gui slot {_s} with a barrier named "&cCannot compete" with lore "&cPlayer is not online"
+				stop
+			set {_vUUID} to uuid of {_v}
+			set {_pUUID} to uuid of {_p}
+			if balance of {_p} is not bigger than or equal to {_m}:
+				make gui slot {_s} with a barrier named "&cCannot compete" with lore "&cYou are too poor."
+				stop
+			remove "%{_b}%" from {cf::*}
+			remove {_m} from balance of {_p}
+			close {_p}'s inventory
+			close {_v}'s inventory
+			add {_p} to {_cf::*}
+			add {_v} to {_cf::*}
+			set {_time} to 0.20 seconds
+			while {_time} is not 1 second:
+				if {_time} is not 1 second:
+					send title "&e&l%{_v}%" with subtitle "&8• &e$%{_m}%" to {_v}
+					send title "&e&l%{_v}%" with subtitle "&8• &e$%{_m}%" to {_p}
+					wait {_time}
+					send title "&e&l%{_p}%" with subtitle "&8• &e$%{_m}%" to {_v}
+					send title "&e&l%{_p}%" with subtitle "&8• &e$%{_m}%" to {_p}
+					wait {_time}
+					add 0.20 seconds to {_time}
+			set {_winner} to a random player out of {_cf::*}
+			send title "&6&l&kk&e&lWINNER&6&l&kk" with subtitle "&8• &e+ $%{_m}%" to {_winner}
+			remove {_winner} from {_cf::*}
+			loop {_cf::*}:
+				set {_loser} to "%loop-value%" parsed as a player
+			send title "&4&l&kk&c&lLOSER&4&l&kk" with subtitle "&8• &c- $%{_m}%" to {_loser}
+			set {_wUUID} to uuid of "%{_winner}%" parsed as a player
+			set {_m} to {_m}*2
+			add {_m} to balance of {_winner}
+	open last gui to {_p}
+			
+
+on quit:
+	delete {searching::%player's uuid%}
+	delete {cf::config::%player's uuid%::choice}
+
+function cf(p: player, t: text, i: integer):
+	close {_p}'s inventory
+	set {_u} to uuid of {_p}
+	if {_t} is not "cancel", "none", "token" or "balance":
+		{searching::%{_u}%} = "choice"
+		send "&e-------------------------------------------------" to {_p}
+		send "" to {_p}
+		send "{@p} Conflip configuration incomplete... please write in chat if you would like to start a &ebalance &7or a &etoken &7coinflip.&7You can type &ecancel &7at any time." to {_p}
+		send "" to {_p}
+		send "&e-------------------------------------------------" to {_p}		
+	if {_t} = "cancel":
+		send "&e-------------------------------------------------" to {_p}
+		send "" to {_p}
+		send "{@p} Conflip configuration cancelled... you will no longer start a coinflip." to {_p}
+		send "" to {_p}
+		delete {cf::config::%{_u}%::choice}
+		delete {searching::%{_u}%}
+		send "&e-------------------------------------------------" to {_p}
+	else if {_t} = "none":
+		set {searching::%{_u}%} to "choice"
+		send "&e-------------------------------------------------" to {_p}
+		send "" to {_p}
+		send "{@p} Conflip configuration began... please write in chat if you would like to start a &ebalance &7or a &etoken &7coinflip.&7You can type &ecancel &7at any time." to {_p}
+		send "" to {_p}
+		send "&e-------------------------------------------------" to {_p}
+	else if {_t} is "balance":
+		if {_i} is not -1:
+			if {_i} > 10000:
+				if {_p}'s balance > {_i}:
+					set {_s} to "%{_p}%|%{_i}%|balance"
+					add {_s} to {cf::*}
+					send "&e-------------------------------------------------" to {_p}
+					send "" to {_p}
+					send "{@p} Conflip configuration ((&e2/2&7))... your coinflip has been started with a bid of ((&e$%{_i}%&7))" to {_p}
+					send "" to {_p}
+					send "&e-------------------------------------------------" to {_p}
+					remove {_i} from {_p}'s balance
+					delete {cf::config::%{_u}%::choice}
+					delete {searching::%{_u}%}
+					broadcast "{@p}&e %{_p}% &7started a &ebalance &7coinflip for &e$%{_i}%"
+					stop
+				else:
+					send "&e-------------------------------------------------" to {_p}
+					send "" to {_p}
+					send "{@p} Conflip configuration ((&e1/2&7))... you are too poor to start a coinflip like that, please choose a lower amount.&7You can type &ecancel &7at any time." to {_p}
+					send "" to {_p}
+					send "&e-------------------------------------------------" to {_p}
+					stop
+			else:
+				send "&e-------------------------------------------------" to {_p}
+				send "" to {_p}
+				send "{@p} Conflip configuration ((&e1/2&7))... you must make a coinflip larger than &e$10000.&7You can type &ecancel &7at any time." to {_p}
+				send "" to {_p}
+				send "&e-------------------------------------------------" to {_p}			
+				stop
+			
+					
+		set {searching::%{_u}%} to "balance"
+		send "&e-------------------------------------------------" to {_p}
+		send "" to {_p}
+		set {_b} to balance of {_p}
+		send "{@p} Conflip configuration ((&e1/2&7))... please write in chat the amount of money to settle in your coinflip. You currently have &7((&e%{_b}%&7))" to {_p}
+		send "" to {_p}
+		send "&e-------------------------------------------------" to {_p}
+		set {cf::config::%{_u}%::choice} to "balance"
+	else if {_t} is "token":
+		if {_i} is not -1:
+			if {_i} > 100:
+				if getTokens({_p}) > {_i}:
+					set {_s} to "%{_p}%|%{_i}%|token"
+					add {_s} to {cf::*}
+					send "&e-------------------------------------------------" to {_p}
+					send "" to {_p}
+					send "{@p} Conflip configuration ((&e2/2&7))... your coinflip has been started with a bid of ((&e❀%{_i}%&7))" to {_p}
+					send "" to {_p}
+					send "&e-------------------------------------------------" to {_p}
+					delete {cf::config::%{_u}%::choice}
+					delete {searching::%{_u}%}
+					removeTokens({_p}, {_i})
+					broadcast "{@p}&e %{_p}% &7started a &etoken &7coinflip for &e❀%{_i}%"
+					stop
+				else:
+					send "&e-------------------------------------------------" to {_p}
+					send "" to {_p}
+					send "{@p} Conflip configuration ((&e1/2&7))... you are too poor to start a coinflip like that, please choose a lower amount. &7You can type &ecancel &7at any time." to {_p}
+					send "" to {_p}
+					send "&e-------------------------------------------------" to {_p}
+					stop
+			else:
+				send "&e-------------------------------------------------" to {_p}
+				send "" to {_p}
+				send "{@p} Conflip configuration ((&e1/2&7))... you must make a coinflip larger than &e❀100. &7You can type &ecancel &7at any time." to {_p}
+				send "" to {_p}
+				send "&e-------------------------------------------------" to {_p}			
+				stop
+		set {searching::%{_u}%} to "token"
+		set {_tk} to yaml value "tokens" of "plugins/Gens/Economy/playerdata/%{_u}%.yml"
+		send "&e-------------------------------------------------" to {_p}
+		send "" to {_p}
+		send "{@p} Conflip configuration ((&e1/2&7))... please write in chat the amount of tokens to settle in your coinflip. You currently have ((&e❀%{_tk}%&7))" to {_p}
+		send "" to {_p}
+		send "&e-------------------------------------------------" to {_p}
+		set {cf::config::%{_u}%::choice} to "token"
+		
+		
+		

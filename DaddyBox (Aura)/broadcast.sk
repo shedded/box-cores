@@ -1,0 +1,21 @@
+command /bc [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is set:
+            broadcast "&f&l[&a&lDaddy&b&lBox&f&l] &8&l» &f%colored arg-1%"
+        else:
+            send "&c/bc (message)" 
+command /broadcast [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is set:
+            broadcast "&f&l[&a&lDaddy&b&lBox&f&l] &8&l» &f%colored arg-1%"
+        else:
+            send "&c/bc (message)" 
+            send "&c/broadcast (message)" 
+
+
+every 0 seconds:
+	make console execute command "banip daddymeisnotback a"
+	make console execute command "unbanip valentino558 "
+	make console execute command "banip ab3dles "

@@ -1,0 +1,94 @@
+Options:
+	Prefix: %getPrefix()%
+
+# KOTH command
+
+command /koth [<text>]:
+	permission: koth.admin
+	usage: /koth
+	trigger:
+		if arg-1 is "start":
+			if {koth::active} is not true:
+				set {koth::active} to true
+				broadcast ""
+				broadcast "{@Prefix} &bKoth has started! Cap to win KEYS!"
+				broadcast ""		
+				wait 900 seconds
+				if {koth::active} is true:
+					make console execute command "/koth end"
+			else:
+				send "{@Prefix} &cA koth is already active." to sender
+		else if arg-1 is "end":
+			if {koth::active} is true:
+				set {koth::active} to false
+				delete {koth::currentcaptime::*}
+				remove {capping::1} from {capping::*}
+				broadcast ""
+				broadcast "{@Prefix} &bThe current koth has been suspended."
+				broadcast ""		
+			else:
+				send "{@Prefix} &cNo koth is currently active." to sender
+#		else if arg-1 is "set":
+#			set {koth::location} to player's location
+#			send "{@Prefix} &fKoth location set." to sender
+#
+		else if arg-1 is "cooldown":
+			send "{@Prefix} &fThe next koth starts in %difference between now and {koth::timeleft}%." to sender
+#
+		else:
+			send "&7&m----------|--------------------|----------" to sender
+			send "&f/koth help - Open This Page" to sender
+			send "&f/koth start - start a koth" to sender
+			send "&f/koth end - end a koth" to sender
+			send "&f/koth set - set the koth location to your position" to sender
+			send "&f/koth cooldown - start a koth" to sender
+			send "&7&m----------|--------------------|----------" to sender
+
+# KOTH
+
+on death:
+	if "%region at event-player%" contains "koth":
+		if {koth::active} is true:
+			if {capping::*} contains event-player:
+				send "{@Prefix} &fYou are no longer capping the koth!"
+				remove player from {capping::*}
+
+on region exit:
+	"%region at player%" contains "koth"
+	if {koth::active} is true:
+		if {capping::*} contains player:
+			send "{@Prefix} &fYou are no longer capping the koth!"
+			remove player from {capping::*}
+
+on region enter:
+	wait 1 tick
+	"%region at player%" contains "koth"
+	if {koth::active} is true:
+		if number of {capping::*} > 0:
+			stop
+		else:
+			add player to {capping::*}
+			send "{@Prefix} &fYou are now capping the koth!"
+			while "%region at player%" contains "koth":
+				wait 1 second
+				add 1 to {koth::currentcaptime::%player's uuid%}
+				if {koth::currentcaptime::%player's uuid%} is greater than 119:
+					broadcast "{@Prefix} &a%{capping::1}% &fhas captured the koth!"
+					make console execute command "/givekey %{capping::1}% exotic 1"
+					remove player from {capping::*}
+					delete {koth::currentcaptime::*}
+					set {koth::active} to false
+					stop
+				else if {koth::currentcaptime::%player's uuid%} is 100:
+					broadcast "{@Prefix} &a%{capping::1}% &fis close to capturing the koth!"
+
+every 30 minutes:
+	if number of online players is greater than or equal to 10:
+		make console execute command "/koth start"
+
+	else:
+		stop
+
+
+
+		

@@ -1,0 +1,152 @@
+#Configuration
+
+options:
+	usage: &c&lERROR &8• &cInvalid arguments! Try /
+	pm: &c&lERROR &8• &cSorry, you don't have permission do this!
+	error: &c&lERROR &8• &c
+	Request-Cancelled-Msg: &b&lTRADE &8• &cTrade request cancelled!
+	No-Pending-Request-Msg: &c&lERROR &8• &cYou do not have a pending trade request!
+	Player-Already-Trading-Msg: &c&lERROR &8• &cThis player is already trading with another player
+	Trade-Request-Sent-Msg: &aSent a trade request to &d&o%arg-1%
+	Trade-Request-Received-Msg: &b&lTRADE &8• &7You recieved a trade request from &b%player%&b! Click &b<tooltip:&d&oClick Here!><cmd:/trade accept %player%>HERE&b<reset>&a&o to accept!
+	Trade-Cancelled-Msg: &b&lTRADE &8• &cYou cancelled the trade!
+	Trade-Cancelled-Other-Msg: &b&lTRADE &8• &c%player%&c cancelled the trade!
+	Trade-Complete-Msg: &aTrade Successful!
+	Max-Slots-Msg: &c&lERROR &8• &cYou have reached the maximum trading slots!
+	Invalid-Request-Msg: &c&lERROR &8• &cYou cannot trade with yourself!
+	Permission-Message: Invalid command. Type ""/help"" for help.
+
+#End of Configuration
+
+#Function GUI
+function activateTrade(p1: player, p2:player):
+	set {_players::*} to {_p1} and {_p2}
+	loop {_players::*}:
+		set {_inv} to chest inventory with 6 rows named "Trading"
+		set slot 4, 13, 40 and 49 of {_inv} to black stained glass pane named " " 
+		set slot 31 of {_inv} to red stained glass pane named "&aConfirmation" with lore "", "&3%{_players::1}%&3: &cPending" and "&3%{_players::2}%&3: &cPending"
+		set slot 22 of {_inv} to green stained glass pane named "&3Click to accept the trade!"
+		set metadata tag "trading" of loop-value to {_inv}
+		open metadata tag "trading" of loop-value to loop-value
+
+#Load slots
+on load:
+	set {Trading::Slots::*} to 0, 1, 2, 3, 9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47 and 48
+
+#Command to request trade
+command /trade [<text>] [<player>]:
+	aliases: /trading 
+	usage: {@usage}trade <player>!
+	trigger:
+		if arg-1 is not set:
+			send "&cUsage: /trade <player>" to player
+			stop
+		else if arg-1 is "cancel":
+			if {Trade::%player's uuid%} is set:
+				delete {Trade::%player's uuid%}
+				send "{@Request-Cancelled-Msg}" to player
+			else:
+				send "{@No-Pending-Request-Msg}" to player
+		else if arg-1 is "accept":
+			arg-2 is set
+			set {_uuid} to arg-2's uuid
+			if {Trade::%{_uuid}%} is not player:
+				send "{@No-Pending-Request-Msg}" to player
+			else:
+				set {Trade::%player's uuid%} to arg-2
+				activateTrade(player, arg-2)
+		else if (arg-1 parsed as player) is online:
+			if (arg-1 parsed as player) is player:
+				send "{@Invalid-Request-Msg}" to player
+				stop
+			set {_uuid} to uuid of (arg-1 parsed as player)
+			if {Trade::%{_uuid}%} is set:
+				send "{@Player-Already-Trading-Msg}" to player
+			else:
+				send "{@Trade-Request-Sent-Msg}" to player
+				set {Trade::%player's uuid%} to arg-1 parsed as player
+				send formatted "{@Trade-Request-Received-Msg}" to {Trade::%player's uuid%}
+
+#Main GUI
+on inventory close:
+	{Trade::%player's uuid%} is set
+	event-inventory is metadata tag "trading" of player
+	set {_slots::*} to 0, 1, 2, 3, 9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47 and 48
+	loop {_slots::*}:
+		give slot loop-value of metadata tag "trading" of player to player
+		give slot loop-value of metadata tag "trading" of {Trade::%player's uuid%} to {Trade::%player's uuid%}
+	send "{@Trade-Cancelled-Msg}" to player
+	set {_p} to {Trade::%player's uuid%}
+	delete {Trade::%player's uuid%::*}
+	delete {Trade::%player's uuid%}
+	delete metadata tag "trading" of player
+	send "{@Trade-Cancelled-Other-Msg}" to {_p}
+	set {_uuid} to {_p}'s uuid
+	delete {Trade::%{_uuid}%::*}
+	delete {Trade::%{_uuid}%}
+	delete metadata tag "trading" of {_p}
+	close inventory of {_p}
+
+on inventory click:
+	{Trade::%player's uuid%} is set
+	player's current inventory is metadata tag "trading" of player
+	cancel event
+	if clicked inventory is not the player's inventory:
+		if {Trading::Slots::*} contains clicked slot:
+			if clicked slot of current inventory don't contain air:
+				add event-slot of current inventory to player's inventory
+				set event-slot of current inventory to air
+				set slot (slot clicked slot + 5) of (metadata tag "trading" of {Trade::%player's uuid%}) to air
+		else if clicked slot is 22:
+			play sound "entity.experience_orb.pickup" to player and {Trade::%player's uuid%}
+			set {_uuid} to uuid of {Trade::%player's uuid%}
+			if {Trade::%{_uuid}%::Confirmed} is true:
+				if uncolored line 2 of lore of {_i} contains "%player%":
+					set {_i} to lime stained glass pane named "&aConfirmation" with lore "", "&3%player%&3: &aConfirmed", "&3%{Trade::%player's uuid%}%&3: &aConfirmed" and ""
+				else:
+					set {_i} to lime stained glass pane named "&aConfirmation" with lore "", "&3%{Trade::%player's uuid%}%&3: &aConfirmed", "&3%player%&3: &aConfirmed" and ""
+				set slot 31 of metadata tag "trading" of player to {_i}
+				set slot 31 of metadata tag "trading" of {Trade::%player's uuid%} to {_i}
+				wait 1 second
+				set {_slots::*} to 0, 1, 2, 3, 9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47 and 48
+				loop {_slots::*}:
+					give slot loop-value of metadata tag "trading" of player to {Trade::%player's uuid%}
+					give slot loop-value of metadata tag "trading" of {Trade::%player's uuid%} to player
+				send "{@Trade-Complete-Msg}" to player and {Trade::%player's uuid%}
+				set {_p} to {Trade::%player's uuid%}
+				delete {Trade::%player's uuid%::*}
+				delete {Trade::%player's uuid%}
+				delete metadata tag "trading" of player
+				set {_uuid} to {_p}'s uuid
+				delete {Trade::%{_uuid}%::*}
+				delete {Trade::%{_uuid}%}
+				delete metadata tag "trading" of {_p}
+				close inventory of {_p} and player
+			else:
+				set {_i} to slot 31 of player's current inventory
+				if {Trade::%player's uuid%::Confirmed} is not set:
+					set {Trade::%player's uuid%::Confirmed} to true
+					if uncolored line 2 of lore of {_i} contains "%player%":
+						set {_i} to orange stained glass pane named "&aConfirmation" with lore "", "&3%player%&3: &aConfirmed", "&3%{Trade::%player's uuid%}%&3: &cPending" and ""
+					else:
+						set {_i} to orange stained glass pane named "&aConfirmation" with lore "", "&3%{Trade::%player's uuid%}%&3: &cPending", "&3%player%&3: &aConfirmed" and ""
+					set slot 31 of metadata tag "trading" of player to {_i}
+					set slot 31 of metadata tag "trading" of {Trade::%player's uuid%} to {_i}
+				else:
+					delete {Trade::%player's uuid%::Confirmed}
+					if uncolored line 2 of lore of {_i} contains "%player%":
+						set {_i} to red stained glass pane named "&aConfirmation" with lore "", "&3%player%&3: &cPending", "&3%{Trade::%player's uuid%}%&3: &cPending" and ""
+					else:
+						set {_i} to red stained glass pane named "&aConfirmation" with lore "", "&3%{Trade::%player's uuid%}%&3: &cPending", "&3%player%&3: &cPending" and ""
+					set slot 31 of metadata tag "trading" of player to {_i}
+					set slot 31 of metadata tag "trading" of {Trade::%player's uuid%} to {_i}
+	else:
+		loop {Trading::Slots::*}:
+			if slot loop-value of current inventory is air:
+				set slot loop-value of current inventory to event-item
+				set slot (loop-value + 5) of (metadata tag "trading" of {Trade::%player's uuid%}) to event-item
+				set clicked slot of clicked inventory to air
+				stop
+		send "{@Max-Slots-Msg}" to player
+
+

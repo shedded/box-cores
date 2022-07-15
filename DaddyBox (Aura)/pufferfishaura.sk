@@ -1,0 +1,31 @@
+on place of horn coral: 
+	cancel event
+	send "&4&lYou cannot place that block"
+
+on place of dead brain coral fan:
+	cancel event
+	send "&4&lYou cannot place that block"
+
+on place of horn coral fan:
+	cancel event
+	send "&4&lYou cannot place that block"
+	
+on place of fire coral fan:
+    cancel event
+    send "&4&lYou cannot place that block"
+	
+on eat of tropical fish:
+	cancel event
+	send "&4&lYou cannot eat that item"
+
+on eat of rotten flesh:
+	cancel event
+	send "&4&lYou cannot eat that item"
+	
+on place of red tulip:
+	cancel event
+	send  "&4&lYou cannot place that item"
+	
+on place of amethyst shard:
+	cancel event
+	send "&4&lYou cannot place that item"

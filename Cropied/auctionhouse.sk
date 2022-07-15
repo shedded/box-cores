@@ -1,0 +1,189 @@
+command /auctionhouse [<text>] [<text>] [<integer>]:
+    permission: admin
+    permission message: &cAuction House is temporarily disabled for maintenance.
+    aliases: /ah
+    trigger:
+        set {_uuid} to uuid of player
+        if arg-1 is not set:
+            auctionHouse(player, 1)
+        else:
+            if arg-2 is "tokens" or "money":
+                set {_slots} to getAuctionSlots(player)
+                set {_size} to 0
+                loop {pauctions::%{_uuid}%::*}:
+                    add 1 to {_size}
+                set {_size} to 0
+                if {_size} < {_slots}:
+                    if arg-3 <= 0:
+                        send "%getPrefix()% That price is invalid!"
+                        playSound(player, "no", 0.75, 1)
+                        stop
+                    if player's tool is air:
+                        send "%getPrefix()% That item is invalid!"
+                        playSound(player, "no", 0.75, 1)
+                        stop
+                    set {_id} to getNextAuctionID()
+                    if arg-2 is "tokens":
+                        set {auctions::%{_id}%::tokens} to arg-3
+                        set {_amount} to "&e%arg-3%&e⭐"
+                    else:
+                        set {auctions::%{_id}%::money} to arg-3
+                        set {_amount} to "&a$%arg-3%"
+                    set {_item} to player's tool
+                    add "%{_id}%" to {auctions::*}
+                    set {auctions::%{_id}%::item} to {_item}
+                    set {auctions::%{_id}%::owner} to player
+                    add "%{_id}%" to {pauctions::%{_uuid}%::*}
+                    remove player's tool from player's tool
+                    set {_titem} to "%{_item}%"
+                    set {_name} to name of {_item} ? "&e%{_titem} in proper case%"
+                    send "%getPrefix()% Successfully put up %{_name}% &ffor sale for %{_amount}%&f!"
+                else:
+                    send "%getPrefix()% You have already used up all your &eAuction Slots %{_slots}%&e/%{_slots}%"
+                stop
+            send "%getPrefix()% /ah sell <tokens | money> <amount>"
+
+command /clearauctions:
+    permission: admin
+    trigger:
+        name of player is "shwendel"
+        delete {auctions::*}
+        delete {pauctions::*}
+
+function auctionHouse(player: player, page: integer):
+    playSound({_player}, "egg", 1, 1)
+    set {_uuid} to uuid of {_player}
+
+    create a gui with virtual chest inventory with 6 rows named "Auctions | Page %{_page}%":
+
+        set {_slot} to 0
+        set {_size} to 0
+        loop {auctions::*}:
+            add 1 to {_size}
+            send "%{_page}%" to {_player}
+            if loop-index >= ({_page} - 1) * 54:
+                if loop-index <= {_page} * 54:
+                    set {_item} to {auctions::%loop-value%::item}
+                    set {_owner} to {auctions::%loop-value%::owner}
+                    if {auctions::%loop-value%::tokens} > 0:
+                        set {_tokens} to {auctions::%loop-value%::tokens}
+                        set {_cost} to "&e%{_tokens}%&e⭐"
+                    else:
+                        set {_money} to {auctions::%loop-value%::money}
+                        set {_cost} to "&a$%{_money}%"
+                    set {_lore::*} to lore of {_item}
+                    add "&8&m--------------------", "", "&fSeller: &e%{_owner}%", "&fCost: %{_cost}%", "", "&8&m--------------------", and "" to {_lore::*}
+                    if {_owner} is {_player}:
+                        add "&8Left-Click to cancel the auction" to {_lore::*}
+                    else:
+                        add "&8Left-Click to purchase this item" to {_lore::*}
+                    set {_pitem} to {auctions::%loop-value%::item}
+                    set {_id} to loop-value
+                    set {_titem} to "%{_item}%"
+                    set {_name} to name of {_item} ? "&e%{_titem} in proper case%"
+                    make gui slot {_slot} with {_item} named "&6Item: %{_name}%" with lore {_lore::*}:
+                        if {_owner} is {_player}:
+                            if {auctions::*} contains "%{_id}%":
+                                remove "%{_id}%" from {pauctions::%{_owner}%::*}
+                                delete {auctions::%{_id}%::*}
+                                remove "%{_id}%" from {auctions::*}
+                                give player {_pitem}
+                                send "%getPrefix()% You received your item back!"
+                                execute player command "/ah"
+                            else:
+                                send "%getPrefix()% Looks like the item was already sold..."
+                                playSound(player, "no", 0.75, 1)
+                                execute player command "/ah"
+                        else:
+                            if {_tokens} > 0:
+                                if getTokens(player) >= {_tokens}:
+                                    if {auctions::*} contains "%{_id}%":
+                                        removeTokens(player, {_tokens})
+                                        addTokens({_owner}, {_tokens})
+                                        playSound({_owner}, "experience", 1, 1)
+                                        send "%getPrefix()% Your %{_name}% was purchased for %{_cost}% by %player%" to {_owner}
+                                        give player {_pitem}
+                                        send "%getPrefix()% You bought %{_name}% for %{_cost}%"
+                                        remove "%{_id}%" from {pauctions::%{_owner}%::*}
+                                        delete {auctions::%{_id}%::*}
+                                        remove "%{_id}%" from {auctions::*}
+                                        execute player command "/ah"
+                                    else:
+                                        send "%getPrefix()% Looks like the item is already sold out..."
+                                        playSound(player, "no", 0.75, 1)
+                                        execute player command "/ah"
+                                else:
+                                    playSound(player, "no", 0.75, 1)
+                                    send "%getPrefix()% You do not have &eenough funds &ffor this transaction!"
+                            else:
+                                if player's balance >= {_money}:
+                                    if {auctions::*} contains "%{_id}%":
+                                        remove {_money} from player's balance
+                                        add {_money} to {_owner}'s balance
+                                        playSound({_owner}, "experience", 1, 1)
+                                        send "%getPrefix()% Your %{_name}% was purchased for %{_cost}% by %player%" to {_owner}
+                                        give player {_pitem}
+                                        send "%getPrefix()% You bought %{_name}% for %{_cost}%"
+                                        remove "%{_id}%" from {pauctions::%{_owner}%::*}
+                                        delete {auctions::%{_id}%::*}
+                                        remove "%{_id}%" from {auctions::*}
+                                        execute player command "/ah"
+                                    else:
+                                        send "%getPrefix()% Looks like the item is already sold out..."
+                                        playSound(player, "no", 0.75, 1)
+                                        execute player command "/ah"
+                                else:
+                                    playSound(player, "no", 0.75, 1)
+                                    send "%getPrefix()% You do not have &eenough funds &ffor this transaction!"
+                            
+                    delete {_lore::*}
+                    add 1 to {_slot}
+                
+
+        if 54 * {_page} <= {_size}:
+            make gui slot 52 with arrow named "&e&lNEXT PAGE" with lore "&fClick to go to the &eNext Page&f!":
+                set {_next} to {_page} + 1
+                auctionHouse({_player}, {_next}) 
+
+        if {_page} > 1:
+            make gui slot 46 with arrow named "&e&lLAST PAGE" with lore "&fClick to go to the &eLast Page&f!":
+                set {_next} to {_page} - 1
+                auctionHouse({_player}, {_next}) 
+
+        make gui slot 51 with gold ingot named "&e&lSELL ITEM" with lore "&eLeft-Click &fto sell your &eHeld Item":
+            playSound({_player}, "experience", 1, 1.25)
+            close player's inventory
+            send ""
+            send "&e&lSell Item"
+            send ""
+            send "What currency would you like to sell &eyour item &ffor?"
+            send ""
+            send formatted "<suggest command:/ah sell tokens [your amount]>  &eTokens ⭐ &7(Click to select)<reset>"
+            send formatted "<suggest command:/ah sell money [your amount]>  &aMoney $ &7(Click to select)<reset>"
+            send ""
+    open last gui to {_player}
+
+function getAuctionSlots(player: player) :: integer:
+    if {_player} has permission "cropiedplusplus":
+        return 10
+    else if {_player} has permission "cropiedplus": 
+        return 7
+    else if {_player} has permission "cropied": 
+        return 5
+    else if {_player} has permission "emerald":
+        return 4 
+    else if {_player} has permission "diamond": 
+        return 3
+    else if {_player} has permission "gold": 
+        return 2
+    else if {_player} has permission "iron": 
+        return 2
+    else if {_player} has permission "coal": 
+        return 1
+    return 1
+
+function getNextAuctionID() :: integer:
+    if {auctions} is not set:
+        set {auctions} to 1
+    add 1 to {auctions}
+    return {auctions}

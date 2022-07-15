@@ -1,0 +1,10 @@
+function makeHead(nbt: text) :: item:
+	return player head item with nbt "{SkullOwner:{Id:""12f078a0-481e-45ca-81a2-da13355f6979"",Properties:{textures:[{Value:""%{_nbt}%""}]}}}"
+
+function formatNumber(n: number) :: text:
+    set {_data} to "Nn,30|Ot,27|St,24|S,21|Qt,18|Q,15|T,12|B,9|M,6|k,3"
+    loop split {_data} at "|":
+        set {_s::*} to split loop-value at ","
+        {_n} >= 10 ^ {_s::2} parsed as number
+        return "%{_n} / 10 ^ {_s::2} parsed as number%%{_s::1}%"
+    return "%{_n}%"

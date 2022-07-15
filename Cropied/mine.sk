@@ -1,0 +1,295 @@
+ 
+options:
+    coalOre: coal ore named "&eCoal Ore" with lore "&7&lCOMMON"
+    ironOre: iron ore named "&eIron Ore" with lore "&7&lCOMMON"
+    goldOre: gold ore named "&eGold Ore" with lore "&b&lRARE"
+    diamondOre: diamond ore named "&eDiamond Ore" with lore "&d&lEPIC"
+    emeraldOre: emerald ore named "&eEmerald Ore" with lore "&e&lLEGENDARY"
+    redstoneOre: redstone ore named "&eRedstone Ore" with lore "&a&lEXOTIC"
+
+on respawn:
+	teleport player to spawn of world "spawn"
+	
+command /pick [<player = %sender%>]:
+	trigger:
+		arg-1 is not sender:
+			sender don't have permission "admin":
+				stop
+		set {_pick} to 1 of unbreakable diamond pickaxe named "&e&lORE CRUSHER" with lore "&8¬ &fEfficiency 1", "&8¬ &fOreGrabber 1", "&8¬ &fTokenGrabber 1", "&8¬ &fKeyGrabber 1", "", and "&8Right-Click to upgrade" with all flags hidden
+		enchant {_pick} with efficiency 1
+		enchant {_pick} with unbreaking 1
+		enchant {_pick} with protection 1
+		enchant {_pick} with thorns 1
+		give arg-1 1 of {_pick}
+		send "%getPrefix()% You were given 1x Ore Crusher!" to arg-1
+		playSound(sender, "level", 1, 1.25)
+
+on rightclick:
+
+	name of player's tool is "&e&lORE CRUSHER"
+
+	create a gui with virtual chest inventory with 3 rows named "Ore Crusher":
+
+		set {_efficiency} to level of efficiency on player's tool 
+		set {_oregrabber} to level of unbreaking on player's tool
+		set {_tokengrabber} to level of protection on player's tool
+		set {_keygrabber} to level of thorns on player's tool
+
+		set {_cost} to "%{_efficiency} * 1000%" parsed as an integer
+		make gui slot 10 with golden pickaxe named "&e&lEFFICIENCY" with lore "&fCost: &e%{_cost}%⭐", "&fLevel: &e%{_efficiency}%&e/5", "", and "&8Left-Click to enchant your Pickaxe":
+			player is holding a pickaxe
+			if {_efficiency} is 5:
+				send "%getPrefix()% Max level"
+				playSound(player, "no", 1, 1)
+				stop
+			if getTokens(player) < {_cost}:
+				send "%getPrefix()% Not enough Tokens! Earn Tokens from Crates or Mining."
+				playSound(player, "no", 1, 1)
+				stop
+			removeTokens(player, {_cost})
+			send "%getPrefix()% Efficiency was upgraded!"
+			playSound(player, "experience", 1, 1)
+			set {_efficiency} to {_efficiency} + 1
+			set {_enchant} to "Efficiency %{_efficiency}%" parsed as enchantment type
+			enchant player's tool with {_enchant}
+			set line 1 of lore of player's tool to "&8¬ &fEfficiency %{_efficiency}%"
+
+			close player's inventory
+
+		set {_cost} to "%{_oregrabber} * 7500%" parsed as an integer
+		make gui slot 12 with diamond ore named "&e&lOREGRABBER" with lore "&fCost: &e%{_cost}%⭐", "&fLevel: &e%{_oregrabber}%&e/3", "", and "&8Left-Click to enchant your Pickaxe":
+			player is holding a pickaxe
+			if {_oregrabber} is 3:
+				send "%getPrefix()% Max level"
+				playSound(player, "no", 1, 1)
+				stop
+			if getTokens(player) < {_cost}:
+				send "%getPrefix()% Not enough Tokens! Earn Tokens from Crates or Mining."
+				playSound(player, "no", 1, 1)
+				stop
+			removeTokens(player, {_cost})
+			send "%getPrefix()% OreGrabber was upgraded!"
+			playSound(player, "experience", 1, 1)
+			
+			set {_oregrabber} to {_oregrabber} + 1
+			set {_enchant} to "Unbreaking %{_oregrabber}%" parsed as enchantment type
+			enchant player's tool with {_enchant}
+			set line 2 of lore of player's tool to "&8¬ &fOreGrabber %{_oregrabber}%"
+
+			close player's inventory
+
+		set {_cost} to "%{_tokengrabber} * 4000%" parsed as an integer
+		make gui slot 14 with nether star named "&e&lTOKENGRABBER" with lore "&fCost: &e%{_cost}%⭐", "&fLevel: &e%{_tokengrabber}%&e/3", "", and "&8Left-Click to enchant your Pickaxe":
+			player is holding a pickaxe
+			if {_tokengrabber} is 3:
+				send "%getPrefix()% Max level"
+				playSound(player, "no", 1, 1)
+				stop
+			if getTokens(player) < {_cost}:
+				send "%getPrefix()% Not enough Tokens! Earn Tokens from Crates or Mining."
+				playSound(player, "no", 1, 1)
+				stop
+			removeTokens(player, {_cost})
+			send "%getPrefix()% TokenGrabber was upgraded!"
+			playSound(player, "experience", 1, 1)
+			
+			set {_tokengrabber} to {_tokengrabber} + 1
+			set {_enchant} to "Protection %{_tokengrabber}%" parsed as enchantment type
+			enchant player's tool with {_enchant}
+			set line 3 of lore of player's tool to "&8¬ &fTokenGrabber %{_tokengrabber}%"
+
+			close player's inventory
+
+		set {_cost} to "%{_keygrabber} * 3500%" parsed as an integer
+		make gui slot 16 with tripwire hook named "&e&lKEYGRABBER" with lore "&fCost: &e%{_cost}%⭐", "&fLevel: &e%{_keygrabber}%&e/5", "", and "&8Left-Click to enchant your Pickaxe":
+			player is holding a pickaxe
+			if {_keygrabber} is 5:
+				send "%getPrefix()% Max level"
+				playSound(player, "no", 1, 1)
+				stop
+			if getTokens(player) < {_cost}:
+				send "%getPrefix()% Not enough Tokens! Earn Tokens from Crates or Mining."
+				playSound(player, "no", 1, 1)
+				stop
+			removeTokens(player, {_cost})
+			send "%getPrefix()% KeyGrabber was upgraded!"
+			playSound(player, "experience", 1, 1)
+			
+			set {_keygrabber} to {_keygrabber} + 1
+			set {_enchant} to "Thorns %{_keygrabber}%" parsed as enchantment type
+			enchant player's tool with {_enchant}
+			set line 4 of lore of player's tool to "&8¬ &fKeyGrabber %{_keygrabber}%"
+
+			close player's inventory
+	open last gui to player
+
+on load:
+	loop {ore::coal ore::*}:
+		set block at loop-value to coal ore
+		remove {ore::coal ore::%loop-value%} from {ore::coal ore::*}
+	loop {ore::iron ore::*}:
+		set block at loop-value to iron ore
+		remove {ore::iron ore::%loop-value%} from {ore::iron ore::*}
+	loop {ore::gold ore::*}:
+		set block at loop-value to gold ore
+		remove {ore::gold ore::%loop-value%} from {ore::gold ore::*}
+	loop {ore::diamond ore::*}:
+		set block at loop-value to diamond ore
+		remove {ore::diamond ore::%loop-value%} from {ore::diamond ore::*}
+	loop {ore::emerald ore::*}:
+		set block at loop-value to emerald ore
+		remove {ore::emerald ore::%loop-value%} from {ore::emerald ore::*}
+	loop {ore::redstone ore::*}:
+		set block at loop-value to redstone ore
+		remove {ore::redstone ore::%loop-value%} from {ore::redstone ore::*}
+
+on any movement:
+	"%region at player%" contains "mine"
+	player does not have permission "staff"
+	set player's flight mode to false where [player is a player]
+
+
+
+on block break:
+	if "%region at player%" contains "mine":
+		cancel drops
+
+		if {minedBefore::%player%} is not set:
+			send ""
+			send "&e&lThe Mine"
+			send ""
+			send "Welcome to the &eMine&f! You can &emine Ores &fto gain &eTokens & Ores&f!"
+			send "Each Ore mined has &ea small chance &fto give you the Ore."
+			send "Use Ores in &e/forge &fto gain items!"
+			send ""
+			send "&8Here's a Small Gift from us. You can use this in '/forge' Good luck in Mining!"
+			give player 15 of {@coalOre}
+			give player 10 of {@ironOre}
+			give player 5 of {@goldOre}
+			set {minedBefore::%player%} to true
+			playSound(player, "chest", 0.75, 0.9)
+		event-block is not coal ore or iron ore or gold ore or diamond ore or emerald ore or redstone ore:
+			cancel event
+			stop
+
+		set yaml value "Mined" of "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Mined" of "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+		set {_oregrabber} to level of unbreaking on player's tool
+		set {_tokengrabber} to level of protection on player's tool
+		set {_keygrabber} to level of thorns on player's tool
+
+		loop {totems::%player%::*}:
+			set {_totem} to "%loop-value%"
+			set {_totemsplit::*} to split {_totem} at "named "
+			set {_totem} to uncolored {_totemsplit::2}
+			if {_totem} contains "ORE":
+				add getTotemValue(loop-value) to {_oregrabber}
+			else if {_totem} contains "TOKEN":
+				add getTotemValue(loop-value) to {_tokengrabber}
+			else if {_totem} contains "KEY":
+				add getTotemValue(loop-value) to {_keygrabber}
+
+		chance of ({_keygrabber} + ({purchased::Mine::%player's uuid%} ? 0)) * 1.75%:
+			set {_random} to random integer between 1 and 10000
+			if {_random} <= 5000:
+				make console execute command "/givekey %player% rare 1"
+			else if {_random} <= 8000:
+				make console execute command "/givekey %player% mythic 1"
+			else if {_random} <= 9900:
+				make console execute command "/givekey %player% legend 1"
+			else if {_random} <= 9995:
+				make console execute command "/givekey %player% ore 1"
+			else:
+				make console execute command "/givekey %player% exotic 1"
+			playSound(player, "chest", 0.75, 1.25)
+
+		if event-block is coal ore:
+			chance of (15 + ({_oregrabber} + ({purchased::Mine::%player's uuid%} ? 0)))%:
+				give player 1 of {@coalOre}
+				send "%getPrefix()% You found &61x Coal Ore&f!"
+				playSound(player, "chest", 0.75, 1)
+			set event-block to stone
+			set {_tokens} to random integer between (2 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0))) and (3 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0)))
+			addTokens(player, {_tokens})
+			send action bar "&e+%{_tokens}%⭐" to player
+			add location of event-block to {ore::coal ore::*}
+			wait 30 seconds
+			set event-block to coal ore
+			remove location of event-block from {ore::coal ore::*}
+		else if event-block is iron ore:
+			chance of (10 + ({_oregrabber} + ({purchased::Mine::%player's uuid%} ? 0) * 0.75))%:
+				give player 1 of {@ironOre}
+				send "%getPrefix()% You found &61x Iron Ore&f!"
+				playSound(player, "chest", 0.75, 1)
+			set event-block to stone
+			set {_tokens} to random integer between (4 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0))) and (5 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0)))
+			addTokens(player, {_tokens})
+			send action bar "&e+%{_tokens}%⭐" to player
+			add location of event-block to {ore::iron ore::*}
+			wait 30 seconds
+			set event-block to iron ore
+			remove location of event-block from {ore::iron ore::*}
+		else if event-block is gold ore:
+			chance of (8 + (({_oregrabber} + ({purchased::Mine::%player's uuid%} ? 0)) * 0.5))%:
+				give player 1 of {@goldOre}
+				send "%getPrefix()% You found &61x Gold Ore&f!"
+				playSound(player, "chest", 0.75, 1)
+			set event-block to stone
+			set {_tokens} to random integer between (5 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0))) and (7 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0)))
+			addTokens(player, {_tokens})
+			send action bar "&e+%{_tokens}%⭐" to player
+			add location of event-block to {ore::gold ore::*}
+			wait 30 seconds
+			set event-block to gold ore
+			remove location of event-block from {ore::gold ore::*}
+		else if event-block is diamond ore:
+			chance of (5 + (({_oregrabber} + ({purchased::Mine::%player's uuid%} ? 0)) * 0.35))%:
+				give player 1 of {@diamondOre}
+				send "%getPrefix()% You found &61x Diamond Ore&f!"
+				playSound(player, "chest", 0.75, 1)
+			set event-block to stone
+			set {_tokens} to random integer between (7 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0))) and (10 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0)))
+			addTokens(player, {_tokens})
+			send action bar "&e+%{_tokens}%⭐" to player
+			add location of event-block to {ore::diamond ore::*}
+			wait 30 seconds
+			set event-block to diamond ore
+			remove location of event-block from {ore::diamond ore::*}
+		else if event-block is emerald ore:
+			chance of (2 + (({_oregrabber} + ({purchased::Mine::%player's uuid%} ? 0)) * 0.25))%:
+				give player 1 of {@emeraldOre}
+				send "%getPrefix()% You found &61x Emerald Ore&f!"
+				playSound(player, "chest", 0.75, 1)
+			set event-block to stone
+			set {_tokens} to random integer between (11 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0))) and (14 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0)))
+			addTokens(player, {_tokens})
+			send action bar "&e+%{_tokens}%⭐" to player
+			add location of event-block to {ore::emerald ore::*}
+			wait 30 seconds
+			set event-block to emerald ore
+			remove location of event-block from {ore::emerald ore::*}
+		else if event-block is redstone ore:
+			chance of (1 + (({_oregrabber} + ({purchased::Mine::%player's uuid%} ? 0)) * 0.15))%:
+				give player 1 of {@redstoneOre}
+				send "%getPrefix()% You found &61x Redstone Ore&f!"
+				playSound(player, "chest", 0.75, 1)
+			set event-block to stone
+			set {_tokens} to random integer between (16 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0))) and (21 + ({_tokengrabber} + ({purchased::Mine::%player's uuid%} ? 0)))
+			addTokens(player, {_tokens})
+			send action bar "&e+%{_tokens}%⭐" to player
+			add location of event-block to {ore::redstone ore::*}
+			wait 30 seconds
+			set event-block to redstone ore
+			remove location of event-block from {ore::redstone ore::*}
+		else:
+			if player does not have permission "admin":
+				cancel event
+
+on place of coal ore or iron ore or gold ore or diamond ore or emerald ore or redstone ore:
+	player don't have permission "admin"
+	cancel event
+
+on mine of coal ore or iron ore or gold ore or diamond ore or emerald ore or redstone ore:
+	player don't have permission "admin"
+	"%region at player%" contains "mine":
+		stop
+	cancel event

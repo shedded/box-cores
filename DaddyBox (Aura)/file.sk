@@ -1,0 +1,4 @@
+command /ranks: 
+	aliases: /ranks, /KyleIsCool
+	trigger:
+		execute console command "sudo %player% buy" 

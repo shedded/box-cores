@@ -1,0 +1,140 @@
+# ⛃
+# token bonk gen
+
+# formatting function
+
+function a(b: text) :: text:
+    if length of {_b} > 3:
+        return "%a(first length of {_b} - 3 characters of {_b})%,%last 3 characters of {_b}%"
+    return {_b}
+
+
+on join:
+    if {tokencap::%uuid of player%} is not set:
+        add 1 to {tokencurrent::%uuid of player%}
+        set {tokencap::%uuid of player%} to 50
+        send "&aYour Token Generator has been set to &f1 Token &aper minute!" to player
+        send "&a&lThis can be upgraded using in-game money via /tokengens!" to player
+        set {tokenbal::%uuid of player%} to 1
+
+on join:
+    while player is online:
+        wait 60 seconds
+        add {tokencurrent::%uuid of player%} to {tokenbal::%uuid of player%}
+        #send "added %{tokencap::%uuid of player%}%"
+
+
+
+
+function increasecap(p: player, am: integer):
+    set {_uid} to uuid of {_p}
+    add {_am} to {tokencap::%{_uid}%}
+
+function increaserate(p: player, am: integer):
+    set {_uid} to uuid of {_p}
+    add {_am} to {tokencurrent::%{_uid}%}
+
+function upgrade(p: player):
+    set {_uid} to uuid of {_p}
+    set {_cap} to {tokencurrent::%{_uid}%}
+    if {_cap} is more than or equal to {tokencap::%{_uid}%}:
+        send "&cToken Cap can only be increased on the store." to {_p}
+        play sound "entity.villager.no" with volume 1 to {_p}
+    else:
+        set {_cost} to upgradeCost({_p})
+        if {_p}'s balance is more than or equal to {_cost}:
+            remove {_cost} from {_p}'s balance
+            add 1 to {tokencurrent::%{_uid}%}
+            send "&aYou have upgraded your Token Generation rate to &f&l%{tokencurrent::%{_uid}%}%⭐/min" to {_p}
+            if {tokencurrent::%{_uid}%} is greater than 49:
+                send "&aTo upgrade your Token Cap further, <link:https://cropied.tebex.io/>&lhead on over to the store." to {_p}
+        else:
+            send "&cOof, you don't have enough money!" to {_p}
+            play sound "entity.villager.no" with volume 1 to {_p}
+
+function upgradeCost(p: player) :: integer:
+    set {_uid} to uuid of {_p}
+    set {_cap} to {tokencurrent::%{_uid}%}
+    if {_cap} is more than or equal to 100:
+        set {_cost} to 1
+    else:
+        if {_cap} is between 1 and 9:
+            set {_cost} to 10000000
+        else if {_cap} is between 10 and 19:
+            set {_cost} to 50000000
+        else if {_cap} is between 20 and 29:
+            set {_cost} to 100000000
+        else if {_cap} is between 30 and 39:
+            set {_cost} to 250000000
+        else if {_cap} is between 40 and 44:
+            set {_cost} to 500000000
+        else if {_cap} is greater than or equal to 45:
+            set {_cost} to 1000000000
+        if {_cap} is greater than or equal to {tokencap::%{_uid}%}:
+            set {_cost} to 0
+    return {_cost}
+
+function claimtokens(p: player):
+    set {_uid} to uuid of {_p}
+    if {tokenbal::%{_uid}%} is greater than 0:
+        addTokens({_p}, {tokenbal::%{_uid}%})
+        send "&aYou have claimed &f%{tokenbal::%{_uid}%}% Tokens&a." to {_p}
+        playSound({_p}, "entity_experience_orb_pickup", 1, 1.25)
+        set {tokenbal::%{_uid}%} to 0
+    else:
+        send "&cYou have no tokens to claim!" to {_p}
+        #play "entity.villager.no" to {_p} at volume 10
+        play sound "entity.villager.no" with volume 1 to {_p}
+
+
+command /tokengens [<text>] [<offline player>] [<integer>]:
+    trigger:
+        if arg-1 is "increasecap":
+            if arg-2 is set:
+                if arg-3 is set:
+                    if sender has the permission "*":
+                        increasecap(arg-2, arg-3)
+                    else:
+                        send "&cno" to player
+                else:
+                    send "&c/tokengens increasecap <player> <integer>" to player
+            else:
+                send "&c/tokengens increasecap <player> <integer>" to player
+        else if arg-1 is "increaserate":
+            if arg-2 is set:
+                if arg-3 is set:
+                    if sender has the permission "*":
+                        increaserate(arg-2, arg-3)
+                    else:
+                        send "&cno" to player
+                else:
+                    send "&c/tokengens increaserate <player> <integer>" to player
+            else:
+                send "&c/tokengens increaserate <player> <integer>" to player
+        else:
+            set {_cost} to upgradeCost(player)
+            set {_bal} to a("%{tokenbal::%uuid of player%}%")
+            set {_cap} to {tokencurrent::%uuid of player%}
+            if {_cost} is 1:
+                add "&fUpgrade To Rate: &cMaxed" to {_upgradelore::*}
+                add "&fUpgrade Cost: &cMaxed" to {_upgradelore::*}
+            else if {_cost} is not 0:
+                set {_cost} to a("%{_cost}%")
+                set {_cost} to "$%{_cost}%"
+                add "&fUpgrade To Rate: &a%{_cap} + 1%" to {_upgradelore::*}
+                add "&fUpgrade Cost: &a%{_cost}%" to {_upgradelore::*}
+            else:
+                add "&fUpgrade Cost: &c/buy" to {_upgradelore::*}
+                add "&fUpgrade to Cap: &a%{_cap} + 1%" to {_upgradelore::*}
+            create a gui with virtual hopper inventory with 1 rows named "Token Generator (✫%{_cap}%/min)":
+                make gui slot 1 with 1 of glowing sunflower named "&a&lClaim Tokens &f(✫%{_bal}%)" with lore "&fClick to claim tokens.":
+                    claimtokens(player)
+                    close player's inventory
+                #make gui slot 1 with 1 of book named "&a&lCurrent Token Gen" with lore "&f%{_cap}%⛃/min" and "&a%{_bal}%⛃ &fclaimable."
+                make gui slot 3 with 1 of anvil named "&aUpgrade your Gen" with lore {_upgradelore::*} and "&7Click to upgrade.":
+                    upgrade(player)
+                    close player's inventory
+                    make player execute command "/tokengens"
+            open last gui to player
+
+

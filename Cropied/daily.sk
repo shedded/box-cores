@@ -1,0 +1,132 @@
+Options:
+	Prefix: &6[Cropied]
+
+on join: 
+	if {dailystreak::%player's uuid%} is not set:
+		set {dailystreak::%player's uuid%} to 1
+	if {dailystreak::lastclaimed::%player's uuid%} is not set:
+		set {dailystreak::lastclaimed::%player's uuid%} to now
+		remove 24 hours from {dailystreak::lastclaimed::%player's uuid%}
+
+command /fixdaily:
+	trigger:
+		if {dailystreak::%player's uuid%} is 1:
+			set {dailystreak::lastclaimed::%player's uuid%} to now
+			remove 24 hours from {dailystreak::lastclaimed::%player's uuid%}
+			send "{@Prefix} &fFixed reward:: /dr"
+		else:
+			send "&cNull."	
+
+# DAILY REWARDS
+
+function dailyGUI(player: player):
+	set {_uuid} to uuid of {_player}
+	if {dailystreak::%{_uuid}%} is not set:
+		set {dailystreak::%{_uuid}%} to 1
+	if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is greater than 48 hours:
+		set {dailystreak::%{_uuid}%} to 1
+		set {dailystreak::lastclaimed::%{_uuid}%} to now
+		remove 24 hours from {dailystreak::lastclaimed::%{_uuid}%}
+
+	create a gui with virtual chest inventory with size 3 named "&e&lDAILY REWARDS":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black glass pane 
+		set {_time} to {dailystreak::lastclaimed::%{_uuid}%}
+		add 24 hours to {_time}
+		
+# 1
+		if {dailystreak::%{_uuid}%} is 1:
+			make gui slot 10 with glowing green glass pane named "&a&lDay 1" with lore "&dReady to claim!" and "&aReward: 2500x Tokens":
+				claimDaily({_player}, 1)
+		else:
+			make gui slot 10 with red glass pane named "&a&lDay 1" with lore "&cNot Ready to claim!" and "&aReward: 2500x Tokens" 
+
+# 2
+		if {dailystreak::%{_uuid}%} is 2:
+			if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is between 24 hours and 48 hours:
+				make gui slot 11 with glowing green glass pane named "&a&lDay 2" with lore "&dReady to claim!" and "&aReward: 15x Legend Key":
+					claimDaily({_player}, 2)
+			else:
+				make gui slot 11 with glowing green glass pane named "&a&lDay 2" with lore "&cClaimable in %difference between now and {_time}%" and "&aReward: 15x Legend Key" 
+		else:
+			make gui slot 11 with red glass pane named "&a&lDay 2" with lore "&cNot Ready to claim!" and "&aReward: 15x Legend Key" 
+
+# 3
+		if {dailystreak::%{_uuid}%} is 3:
+			if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is between 24 hours and 48 hours:
+				make gui slot 12 with glowing green glass pane named "&a&lDay 3" with lore "&dReady to claim!" and "&aReward: +0.1x Sell Booster":
+					claimDaily({_player}, 3)
+			else:
+				make gui slot 12 with glowing green glass pane named "&a&lDay 3" with lore "&cClaimable in %difference between now and {_time}%" and "&aReward: +0.1x Sell Booster" 
+		else:
+			make gui slot 12 with red glass pane named "&a&lDay 3" with lore "&cNot Ready to claim!" and "&aReward: +0.1x Sell Booster" 
+
+# 4
+		if {dailystreak::%{_uuid}%} is 4:
+			if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is between 24 hours and 48 hours:
+				make gui slot 13 with glowing green glass pane named "&a&lDay 4" with lore "&dReady to claim!" and "&aReward: 5000x Tokens":
+					claimDaily({_player}, 4)
+			else:
+				make gui slot 13 with glowing green glass pane named "&a&lDay 4" with lore "&cClaimable in %difference between now and {_time}%" and "&aReward: 5000x Tokens" 
+		else:
+			make gui slot 13 with red glass pane named "&a&lDay 4" with lore "&cNot Ready to claim!" and "&aReward: 5000x Tokens" 
+
+# 5
+		if {dailystreak::%{_uuid}%} is 5:
+			if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is between 24 hours and 48 hours:
+				make gui slot 14 with glowing green glass pane named "&a&lDay 5" with lore "&dReady to claim!" and "&aReward: 1.5x Personal Sell Booster (1 Hour)":
+					claimDaily({_player}, 5)
+			else:
+				make gui slot 14 with glowing green glass pane named "&a&lDay 5" with lore "&cClaimable in %difference between now and {_time}%" and "&aReward: 1.5x Personal Sell Booster (1 Hour)" 
+		else:
+			make gui slot 14 with red glass pane named "&a&lDay 5" with lore "&cNot Ready to claim!" and "&aReward: 1.5x Personal Sell Booster (1 Hour)" 
+
+# 6
+		if {dailystreak::%{_uuid}%} is 6:
+			if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is between 24 hours and 48 hours:
+				make gui slot 15 with glowing green glass pane named "&a&lDay 6" with lore "&dReady to claim!" and "&aReward: 1 Exotic Crate Key":
+					claimDaily({_player}, 6)
+			else:
+				make gui slot 15 with glowing green glass pane named "&a&lDay 6" with lore "&cClaimable in %difference between now and {_time}%" and "&aReward: 1 Exotic Crate Key" 
+		else:
+			make gui slot 15 with red glass pane named "&a&lDay 6" with lore "&cNot Ready to claim!" and "&aReward: 1 Exotic Crate Key" 
+
+# 7
+		if {dailystreak::%{_uuid}%} is 7:
+			if difference between {dailystreak::lastclaimed::%{_uuid}%} and now is between 24 hours and 48 hours:
+				make gui slot 16 with glowing green glass pane named "&a&lDay 7" with lore "&dReady to claim!" and "&aReward: Cropied Crate":
+					claimDaily({_player}, 7)
+			else:
+				make gui slot 16 with glowing green glass pane named "&a&lDay 7" with lore "&cClaimable in %difference between now and {_time}%" and "&aReward: Cropied Crate" 
+		else:
+			make gui slot 16 with red glass pane named "&a&lDay 7" with lore "&cNot Ready to claim!" and "&aReward: Cropied Crate" 
+	open last gui to {_player}
+	
+function claimDaily(player: player, day: integer):
+	set {_uuid} to uuid of {_player}
+	if {_day} is 1:
+		make console execute command "/tokens add %{_player}% 2500"
+	else if {_day} is 2:
+		make console execute command "/givekey %{_player}% legend 15"
+	else if {_day} is 3:
+		add 0.1 to {addmulti::%{_player}%}
+	else if {_day} is 4:
+		make console execute command "/tokens add %{_player}% 5000"
+	else if {_day} is 5:
+		make console execute command "/personalbooster %{_player}% 1.5"
+	else if {_day} is 6:
+		make console execute command "/givekey %{_player}% exotic 1"
+	else if {_day} is 7:
+		make console execute command "/mc give %{_player}% cropied 1" 
+	send "{@Prefix} &aReward claimed!" to {_player}
+	if {dailystreak::%{_uuid}%} is 7:
+		set {dailystreak::%{_uuid}%} to 1
+	else:
+		add 1 to {dailystreak::%{_uuid}%}
+	set {dailystreak::lastclaimed::%{_uuid}%} to now
+	close {_player}'s inventory
+	
+command /dailyrewards:
+	aliases: dr, daily, claim
+	trigger:
+		dailyGUI(player)

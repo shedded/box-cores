@@ -1,0 +1,44 @@
+options:
+	unlocked: &a&lUNLOCKED
+	locked: &c&lLOCKED
+
+command /badge:
+	aliases: /badges, /b
+	trigger:
+		create a gui with virtual chest inventory with 3 rows named "&e&lBadges":
+			loop 27 times:
+				make gui slot (loop-value - 1) with black stained glass pane named "&7"
+			make gui slot 13 with gray dye named "&eNo Badge" with lore "&fClick to select" and "&a&lUNLOCKED":
+				send "&6[Cropied] &fNo badge selected"
+				set {badge::%player%} to ""
+			if player has permission "badge.supporter":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 11 with red dye named "&eSupporter Badge" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "badge.supporter":
+					send "&6[Cropied] &fSupporter badge selected"
+					set {badge::%player%} to "&c❤ "
+				else:
+					send "&6[Cropied] &fBuy at &6cropied.tebex.io"
+			if player has permission "badge.star":
+				set {_status} to "&a&lUNLOCKED"
+			else:
+				set {_status} to "&c&lLOCKED"
+			make gui slot 15 with glowstone named "&eStar Badge" with lore "&fClick to select" and "%{_status}%":
+				if player has permission "badge.star":
+					send "&6[Cropied] &fStar badge selected"
+					set {badge::%player%} to "&e⭐ "
+				else:
+					send "&6[Cropied] &fEarn from obtaining &eLevel 265"
+			open last gui to player
+		
+function getBadge(player: player) :: text:
+	if {badge::%{_player}%} is not set:
+		return ""
+	return {badge::%{_player}%}
+
+command /resetbadge <player>:
+	permission: admin
+	trigger:
+		set {badge::%arg-1%} to ""

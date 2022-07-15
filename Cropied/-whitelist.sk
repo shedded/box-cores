@@ -1,0 +1,2 @@
+on load:
+	make console execute command "/whitelist on"

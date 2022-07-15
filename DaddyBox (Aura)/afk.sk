@@ -1,0 +1,4 @@
+on region enter:
+  wait 12000 ticks
+  if "%region at player%" contains "afk":
+    execute console command "goldencrates givekey %player% afk 1"

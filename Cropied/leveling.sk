@@ -1,0 +1,194 @@
+options:
+	prefix: %getPrefix()%
+	wheatItem: hay bale named "&eWheat Generator" with lore "&7Output: &e$5" and "&7Tier: &e1"
+	melonItem: melon block named "&eMelon Generator" with lore "&7Output: &e$10" and "&7Tier: &e2"
+	pumpkinItem: pumpkin named "&ePumpkin Generator" with lore "&7Output: &e$20" and "&7Tier: &e3"
+	coalItem: coal block named "&eCoal Generator" with lore "&7Output: &e$35" and "&7Tier: &e4"
+	ironItem: iron block named "&eIron Generator" with lore "&7Output: &e$50" and "&7Tier: &e5"
+	goldItem: gold block named "&eGold Generator" with lore "&7Output: &e$75" and "&7Tier: &e6"
+	redstoneItem: redstone block named "&eRedstone Generator" with lore "&7Output: &e$100" and "&7Tier: &e7"
+	lapisItem: lapis block named "&eLapis Generator" with lore "&7Output: &e$150" and "&7Tier: &e8"
+	diamondItem: diamond block named "&eDiamond Generator" with lore "&7Output: &e$200" and "&7Tier: &e9"
+	emeraldItem: emerald block named "&eEmerald Generator" with lore "&7Output: &e$250" and "&7Tier: &e10"
+	magmaItem: magma block named "&eMagma Generator" with lore "&7Output: &e$300" and "&7Tier: &e11"
+	obsidianItem: obsidian named "&eObsidian Generator" with lore "&7Output: &e$400" and "&7Tier: &e12"
+	netheriteItem: netherite block named "&eNetherite Generator" with lore "&7Output: &e$500" and "&7Tier: &e13"
+	starItem: beacon named "&eStar Generator" with lore "&7Output: &e$750" and "&7Tier: &e14"
+	abyssItem: crying obsidian named "&eAbyss Generator" with lore "&7Output: &e$1000" and "&7Tier: &e15"
+
+
+function isDivisible(level: integer, divisible: integer) :: boolean:
+	set {_mod} to mod({_level}, {_divisible})
+	if {_mod} is equal to 0:
+		return true
+	return false
+
+command /level:
+	trigger:
+		set {_uid} to uuid of player
+		set {_level} to yaml value "Level.Current" from "plugins/Gens/playerdata/%{_uid}%.yml"
+		set {_xp} to yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml"
+		add 1 to {_level}
+		set {_needed} to xpNeeded({_level})
+		remove 1 from {_level}
+		set {_percentage} to {_xp} / {_needed} * 100
+		send "%getPrefix()% You are &eLevel %{_level}% &7(%{_xp}%&7/%{_needed}%&7) &8%{_percentage}%&8%%"
+
+command /setlevel <offline player> <integer>:
+	permission: admin
+	trigger:
+		set {_uid} to uuid of arg-1
+		set yaml value "Level.Current" from "plugins/Gens/playerdata/%{_uid}%.yml" to arg-2
+
+command /setxp <offline player> <integer>:
+	permission: admin
+	trigger:
+		set {_uid} to uuid of arg-1
+		set yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml" to arg-2
+
+function xpNeeded(level: integer) :: integer:
+	return round({_level}*25*2^(({_level}/10+1)/2))
+
+#function itemCheck(item: item, inventory: inventory) :: number:
+  #  set {_amount} to amount of {_item} in {_inventory}
+  #  remove {_amount} of {_item} from {_inventory}
+  #  return  {_amount}
+
+function itemCheck(item: item, inventory: inventory) :: number:
+	if "%{_item}%" contains "&eCompacted":
+		if "%{_item}%" don't contain "carrot" or "pumpkins":
+			set {_item} to {_item} named "&eCompacted %type of {_item}%"
+			set {_amount} to amount of {_item} in {_inventory}
+			remove {_amount} of {_item} from {_inventory}
+			return {_amount} * 32
+		else:
+			set {_amount} to amount of {_item} in {_inventory}
+			remove {_amount} of {_item} from {_inventory}
+			return  {_amount}
+	else:		
+		set {_amount} to amount of {_item} in {_inventory}
+		remove {_amount} of {_item} from {_inventory}
+		return  {_amount}
+
+function checkLevel(player: player):
+	set {_uid} to uuid of {_player}
+	set {_level} to yaml value "Level.Current" from "plugins/Gens/playerdata/%{_uid}%.yml"
+	set {_xp} to yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml"
+	add 1 to {_level}
+	set {_needed} to xpNeeded({_level})
+	if {_xp} is greater than or equal to {_needed}:
+		set yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml" - {_needed}
+		set yaml value "Level.Current" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Level.Current" from "plugins/Gens/playerdata/%{_uid}%.yml" + 1
+		send "{@prefix} &7You leveled up to &eLevel %{_level}% &7and earned a &e%getReward({_player}, {_level})%&7!" to {_player}
+		play sound "ui.toast.challenge_complete" with volume 1 and pitch 2 at location of {_player} for {_player}
+		checkLevel({_player})
+
+function getReward(player: player, level: integer) :: text:
+	if isDivisible({_level}, 275):
+		make console execute command "/givekey %{_player}% omega 1"
+		return "Omega Key"
+	else if isDivisible({_level}, 265):
+		make console execute command "/lp user %{_player}% permission set badge.star"
+		return "Star Badge (/badges)"
+	else if isDivisible({_level}, 255):
+		make console execute command "/lp user %{_player}% permission set chatcolor.green"
+		return "Green ChatColor (/chatcolor)"
+	else if isDivisible({_level}, 250):
+		make console execute command "/givekey %{_player}% exotic 1"
+		return "Exotic Key"
+	else if isDivisible({_level}, 100):
+		add 0.1 to {addmulti::%{_player}%}
+		return "0.1 Multiplier"
+	else if isDivisible({_level}, 50):
+		add 1 to {addgens::%{_player}%}
+		return "Generator Slot"
+	else if isDivisible({_level}, 25):
+		make console execute command "/givekey %{_player}% legend 1"
+		return "Legend Key"
+	else if isDivisible({_level}, 10):
+		make console execute command "/givekey %{_player}% mythic 2"
+		return "Mythic Keys"
+	else if isDivisible({_level}, 5):
+		make console execute command "/givekey %{_player}% mythic 1"
+		return "Mythic Key"
+	else if isDivisible({_level}, 2):
+		set {_t} to getTokenMulti({_player})
+		set {_t} to {_level}*5*({_t}?1)
+		set {_tokens} to round({_t})
+		addTokens({_player}, {_tokens})
+		return "%{_tokens}% Tokens"
+	else:
+		set {_random} to a random number between 1 and 4
+		if {_random} is 1:
+			set {_t} to getTokenMulti({_player})
+			set {_t} to {_level}*3*({_t}?1)
+			set {_tokens} to round({_t})
+			addTokens({_player}, {_tokens})
+			return "%{_tokens}% Tokens"
+		if {_random} is 2:
+			set {_t} to getTokenMulti({_player})
+			set {_t} to {_level}*5*({_t}?1)
+			set {_tokens} to round({_t})
+			addTokens({_player}, {_tokens})
+			return "%{_tokens}% Tokens"
+		else if {_random} is 3:
+			make console execute command "/givekey %{_player}% rare 1"
+			return "Rare Key"
+		else:
+			make console execute command "/givekey %{_player}% rare 2"
+			return "Rare Keys"
+
+function getItemXP(item: item) :: number:
+	if {_item} is wheat:
+		set {_return} to 1
+	else if {_item} is melon slice:
+		set {_return} to 2
+	else if {_item} is pumpkin pie:
+		set {_return} to 3
+	else if {_item} is coal:
+		set {_return} to 5
+	else if {_item} is iron ingot:
+		set {_return} to 7
+	else if {_item} is gold ingot:
+		set {_return} to 9
+	else if {_item} is redstone:
+		set {_return} to 12
+	else if {_item} is lapis:
+		set {_return} to 15
+	else if {_item} is diamond:
+		set {_return} to 19
+	else if {_item} is emerald:
+		set {_return} to 23
+	else if {_item} is magma cream:
+		set {_return} to 28
+	else if {_item} is flint:
+		set {_return} to 33
+	else if {_item} is netherite ingot:
+		set {_return} to 40
+	else if {_item} is nether star:
+		set {_return} to 45
+	else if {_item} is dried kelp or gunpowder:
+		set {_return} to 50
+	else if {_item} is ghast tear:
+		set {_return} to 55
+	else if {_item} is prismarine shard:
+		set {_return} to 60
+	else if {_item} is honeycomb:
+		set {_return} to 65
+	else if {_item} is slimeball:
+		set {_return} to 75
+	else if {_item} is netherite scrap:
+		set {_return} to 85
+	else if {_item} is ender eye:
+		set {_return} to 100
+	else if {_item} is nether quartz:
+		set {_return} to 250
+	else if {_item} is carrot:
+		set {_return} to 90
+	else if {_item} is pumpkin:
+		set {_return} to 110
+	else if {_item} is melon slice:
+		set {_return} to 30
+	if name of {_item} contains "&eCompacted":
+		set {_return} to {_return} * 32
+	return {_return}

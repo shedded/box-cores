@@ -1,0 +1,395 @@
+
+#
+#				GEN CORE
+#				BY kai1846456#0987
+#
+
+
+#
+#							CONFIG
+#
+
+options:
+
+	# PREFIX
+	prefix: %getPrefix()%
+		
+	# COLORS
+	color_first: &7
+	color_second: &c
+	color_third: &f
+	color_fourth: &8
+	color_error: &c
+
+	# MESSAGES | USE (0) FOR ARGUMENTS
+	not_enough_args: &4(!) &cIncorrect Usage! Correct Usage: &a(0)
+	no_console_allowed: &4(!) &cOnly players can execute this command!
+	no_permissions: &4(!) &cI'm sorry, But I can't let you do that! &7&o((0))
+	message_borders: &8&m			   
+
+#
+#							YAML
+#
+on join:
+	wait 1 tick
+	yaml path "Gens.Max" in "plugins/Gens/playerdata/%player's uuid%.yml" has value:
+		stop
+	else:
+		set yaml value "Gens.Max" from "plugins/Gens/playerdata/%player's uuid%.yml" to 0
+		set yaml value "Gens.Placed" from "plugins/Gens/playerdata/%player's uuid%.yml" to 0
+		set yaml value "multi" from "plugins/Gens/Economy/playerdata/%player's uuid%.yml" to 0.00
+		set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%player's uuid%.yml" to 0
+		set yaml value "Level.Current" from "plugins/Gens/playerdata/%player's uuid%.yml" to 0
+
+		
+on load:
+	load yaml "plugins/Gens/config.yml" as "plugins/Gens/config.yml"
+	load yaml "plugins/Gens/Economy/config.yml" as "plugins/Gens/Economy/config.yml"
+on unload:
+	save yaml "plugins/Gens/Economy/config.yml"
+	save yaml "plugins/Gens/config.yml"
+
+on skript stop:
+	save yaml "plugins/Gens/Economy/config.yml"
+	save yaml "plugins/Gens/config.yml"
+	saveAllGens()
+
+function saveAllGens():
+	loop all players:
+		save yaml "plugins/Gens/playerdata/%loop-player's uuid%.yml"
+
+function loadAllGens():
+	loop all players:
+		load yaml "plugins/Gens/playerdata/%loop-player's uuid%.yml" as "plugins/Gens/playerdata/%loop-player's uuid%.yml"
+
+on join:
+	load yaml "plugins/Gens/Economy/playerdata/%player's uuid%.yml" as "plugins/Gens/Economy/playerdata/%player's uuid%.yml"
+	load yaml "plugins/Gens/playerdata/%player's uuid%.yml" as "plugins/Gens/playerdata/%player's uuid%.yml"
+	set {online::%player's uuid%} to true
+	while {online::%player's uuid%} is set:
+		genDrops(player)
+		wait 5 minutes
+		save yaml "plugins/Gens/playerdata/%player's uuid%.yml"
+		load yaml "plugins/Gens/playerdata/%player's uuid%.yml" as "plugins/Gens/playerdata/%player's uuid%.yml"
+	
+on quit:
+	save yaml "plugins/Gens/playerdata/%player's uuid%.yml"
+	save yaml "plugins/Gens/Economy/playerdata/%player's uuid%.yml"
+	delete {online::%player's uuid%}
+
+
+on join:
+	set {online::%player's uuid%} to now
+	while {online::%player's uuid%} is set:
+		genDrops(player)
+		wait 15 seconds
+
+#
+#							GENS
+#
+
+command /resetgens <player>:
+	permission: admin
+	trigger:
+		delete yaml node list "Placed_Gens" from "plugins/Gens/playerdata/%uuid of arg-1%.yml"
+		delete yaml node list "Locations" from "plugins/Gens/playerdata/%uuid of arg-1%.yml"
+		set yaml value "Gens.Placed" from "plugins/Gens/playerdata/%uuid of arg-1%.yml" to 0
+		send "%getPrefix()% Success!" to sender
+		
+command /genlist:
+	trigger:
+		create a gui with virtual chest inventory with 6 rows named "&5Gen List":
+			loop 10 times:
+				make next gui slot with gray stained glass pane named ""
+			make gui slot 17 with gray stained glass pane named ""
+			make gui slot 18 with gray stained glass pane named ""
+			make gui slot 26 with gray stained glass pane named ""
+			make gui slot 27 with gray stained glass pane named ""
+			make gui slot 35 with gray stained glass pane named ""
+			make gui slot 36 with gray stained glass pane named ""
+			set {_slot} to 44
+			loop 10 times:
+				make gui slot {_slot} with gray stained glass pane named ""
+				add 1 to {_slot}
+			set {_slot} to 10
+			loop yaml node list "Gen_item" from "plugins/Gens/config.yml":
+				set {_item} to "%loop-key%"
+				replace first "." in {_item} with ""
+				set {_i} to yaml value "Gen_item.%{_item}%" from "plugins/Gens/config.yml"
+				make gui slot {_slot} with {_i}
+				add 1 to {_slot}
+				{_slot} is 17 or 26 or 35
+				add 2 to {_slot}
+		open last gui to player
+
+function reloadGenConfig():
+	save yaml "plugins/Gens/config.yml"
+	load yaml "plugins/Gens/config.yml" as "plugins/Gens/config.yml"
+	
+on break:
+	"%player's world%" contains "plot"
+	set {_hi::*} to yaml nodes "Gen_item" from "plugins/Gens/config.yml"
+	set {_block} to raw name of event-block
+	replace first "minecraft:" in {_block} with ""
+	{_hi::*} contains {_block}
+	cancel event
+
+command /givegen <player> <itemtype> [<integer = 1>]:
+	usage: /givegen [player] [type] [amount]
+	permission: *
+	permission message: Unknown command. Type "/help" for help.
+	trigger:
+		genGive(arg-1, arg-2, arg-3)
+
+function addAGen(p: player, nextprice: integer, nextgen: item, dropprice: integer):
+	set {_1} to raw name of {_p}'s held item
+	replace first "minecraft:" in {_1} with ""
+	set {_nextblock} to raw name of {_nextblock}
+	replace first "minecraft:" in {_nextblock} with ""
+	set yaml value "Gen_item.%{_1}%" from "plugins/Gens/config.yml" to {_p}'s held item	
+	set yaml value "%{_1}%_next_price" from "plugins/Gens/config.yml" to {_nextprice}
+	set yaml value "%{_1}%_next_block" from "plugins/Gens/config.yml" to {_nextgen}
+	set yaml value "prices.%{_1}%" from "plugins/Gens/Economy/config.yml" to {_dropprice}
+	save yaml "plugins/Gens/Economy/config.yml"
+	load yaml "plugins/Gens/Economy/config.yml" as "plugins/Gens/Economy/config.yml"
+	save yaml "plugins/Gens/config.yml"
+	load yaml "plugins/Gens/config.yml" as "plugins/Gens/config.yml"
+	send "				{@prefix}				" to {_p}
+	send "										" to {_p}
+	send "			&f&lAdded a new gen			" to {_p}
+	send "			&5Type: &d%{_1}%			" to {_p}
+	send "			&5Upgrade Price: &d%Information_MakeFancierNumber({_nextprice})%		" to {_p}
+	send "			&5Drop Price: &d%{_dropprice}%			" to {_p}
+	send "										" to {_p}
+	send "				{@prefix}				" to {_p}
+
+function removeAGen(p: player, item: item):
+	set {_1} to raw name of {_p}'s held item
+	replace first "minecraft:" in {_1} with ""
+	delete yaml value "Gen_item.%{_1}%" from "plugins/Gens/config.yml"
+	delete yaml value "%{_1}%_next_price" from "plugins/Gens/config.yml"
+	delete yaml value "%{_1}%_next_block" from "plugins/Gens/config.yml"
+	delete yaml value "prices.%{_1}%" from "plugins/Gens/Economy/config.yml"
+	save yaml "plugins/Gens/Economy/config.yml"
+	load yaml "plugins/Gens/Economy/config.yml" as "plugins/Gens/Economy/config.yml"
+	save yaml "plugins/Gens/config.yml"
+	load yaml "plugins/Gens/config.yml" as "plugins/Gens/config.yml"
+	send "				{@prefix}				" to {_p}
+	send "										" to {_p}
+	send "			&f&lRemoved a gen			" to {_p}
+	send "			&5Type: &d%{_1}%			" to {_p}
+	send "										" to {_p}
+	send "				{@prefix}				" to {_p}
+
+function addGens(p: player, amt: integer):
+	set {_uid} to {_p}'s uuid
+	set yaml value "Gens.Max" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Gens.Max" from "plugins/Gens/playerdata/%{_uid}%.yml" + {_amt}
+	
+function genDrops(p: player):
+	set {_uid} to {_p}'s uuid
+	loop yaml node list "Placed_Gens" from "plugins/Gens/playerdata/%{_uid}%.yml":
+		set {_l} to yaml value "TankContents%loop-key%" from "plugins/Gens/playerdata/%{_uid}%.yml"
+		set yaml value "TankContents%loop-key%" from "plugins/Gens/playerdata/%{_uid}%.yml" to {_l} + yaml value "Placed_Gens%loop-key%" from "plugins/Gens/playerdata/%{_uid}%.yml"
+		
+function genGive(p: player, type: item, amt: integer = 1):
+	set {_i} to raw name of {_type}
+	replace first "minecraft:" in {_i} with ""
+	set {_i} to yaml value "Gen_item.%{_i}%" from "plugins/Gens/config.yml"
+	give {_p} {_amt} of {_i}
+
+
+function genUpgrade(p: player, type: block, loc: location):
+	set {_uid} to {_p}'s uuid
+	set {_type} to raw name of {_type}
+	replace first "minecraft:" in {_type} with ""
+	if {_type} is "soul_sand":
+		send title "&cError!" with subtitle "{@color_error}This is already maxed!" to {_p}
+		stop
+	set {_m} to yaml value "%{_type}%_next_price" from "plugins/Gens/config.yml"
+	if {_p}'s money is less than {_m}:
+		send title "&cError!" with subtitle "{@color_error}Not enough money.!" to {_p}
+		stop
+	set yaml value "Placed_Gens.%{_type}%" of "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Placed_Gens.%{_type}%" of "plugins/Gens/playerdata/%{_uid}%.yml" - 1
+	set {_l} to yaml value "%{_type}%_next_block" from "plugins/Gens/config.yml"
+	set block at {_loc} to {_l}
+	set {_l} to raw name of {_l}
+	replace first "minecraft:" in {_l} with ""
+	set yaml value "Placed_Gens.%{_l}%" of "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Placed_Gens.%{_l}%" of "plugins/Gens/playerdata/%{_uid}%.yml" + 1
+	remove {_m} from {_p}'s money
+	send title "&aSuccess!" with subtitle "{@color_first}You upgraded this gen{@color_first}!" to {_p}
+
+function genPlace(p: player, type: block, loc: location):
+	{_type} is air:
+		stop
+	set {_uid} to {_p}'s uuid
+	set {_type} to raw name of {_type}
+	replace all "minecraft:" in {_type} with ""
+	if yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml" is greater than or equal to getGens({_p}):
+		genGive({_p}, held item of {_p})
+		send title "&cError!" with subtitle "{@color_error}You can't place more gens! {@color_first}(/buy)" to {_p}
+		set block at {_loc} to air
+		stop
+	set yaml value "Placed_Gens.%{_type}%" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Placed_Gens.%{_type}%" from "plugins/Gens/playerdata/%{_uid}%.yml" + 1
+	set yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml" + 1
+	set {_count} to yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml"
+	set {_max} to getGens({_p})
+	set yaml value "Locations.%{_loc}%" from "plugins/Gens/playerdata/%{_uid}%.yml" to 0
+	send title "&aSuccess!" with subtitle "{@color_first}You placed a gen! {@color_first}(%{_count}%/%{_max}%)" to {_p}
+
+function genRemove(p: player, type: block, loc: location):
+	set {_uid} to {_p}'s uuid
+	genGive({_p}, {_type})
+	set {_type} to raw name of {_type}
+	replace all "minecraft:" in {_type} with ""
+	set yaml value "Placed_Gens.%{_type}%" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Placed_Gens.%{_type}%" from "plugins/Gens/playerdata/%{_uid}%.yml" - 1
+	delete yaml value "Locations.%{_loc}%" from "plugins/Gens/playerdata/%{_uid}%.yml"
+	set yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml" - 1
+	set {_count} to yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_uid}%.yml"
+	set {_max} to getGens({_p})
+	send title "&aSuccess!" with subtitle "{@color_first}You removed a gen! {@color_first}(%{_count}%/%{_max}%)" to {_p}
+	set block at {_loc} to air
+
+
+on leftclick:
+	yaml value "Locations.%event-location%" from "plugins/Gens/playerdata/%player's uuid%.yml" is set
+	genRemove(player, event-block, event-location)
+
+on place:
+	set {_i} to raw name of player's held item
+	replace all "minecraft:" in {_i} with ""
+	set {_i} to yaml value "Gen_item.%{_i}%" from "plugins/Gens/config.yml"
+	set {_i} to name of {_i}
+	name of player's held item is {_i}
+	wait 1 tick
+	block at event-location is not event-block:
+		stop
+	genPlace(player, event-block, event-location)
+
+on rightclick:
+	player is sneaking:
+		yaml value "Locations.%event-location%" from "plugins/Gens/playerdata/%player's uuid%.yml" is set
+		genUpgrade(player, event-block, event-location)
+	event-block is beacon
+	cancel event
+
+command /givegen <player> <itemtype> [<integer>]:
+	permission: gens.give
+	usage: /givegen [player] [type] [amount]
+	permission message: Unknown command. Type "/help" for help.
+	trigger:
+		if arg-3 is not set:
+			genGive(arg-1, arg-2)
+			stop
+		genGive(arg-1, arg-2, arg-3)
+
+#
+#							TANKS
+#
+
+function tankGUI(p: player):
+	set {_uid} to {_p}'s uuid
+	set {_total} to 10
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+	add 2 to {_total}
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+		add 2 to {_total}
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+		add 2 to {_total}
+	loop 7 times:
+		add {_total} to {_slots::*}
+		add 1 to {_total}
+	set {_swand} to 1
+	if {_p}'s held item is a blaze rod:
+		set {_swand::*} to name of {_p}'s held item split at "("
+		set {_swand::*} to {_swand::2} split at "x"
+		set {_swand::*} to {_swand::2} split at ")"
+		set {_swand} to {_swand::1}
+		set {_swand} to "%{_swand}%" parsed as an integer
+	create a gui with virtual chest inventory with 6 rows named "%{_p}%'s Tank":
+		loop 10 times:
+			make next gui slot with black stained glass pane named " "
+		make gui slot 17 with black stained glass pane named ""
+		make gui slot 18 with black stained glass pane named ""
+		make gui slot 26 with black stained glass pane named ""
+		make gui slot 27 with black stained glass pane named ""
+		make gui slot 35 with black stained glass pane named ""
+		make gui slot 36 with black stained glass pane named ""
+		set {_loops} to 44
+		loop 10 times:
+			make gui slot {_loops} with black stained glass pane named " "
+			add 1 to {_loops}
+		set {_m} to getMulti({_p})
+		make gui slot 49 with blaze rod named "&e&lSELL ALL ITEMS" with lore ""," &8¬ &fMultiplier: &e%{_m}%x"," &8¬ &fSell Wand: &e%{_swand}%x","" and "&8Hold Sell Wand while opening tank":
+			set {_swand} to {_swand} parsed as number
+			set {_multi} to {_swand} + ({_swand} * (yaml value "Boosters.multi" from "plugins/Gens/Economy/config.yml"))
+			set {_money} to 0
+			loop yaml node list "TankContents" from "plugins/Gens/playerdata/%{_uid}%.yml":
+				set {_amt} to yaml value "TankContents%loop-key%" from "plugins/Gens/playerdata/%{_uid}%.yml"
+				set {_amount} to {_amount} + {_amt}
+				set {_val} to yaml value "prices%loop-key%" from "plugins/Gens/Economy/config.yml"
+				add ({_amt} * {_val}) * ({_m} ? 1) * ({_multi} ? 1) to {_money}
+			delete yaml node list "TankContents" from "plugins/Gens/playerdata/%{_uid}%.yml"
+			set {_money} to {_money} * ({purchased::Sell::%{_uid}%} ? 1)
+			close {_p}'s inventory
+			tankGUI({_p})
+			send "&7You sold &f%{_amount} ? 0% &7items for &a$%Information_MakeFancierNumber({_money})% &7and &f%({_money}/5000)% &7exp"
+			set yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml" to yaml value "Level.xp" from "plugins/Gens/playerdata/%{_uid}%.yml" + ({_money}/5000)
+			tankGUI(player)
+			add {_money} to player's money
+			set yaml value "Gens.Sold" from "plugins/Gens/playerdata/%{_uid}%.yml" to (yaml value "Gens.Sold" from "plugins/Gens/playerdata/%{_uid}%.yml") + {_amount}
+			checkLevel({_p})
+		set {_slot} to 10
+		loop yaml node list "TankContents" from "plugins/Gens/playerdata/%{_uid}%.yml":
+			set {_item} to "%loop-key%"
+			replace first "." in {_item} with ""
+			set {_c} to yaml value "TankContents.%{_item}%" from "plugins/Gens/playerdata/%{_uid}%.yml"
+			{_c} is not 0
+			replace all "_" in {_item} with " "
+			set {_item} to {_item} parsed as an itemtype
+			set {_item} to {_item} named "&d%{_item}%"
+			"%{_item}%" contains "hay bale":
+				set {_item} to hay block named "&dhay block"
+			make gui slot {_slot} with {_item} with lore "&7&oNumber of items: &f%{_c}%"
+			{_slot} is 16 or 25 or 34 or 43:
+				add 2 to {_slot}
+			add 1 to {_slot}
+		open last gui to {_p}
+			
+function Information_MakeFancierNumber(n: number) :: string:
+	set {_l::*} to split "k|M|B|T|Qn|Qi|Sx" at "|"
+	loop {_l::*}:
+		add 1 to {_size}
+	set {_i} to min(floor(log({_n})/3), {_size})
+	return "%{_n}%" if {_i} <= 0
+	set {_i2} to 1000^{_i}
+	return "%{_n}/{_i2}%%{_l::%{_i}%}%"
+		
+on rightclick on respawn anchor:
+	cancel event
+	tankGUI(player)
+
+on break of respawn anchor:
+	cancel drops
+	giveTank(player)
+
+
+command /tank:
+	trigger:
+		tankGUI(player)
+		
+command /sellwand [<player>] [<number>]:
+	permission: admin
+	trigger:
+		if arg-1 is set:
+			if arg-2 is set:
+				give arg-1 1 of blaze rod named "&6&lSell Wand &7&o(x%arg-2%)" with lore "&eMultiplier: &7%arg-2%x" and "" and "&7Right-Click a chest to" and "&7sell of all it's contents!"
+			else:
+				give arg-1 1 of blaze rod named "&6&lSell Wand &7&o(x1)" with lore "&eMultiplier: &71x" and "" and "&7Right-Click a chest to" and "&7sell of all it's contents!"
+		else:
+			send "&6{@prefix &7Invalid Arguments. /sellwand (player) (multiplier)"

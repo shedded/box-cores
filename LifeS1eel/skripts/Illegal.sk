@@ -1,0 +1,116 @@
+#Illegals skript
+#Version 1.1
+#Author: muyao
+
+#------------------------------------ CONFIG ------------------------------------
+
+#Put the id of the discord channel here: (EXAMPLE 966538023904899104)
+logChannel:
+
+#Put the discord token of the bot here (EXAMPLE OTM4NzExNTg2ODM3NzYyMDk5.YfuRyg.jnfhaeh8orszO0nmqmf6jReAmVc):
+botToken:
+
+#Put the name of the bot here with two ## (EXAMPLE LifeS1eel Utility##3129):
+botName:
+
+on load: 
+	login to "{@botToken}" with the name "{@botName}"
+#------------------------------------ REDSTONE LOGGER ------------------------------------
+
+
+on join:
+	if {redjoin::%player's uuid%} isn't set:
+		set {redjoin::%player's uuid%} to true
+		set {comparator::%player's uuid%} to 0
+		set {redstone::%player's uuid%} to 0
+		set {repeater::%player's uuid%} to 0
+		set {observer::%player's uuid%} to 0
+		set {piston::%player's uuid%} to 0
+		
+		
+on place of redstone wire:
+	if {totalredstoneplaced::%player's uuid%} > 100:
+		send "chill out with the redstone (we are logging you now)"
+		
+on place of redstone wire:
+	add 1 to {totalredstoneplaced::%player's uuid%}
+	add 1 to {redstoneplaced::%player's uuid%}
+	if {redstoneplaced::%player's uuid%} > 20:
+		set {redstoneplaced::%player's uuid%} to 0
+		make embed:
+			set author of embed to "User %player%"
+			set color of embed to red
+			set title of embed to "20 Redstone Placed"
+			set description of embed to "%{totalredstoneplaced::%player's uuid%}% total placed"
+			set timestamp of embed to now
+			set footer of embed to "%location of event-block%"
+			set author icon of embed to "https://crafatar.com/avatars/%player's uuid%"
+		send last embed to channel with id "{@logChannel}"
+		
+on place of repeater:
+	add 1 to {totalrepeaterplaced::%player's uuid%}
+	add 1 to {repeaterplaced::%player's uuid%}
+	if {repeaterplaced::%player's uuid%} > 10:
+		set {repeaterplaced::%player's uuid%} to 0
+		make embed:
+			set author of embed to "User %player%"
+			set color of embed to light red
+			set title of embed to "10 repeater Placed"
+			set description of embed to "%{totalrepeaterplaced::%player's uuid%}% total placed"
+			set timestamp of embed to now
+			set footer of embed to "%location of event-block%"
+			set author icon of embed to "https://crafatar.com/avatars/%player's uuid%"
+		send last embed to channel with id "{@logChannel}"
+		
+on place of observer:
+	add 1 to {totalobserverplaced::%player's uuid%}
+	add 1 to {observerplaced::%player's uuid%}
+	if {observerplaced::%player's uuid%} > 10:
+		set {observerplaced::%player's uuid%} to 0
+		make embed:
+			set author of embed to "User %player%"
+			set color of embed to gray
+			set title of embed to "10 observer Placed"
+			set description of embed to "%{totalobserverplaced::%player's uuid%}% total placed"
+			set timestamp of embed to now
+			set footer of embed to "%location of event-block%"
+			set author icon of embed to "https://crafatar.com/avatars/%player's uuid%"
+		send last embed to channel with id "{@logChannel}"
+
+
+#------------------------------------ LAG PREVENTION ------------------------------------
+
+
+on place of comparator:
+	cancel event
+	
+on right click on lectern:
+	cancel event
+	
+on right click on lever:
+	cancel event
+	
+on right click holding armor stand:
+	cancel event
+	
+
+#------------------------------------ FIREWORK COOLDOWN ------------------------------------
+
+
+on shoot:
+	if projectile is firework:
+		if {cooldown.%shooter's uuid%} is set:
+			send "&7cooldown bruh (%{cooldown.%shooter's uuid%}%s)" to shooter
+			cancel event
+		else:
+			set {cooldown.%shooter's uuid%} to 1
+
+every second:
+	loop all players:
+		if {cooldown.%loop-player's uuid%} > 0:
+			reduce {cooldown.%loop-player's uuid%} by 1
+		else:
+			clear {cooldown.%loop-player's uuid%}
+
+#------------------------------------ END ------------------------------------
+			

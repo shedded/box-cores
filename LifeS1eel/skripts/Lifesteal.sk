@@ -1,0 +1,391 @@
+#--------------------------------- COMMENTS ---------------------------------#
+
+
+
+#LifeSteal RECODEv0.1
+#edited: 2022-04-13
+#author: muyao
+
+
+
+#REQUIRES:
+#Skript (obviously)
+#SkQuery
+
+
+
+#--------------------------------- FIRST RUNS ---------------------------------#
+
+
+
+#Debug command to update all the hearts of online players
+command /fixhearts:
+	permission: op
+	trigger:
+		loop all players:
+			updatehearts(loop-player)
+
+on join:
+	if {firstjoined::%player's uuid%} isn't set:
+		set {firstjoined::%player's uuid%} to true
+		set {hearts::%player's uuid%} to 10
+		updatehearts(player)
+	if {bounty::%player's uuid%} is set:
+		broadcast "&4&lLifeS1eel &8| &7%player% joined with a bounty of &c%{bounty::%player's uuid%}% hearts"
+	updatehearts(player)
+
+on quit:
+	#Checks if the player has a bounty when they leave to broadcast
+	if {bounty::%player's uuid%} is set:
+		broadcast "&4&lLifeS1eel &8| &7%player% left with a bounty of &c%{bounty::%player's uuid%}% hearts. &7What a whimp"
+
+
+
+#---------------------------------- COMMANDS ----------------------------------#
+
+
+
+#A command to reset the hearts of everyone
+command seasonreset:
+	executable by: console
+	permission: op
+	trigger:
+		#This var determines if the player's hearts will be reset on join
+		#clearing it will result in hearts reset when they join
+		clear {firstjoin::*}
+		#Clearing the chat to be cool :)
+		loop 50 times:
+			#I used a random number instead of just nothing to make sure people
+			#with a chat improver has their chat cleared. Not necessary but meh
+			set {_rand} to random integer between 1 and 1000
+			broadcast "%{_rand}%"
+		#Final broadcast
+		broadcast " ", "&4&lLifeS1eel &8| &7SEASON HAS BEEN RESET, EVERYONE'S HEARTS WILL RESET AS SOON AS THEY LEAVE AND REJOIN", " "
+		wait 2 seconds
+		#Kicking all players for the first join var to work
+		kick all players
+
+
+
+#A command that allows you to check the hearts a player has
+command checkhearts [<player>]:
+	trigger:
+		#Checks if a player is set
+		if arg-1 is set:
+			send " ", "&4&lLifeS1eel &8| &7%arg-1% has &c%{hearts::%arg-1's uuid%}% hearts", " "
+
+		#If a player isn't set it will check your own hearts
+		else:
+			send " ", "&4&lLifeS1eel &8| &7You have &c%{hearts::%player's uuid%}% hearts", " "
+
+
+
+#Admin command that allows you to add remove set and so on
+command lsadmin [<text>] [<player>] [<integer>] [<text>]:
+	permission: lifesteal.admin
+	trigger:
+
+		#Checks if the executor wants to add hearts
+		if arg-1 is "add":
+			#Checks if a player is defined
+			if arg-2 is set:
+				#Checks if an integer value is defined
+				if arg-3 is set:
+					#Adds the hearts to the defined player
+					send " ", "&4&lLifeS1eel &8| &7%player% has increased your hearts by %arg-3%", " " to arg-2
+					send " ", "&4&lLifeS1eel &8| &7You have increased %arg-2%'s hearts by %arg-3%", " " to player
+					add arg-3 to {hearts::%arg-2's uuid%}
+					updatehearts(arg-2)
+				else:
+					send "&cERROR &7An amount of hearts need to be defined" to player
+			else:
+				send "&cERROR &7A player needs to be defined" to player
+		
+		#Checks if the executor wants to remove hearts
+		else if arg-1 is "remove":
+			#Checks if a player is defined
+			if arg-2 is set:
+				#Checks if an integer value is defined
+				if arg-3 is set:
+					#Removes the hearts from the defined player
+					send " ", "&4&lLifeS1eel &8| &7%player% has reduced your hearts by %arg-3%", " " to arg-2
+					send " ", "&4&lLifeS1eel &8| &7You have reduced %arg-2%'s hearts by %arg-3%", " " to player
+					reduce {hearts::%arg-2's uuid%} by arg-3
+					updatehearts(arg-2)
+				else:
+					send "&cERROR &7An amount of hearts need to be defined" to player
+			else:
+				send "&cERROR &7A player needs to be defined" to player
+
+		#Checks if the executor wants to set hearts
+		else if arg-1 is "set":
+			#Checks if a player is defined
+			if arg-2 is set:
+				#Checks if an integer value is defined
+				if arg-3 is set:
+					#Sets the player's hearts to the defined value
+					send " ", "&4&lLifeS1eel &8| &7%player% set your hearts to %arg-3%", " " to arg-2
+					send " ", "&4&lLifeS1eel &8| &7You have set %arg-2%'s hearts to %arg-3%", " " to player
+					set {hearts::%arg-2's uuid%} to arg-3
+					updatehearts(arg-2)
+				else:
+					send "&cERROR &7An amount of hearts need to be defined" to player
+			else:
+				send "&cERROR &7A player needs to be defined" to player
+
+		#Checks if the executor wants to reset a player's hearts to default
+		else if arg-1 is "reset":
+			#Checks if a player is defined
+			if arg-2 is set:
+				#Resets the defined player's hearts
+				send " ", "&4&lLifeS1eel &8| &7%player% has reset your hearts", " " to arg-2
+				send " ", "&4&lLifeS1eel &8| &7You have reset the hearts of %arg-2%", " " to player
+				set {hearts::%arg-2's uuid%} to 10
+				updatehearts(arg-2)
+			else:
+				send "&cERROR &7A player needs to be defined" to player
+
+		#Checks if the executor wants to add hearts to all players
+		else if arg-1 is "addall":
+			#Checks if an integer value is defined
+			if arg-3 is set:
+				#Adds hearts to online players
+				broadcast " ", "&4&lLifeS1eel &8| &7%arg-4% has bought everyone &c%arg-3% hearts!", " "
+				loop all players:
+					add arg-3 to {hearts::%loop-player's uuid%}
+					updatehearts(loop-player)
+			else:
+				send "&cERROR &7An amount of hearts need to be defined" to player
+
+on join:
+	if {hearts::%player's uuid%} > 300:
+		set {tophearts::%player's uuid%} to {hearts::%player's uuid%}
+
+#A command to list the people with the most hearts
+command tophearts:
+	cooldown: 10 seconds
+	trigger:
+		#Leaderboard system
+		loop {tophearts::*}:
+			#Checks how many entries are in the list
+			add 1 to {_size}
+			if {_low.to.high.list::%loop-value%} is not set:
+				set {_low.to.high.list::%loop-value%} to loop-index
+			else:
+				set {_n} to 0
+				#Uses the size to determine how many times to loop
+				loop {_size} times:
+					#Creates a low to high list
+					set {_n} to {_n}+1
+					{_low.to.high.list::%loop-value-1%.%{_n}%} is not set
+					set {_low.to.high.list::%loop-value-1%.%{_n}%} to loop-index
+					stop loop
+		wait 1 tick
+		set {_n} to size of {_low.to.high.list::*}
+		#Creates a list of people that have the highest hearts
+		#using the low to high list
+		loop {_low.to.high.list::*}:
+			set {_high.to.low.list::%{_n}%} to loop-value
+			set {_n} to {_n}-1
+		wait 1 tick
+		#Broadcast part
+		send " "
+		send "     &4&lTop Health     "
+		send " "
+		#Looping the high to low list to get the top 5
+		loop {_high.to.low.list::*}:
+			add 1 to {_result}
+			send "&8%{_result}%. &c%loop-value parsed as an offline player% &7has &c%{hearts::%loop-value%}% &7health"
+			if {_result} is 5:
+				send " "
+				send "&7%size of {hearts::*}% players checked"
+				stop
+		send " "
+
+
+
+#A rank command to give everyone online 1 heart
+command giveallheart:
+	cooldown: 24 hours
+	permission: rank.giveallheart
+	trigger:
+		#Gets all the online players
+		loop all players:
+			#Gives all the online players 1 heart
+			add 1 to {hearts::%loop-player's uuid%}
+			updatehearts(loop-player)
+		#Broadcast
+		broadcast " ", "&4&lLifeS1eel &8| &7%player% has given everyone &c1 heart &7with their rank!", " "
+
+
+
+#A command to bounty other players
+command bounty <player> <integer>:
+	trigger:
+		#Checks if the value isn't negative
+		if arg-2 > 0:
+			#Checks if the player has enough hearts to bounty
+			if arg-2 < {hearts::%player's uuid%}:
+				reduce {hearts::%player's uuid%} by arg-2
+				#Adds the bounty to the defined player
+				add arg-2 to {bounty::%arg-1's uuid%}
+				updatehearts(player)
+				broadcast " ", "&4&lLifeS1eel &8| &7%player% has put a &c%arg-2% heart &7bounty on %arg-1%", " "
+			else:
+				send "&4&lLifeS1eel &8| &7You don't have enough hearts to do that"
+		else:
+			send "&4&lLifeS1eel &8| &7Nice try but negative numbers won't work"
+
+
+
+#A command to list all bounties
+command listbounties:
+	cooldown: 10 seconds
+	trigger:
+		#Pretty much just sending msg
+		send " "  to player
+		send "&4&lBounties" to player
+		#Checks the bounty of all online players using loop
+		loop all players:
+			if {bounty::%loop-player's uuid%} is set:
+				send "&c%loop-player% &4%{bounty::%loop-player's uuid%}% heart(s)" to player
+		send " " to player
+
+
+
+#A command to share hearts with other people
+command givehearts <player> <integer>:
+	trigger:
+		#Checks if the value isn't negative
+		if arg-2 > 0:
+			#Checks if the player has enough hearts to bounty
+			if arg-2 < {hearts::%player's uuid%}:
+				#Reduces the player's hearts and increases the hearts of the defined player
+				send " ", "&4&lLifeS1eel &8| &7%player% has given you &c%arg-2% heart(s)", " " to arg-1
+				send " ", "&4&lLifeS1eel &8| &7You have given &c%arg-2% heart(s) &7to %arg-1%", " " to player
+				reduce {hearts::%player's uuid%} by arg-2
+				increase {hearts::%arg-1's uuid%} by arg-2
+				updatehearts(player)
+				updatehearts(arg-1)
+			else:
+				send "&4&lLifeS1eel &8| &7You don't have enough hearts to do that"
+		else:
+			send "&4&lLifeS1eel &8| &7Nice try but negative numbers won't work"
+
+
+
+#---------------------------------- FUNCTION ----------------------------------#
+
+
+
+#Updates the hearts of players. I used a function because its convinent and will be used alot
+function updatehearts(p: player):
+	#Does the changing and shit
+	set {_u} to uuid of {_p}
+	set {_p}'s maximum health to {hearts::%{_u}%}
+
+
+
+#Main lifesteal function as I don't want it to clutter other places
+function stealheart(a: player, v: player):
+	#Gets the uuid of victim and attacker
+	set {_ua} to uuid of {_a}
+	set {_uv} to uuid of {_v}
+
+	#Checks if the victim has more than one heart
+	if {hearts::%{_uv}%} > 1:
+		#Sends actionbar
+		send action bar "&8| &7Death! &c-1❤ &8|" to {_v}
+		send action bar "&8| &7Kill! &c+1❤ &8|" to {_a}
+		#Updates hearts
+		increase {hearts::%{_ua}%} by 1
+		reduce {hearts::%{_uv}%} by 1
+		updatehearts({_a})
+		updatehearts({_v})
+	else:
+		#Sends actionbar if victim doesn't have more than 1 heart
+		send action bar "&7Death! &cYou didn't lose any hearts" to {_v}
+		send action bar "&7Kill! &cAlthough you didn't gain any hearts" to {_a}
+
+	#Checks if the victim has a bounty set
+	if {bounty::%{_uv}%} is set:
+		#Broadcast part
+		broadcast " ", "&4&lLifeS1eel &8| &7%{_v}%'s &c%{bounty::%{_uv}%}% heart &7bounty has been claimed by %{_a}%", " "
+		#Increase hearts of player by the bounty
+		increase {hearts::%{_ua}%} by {bounty::%{_uv}%}
+		clear {bounty::%{_uv}%}
+		updatehearts({_a})
+		
+
+
+#-------------------------------- DEATH CHECK --------------------------------#
+
+
+
+#This part will get the attacker if a player is killed by an end crystal
+on damage:
+	victim is end crystal:
+		#Gets the location and puts it in a variable
+		#Also stores the location of the crystal and the attacker in a list
+		set {attacker.%location at victim%::*} to location of victim
+		add attacker to {attacker.%location at victim%::*}
+		wait 1 second
+		#Clears the var so it doesn't fuck the server
+		clear {attacker.%location at victim%::*}
+
+
+
+#This part will put the attacker in combat if they hurt someone with an end crystal
+on damage:
+	victim is player
+	#Checks the damage cause
+	if "%damage cause%" = "entity explosion":
+		#Checks the location of the crystal to get the list
+		if {attacker.%location at attacker%::*} contains location at attacker:
+			#Makes the attacker deal a small amount of damage to victim to start combat log
+			set {_p} to 2nd element of {attacker.%location at attacker%::*}
+			make {_p} damage victim by 1
+			
+
+
+#The part that gives the attacker hearts when they kill another player
+on death of player:
+	#Checks if the death was caused by end crystal
+	if "%damage cause%" = "entity explosion":
+		#Gets the attacker if it was an end crystal kill
+		if {attacker.%location at attacker%::*} contains location at attacker:
+			set {_p} to 2nd element of {attacker.%location at attacker%::*}
+			set death message to "&c%{_p}%☢ %victim%"
+			#Gives the hearts
+			stealheart({_p}, victim)
+	else:
+		#Gives the hearts
+		stealheart(attacker, victim)
+			
+
+
+#-------------------------------- TAB COMPLETE --------------------------------#
+
+
+
+#Since its annoying to type out commands, you can now tab complete :)
+on tab complete of "/lsadmin":
+	set tab completions for position 1 to "set", "add", "remove", "reset" and "addall" 
+	set {_temp::*} to all players
+	#Gets the first arg
+	if tab arg-1 = "set", "add" or "remove":
+		set tab completions for position 2 to {_temp::*}
+		set tab completions for position 3 to "INTEGER"
+	
+	#Gets the first arg
+	if tab arg-1 = "reset":
+		set tab completions for position 2 to {_temp::*}
+		
+	#Gets the first arg
+	if tab arg-1 = "addall":
+		set tab completions for position 2 to "INTEGER"
+		set tab completions for position 3 to "TEXT"
+		
+		
+		
+#-------------------------------- END SKRIPT --------------------------------#

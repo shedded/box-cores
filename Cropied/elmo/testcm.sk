@@ -1,0 +1,217 @@
+options:
+	prefix: &#f48e0f&lC&#f4a914&lr&#f4c41b&lo&#f2de21&lp&#f5c41b&li&#f5a815&le&#f48e0f&ld &7⪼ 
+	perm: &#f48e0f&lC&#f4a914&lr&#f4c41b&lo&#f2de21&lp&#f5c41b&li&#f5a815&le&#f48e0f&ld &7⪼ &c
+	pre: &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld
+
+
+function cmgui(p: player):
+	set {_u} to uuid of {_p}
+	set {_head} to makeHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjAyYWYzY2EyZDVhMTYwY2ExMTE0MDQ4Yjc5NDc1OTQyNjlhZmUyYjFiNWVjMjU1ZWU3MmI2ODNiNjBiOTliOSJ9fX0=")
+	create a gui with virtual chest inventory with 3 rows named "          &e&lChat &6&lManager" with shape "xxxxxxxxx", "xa1a2a3ax" and "xxxxxxxxx":
+		make gui "x" with orange stained glass pane named "&7"
+		make gui "a" with yellow stained glass pane named "&7"
+		make gui "2" with glowing nether star named "&e&lCM Status" with lore "&2&ki&a&lUsage&2&ki", "&2&l| &aPlease click me to view" and "&2&l| &athe status of all Chat Manager settings!":
+			cmstatus(player)
+		make gui "1" with book and quill named "&e&lManage CM Settings" with lore "&2&ki&a&lUsage&2&ki", "&2&l| &aPlease click me to view" and "&2&l| &aall settings and toggles for each.":
+			cmtoggles(player)
+		make gui "3" with {_head} named "&e&lCM Clear Chat" with lore "&2&ki&a&lUsage&2&ki" and "&2&l| &aPlease click me to clear the server chat!":
+			loop 500 times:
+				send " " to all players where [input does not have permission "chatmanager.clearchat.bypass"]
+				send "  " to all players where [input does not have permission "chatmanager.clearchat.bypass"]
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChat was cleared by &6%player%" to all players
+			send " " to all players where [input has permission "chatmanager.clearchat.bypass"]
+			send "&eChat was not cleared for Staff" to all players where [input has permission "chatmanager.clearchat.bypass"]
+			send " " to all players
+			send "-------------------------------------------" to all players
+			set {lastclearchat} to now
+			set {clearchatplayer} to player
+	open last gui to {_p}
+
+function cmtoggles(p: player):
+	set {_u} to uuid of {_p}
+	create a gui with virtual hopper inventory named "            &e&lCM &6&lToggles" with shape "12345":
+		#antispam
+		if {antispam} is true:
+			make gui "1" with lime dye named "&e&lAntiSpam" with lore "&2&ki&a&lStatus&2&ki&r", "&2&l| &aEnabled", "", "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to toggle!":
+				set {lastantispamdisable} to now
+				set {antispam} to false
+				set {antispamdisableplayer} to player
+
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lAntiSpam was disabled by &6%player%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				close player's inventory
+				cmgui(player)
+		else:
+			make gui "1" with gray dye named "&e&lAntiSpam" with lore "&4&ki&c&lStatus&4&ki&r", "&4&l| &cDisabled", "", "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to toggle!":
+				set {lastantispam} to now
+				set {antispam} to true
+				set {antispamplayer} to player
+
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lAntiSpam was enabled by &6%player%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				close player's inventory
+				cmgui(player)
+
+		#chatmute
+		if {chatmute} is true:
+			make gui "2" with lime dye named "&e&lChatMute" with lore "&2&ki&a&lStatus&2&ki&r", "&2&l| &aEnabled", "", "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to toggle!":
+				set {lastchatunmute} to now
+				set {chatmute} to false
+				set {chatunmuteplayer} to player
+
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was unmuted by &6%player%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				close player's inventory
+				cmgui(player)
+		else:
+			make gui "2" with gray dye named "&e&lChatMute" with lore "&4&ki&c&lStatus&4&ki&r", "&4&l| &cDisabled", "", "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to toggle!":
+				set {chatmute} to true
+				set {chatmuteplayer} to player
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was muted by &6%player%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				set {lastchatmute} to now
+				close player's inventory
+				cmgui(player)	
+
+		#chatcooldown
+		if {cooldown} is true:
+			make gui "4" with lime dye named "&e&lChat Cooldown" with lore "&2&ki&a&lStatus&2&ki&r", "&2&l| &aEnabled", "", "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to toggle!":
+				set {cooldowndisableplayer} to player
+				set {lastcooldowndisable} to now
+				set {cooldown} to false
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChatCooldown was disabled by &6%player%" to all players
+				send " "
+				send "-------------------------------------------" to all players
+				close player's inventory
+				cmgui(player)
+		else:
+			make gui "4" with gray dye named "&e&lChat Cooldown" with lore "&4&ki&c&lStatus&4&ki&r", "&4&l| &cDisabled", "", "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to toggle!":
+				set {cooldown} to true
+				set {cooldownplayer} to player
+				set {lastcooldown} to now
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChatCooldown was enabled by &6%player%" to all players
+				send ""
+				send "&e&lTimer: &7%{serverdata::cooldown}%"
+				send " "
+				send "-------------------------------------------" to all players
+				close player's inventory
+				cmgui(player)
+
+		#chatcooldowntimer
+		make gui "5" with spectral arrow named "&e&lManage Chat Cooldown" with lore "&1&ki&9&lUsage&1&ki&r" and "&1&l| &9Click me to change cooldown":
+			cmcooldown(player)
+
+		make gui "3" with barrier named "&c&lGo back":
+			cmgui(player)
+
+	open last gui to {_p}
+
+function cmcooldown(p: player):
+	set {head1} to makeHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzFhOTQ2M2ZkM2M0MzNkNWUxZDlmZWM2ZDVkNGIwOWE4M2E5NzBiMGI3NGRkNTQ2Y2U2N2E3MzM0OGNhYWIifX19")
+	set {head2} to makeHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWNiNDE5ZDk4NGQ4Nzk2MzczYzk2NDYyMzNjN2EwMjY2NGJkMmNlM2ExZDM0NzZkZDliMWM1NDYzYjE0ZWJlIn19fQ==")
+	set {head3} to makeHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjhlYmFiNTdiNzYxNGJiMjJhMTE3YmU0M2U4NDhiY2QxNGRhZWNiNTBlOGY1ZDA5MjZlNDg2NGRmZjQ3MCJ9fX0=")
+	set {head4} to makeHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjJiZmNmYjQ4OWRhODY3ZGNlOTZlM2MzYzE3YTNkYjdjNzljYWU4YWMxZjlhNWE4YzhhYzk1ZTRiYTMifX19")
+	set {head5} to makeHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWY0ZWNmMTEwYjBhY2VlNGFmMWRhMzQzZmIxMzZmMWYyYzIxNjg1N2RmZGE2OTYxZGVmZGJlZTdiOTUyOCJ9fX0=")
+
+
+	create a gui with virtual hopper inventory named "         &e&lCooldown &6&lTimer" with shape "12345":
+		make gui "1" with {head1} named "&e&lChat Cooldown" with lore "&2&ki&a&lUsage&2&ki&r" and "&2&l| &aClick to set the timer to 1 second":
+			set {serverdata::cooldown} to "1 second" parsed as timespan
+			set {lastcooldowntimerset} to now
+			set {cooldowntimerplayer} to player
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChatCooldown timer was changed by &6%player%" to all players
+			send ""
+			send "&e&lTimer: &7%{serverdata::cooldown}%"
+			send " " to all players
+			send "-------------------------------------------" to all players
+			close player's inventory
+			cmtoggles(player)
+		make gui "2" with {head2} named "&e&lChat Cooldown" with lore "&2&ki&a&lUsage&2&ki&r" and "&2&l| &aClick to set the timer to 2 seconds":
+			set {serverdata::cooldown} to "2 seconds" parsed as timespan
+			set {lastcooldowntimerset} to now
+			set {cooldowntimerplayer} to player
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChatCooldown timer was changed by &6%player%" to all players
+			send ""
+			send "&e&lTimer: &7%{serverdata::cooldown}%"
+			send " " to all players
+			send "-------------------------------------------" to all players
+			close player's inventory
+			cmtoggles(player)
+		make gui "3" with {head3} named "&e&lChat Cooldown" with lore "&2&ki&a&lUsage&2&ki&r" and "&2&l| &aClick to set the timer to 3 seconds":
+			set {serverdata::cooldown} to "3 seconds" parsed as timespan
+			set {lastcooldowntimerset} to now
+			set {cooldowntimerplayer} to player
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChatCooldown timer was changed by &6%player%" to all players
+			send ""
+			send "&e&lTimer: &7%{serverdata::cooldown}%"
+			send " " to all players
+			send "-------------------------------------------" to all players
+			close player's inventory
+			cmtoggles(player)
+		make gui "4" with {head4} named "&e&lChat Cooldown" with lore "&2&ki&a&lUsage&2&ki&r" and "&2&l| &aClick to set the timer to 4 seconds":
+			set {serverdata::cooldown} to "4 seconds" parsed as timespan
+			set {lastcooldowntimerset} to now
+			set {cooldowntimerplayer} to player
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChatCooldown timer was changed by &6%player%" to all players
+			send ""
+			send "&e&lTimer: &7%{serverdata::cooldown}%"
+			send " " to all players
+			send "-------------------------------------------" to all players
+			close player's inventory
+			cmtoggles(player)
+		make gui "5" with {head5} named "&e&lChat Cooldown" with lore "&2&ki&a&lUsage&2&ki&r" and "&2&l| &aClick to set the timer to 5 seconds":
+			set {serverdata::cooldown} to "5 seconds" parsed as timespan
+			set {lastcooldowntimerset} to now
+			set {cooldowntimerplayer} to player
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChatCooldown timer was changed by &6%player%" to all players
+			send ""
+			send "&e&lTimer: &7%{serverdata::cooldown}%"
+			send " " to all players
+			send "-------------------------------------------" to all players
+			close player's inventory
+			cmtoggles(player)
+	open last gui to {_p}
+
+
+function cmstatus(p: player):
+	set {_u} to uuid of {_p}
+	create a gui with virtual chest inventory with 3 rows named "             &e&lCM &6&lStatus" with shape "xaxaxaxax", "a1234567a" and "xaxaxaxax":
+		make gui "x" with orange stained glass pane named "&7"
+		make gui "a" with yellow stained glass pane named "&7"
+		make gui "4" with barrier named "&c&lGo Back":
+			cmgui(player)
+		make gui "1" with magenta dye named "&6&lClearChat" with lore "&eUsage: &7/clearchat", "&eAliases: &7None", "", "&3Last Cleared: &7%{lastclearchat}% &7(GMT)" and "&3Last Cleared By: &7%{clearchatplayer}%"
+		make gui "2" with magenta dye named "&6&lAntiSpam" with lore "&eUsage: &7/antispam", "&eAliases: &7/as", "", "&3Last Enabled: &7%{lastantispam} ? ""Unknown""% &7(GMT)", "&3Last Enabled By: &7%{antispamplayer} ? ""Unknown""%", "&3Last Disabled: &7%{lastantispamdisable} ? ""Unknown""% &7(GMT)" and "&3Last Disabled By: &7%{antispamdisableplayer} ? ""Unknown""%"
+		make gui "3" with magenta dye named "&6&lChat Cooldown" with lore "&eUsage: &7/cooldown", "&eAliases: &7/cd", "", "&3Last Enabled: &7%{lastcooldown} ? ""Unknown""% &7(GMT)" and "&3Last Enabled By: &7&7%{cooldowntimerplayer} ? ""Unknown""%"
+		make gui "5" with magenta dye named "&6&lChat Cooldow Timer" with lore "&eUsage: &7/cooldowntimer <time>", "&eAliases: &7/cdt", "", "&3Last Timer: &7%{serverdata::cooldown} ? ""Unknown""%", "&3Last Timer By: &7%{cooldownplayer} ? ""Unknown""%" and "&3Last Timer Set: &7%{lastcooldowntimerset} ? ""Unknown""%"
+		make gui "6" with magenta dye named "&6&lMute Chat" with lore "&eUsage: &7/mutechat", "&eAliases: &7/mc", "", "&3Last Chatmute: &7%{lastchatmute} ? ""Unknown""% &7(GMT)" and "&3Last Chatmute By: &7%{chatmuteplayer} ? ""Unknown""%"
+		make gui "7" with magenta dye named "&6&lUnmute Chat" with lore "&eUsage: &7/unmutechat", "&eAliases: &7/um", "", "&3Last Chat Unmute: &7%{lastchatunmute} ? ""Unknown""% &7(GMT)" and "&3Last Chat Unmute by: &7%{chatunmuteplayer} ? ""Unknown""%"
+	open last gui to {_p}

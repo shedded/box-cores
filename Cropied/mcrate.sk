@@ -1,0 +1,232 @@
+options:
+	prefix: %getPrefix()%
+
+command /monthlycrate <text> [<player>] [<text>] [<integer>]:
+	permission: *
+	aliases: mc
+	usage: /monthlycrate help
+	trigger:
+		if arg-1 is "give":
+			if arg-4 is not set:
+				send "{@prefix} Incorrect format. /mc help" to sender
+			else if arg-3 is "Cropied":
+				give arg-2 arg-4 of ender chest named "&6&l*&e&l*&6&l* &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*" with lore "","&7&oUnlocked at &ecropied.tebex.io","","&e&lMAIN Rewards","&6* &e1x Diamond Rank &c&lEXOTIC","&6* &e1x Gold Rank &c&lEXOTIC","&6* &e25,000x Tokens &e&lLEGENDARY","&6* &eSellwand (2x) &e&lLEGENDARY","&6* &e20x Legend Keys &d&lEPIC","&6* &eSellwand (1.5x) &b&lRARE","","&e&lFINAL REWARDS","&6* &e1x Cropied Rank &c&lEXOTIC","&6* &e2x Cropied Crate &c&lEXOTIC","&6* &e1x Mega Cropied Crate &c&lEXOTIC","&6* &e5x Slime Gen &e&lLEGENDARY","&6* &eSellwand (3x) &e&lLEGENDARY","&6* &e90,000x Tokens &e&lLEGENDARY","&6* &e3x Sellwand &d&lEPIC","&6* &e2x Rank Key &d&lEPIC","&6* &e1x Exotic Key &b&lRARE","&6* &e35,000x Tokens &b&lRARE"
+			else if arg-3 is "Mega":
+				give arg-2 arg-4 of ender chest named "&6&l*&e&l*&6&l* &e&lM&6&le&e&lg&6&la &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*" with lore "","&7&oUnlocked at &ecropied.tebex.io","","&e&lMAIN Rewards","&6* &e1x Cropied Rank &c&lEXOTIC","&6* &e1x Emerald Rank &c&lEXOTIC","&6* &e60,000x Tokens &e&lLEGENDARY","&6* &eSellwand (3x) &e&lLEGENDARY","&6* &e1x Exotic Key &d&lEPIC","&6* &eSellwand (2.5x) &b&lRARE","&6* &e50x Legend Keys &b&lRARE","","&e&lFINAL REWARDS","&6* &e1x Cropied+ Rank &c&lEXOTIC","&6* &e2x Mega Cropied Crate &c&lEXOTIC","&6* &e1x Special Cropied Crate &c&lEXOTIC","&6* &e4x Quartz Gen &e&lLEGENDARY","&6* &e250,000x Tokens &e&lLEGENDARY","&6* &eSellwand (3.5x) &d&lEPIC","&6* &e10x Rank Key &d&lEPIC","&6* &e5x Exotic Key &b&lRARE","&6* &e100,000x Tokens &b&lRARE"
+			else if arg-3 is "Special":
+				give arg-2 arg-4 of ender chest named "&6&l*&e&l*&6&l* &e&lS&6&lp&e&le&6&lc&e&li&6&la&e&ll &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*" with lore "","&eUnlocked at &6cropied.tebex.io","","&6&l&nOP Rewards","&6* &93x Special Sell Totem &6&l| &c&lGODLY","&6* &e2x Special Cropied Crate &6&l| &c&lGODLY","&6* &e10x Ender Gen &6&l| &5&lMYTHICAL","&6* &e500000x Tokens &6&l| &5&lMYTHICAL","&6* &a5x Exotic Keys &6&l| &9&lRARE","","&6&l&nMAIN REWARDS","","&6* &c1x Omega Key &6&l| &c&lGODLY","&6* &a2x Exotic Key &6&l| &c&lGODLY","&6* &e125000x Tokens &6&l| &5&lMYTHICAL","&6* &eSellwand (4x) &6&l| &5&lMYTHICAL","&6* &e$5,000,000,000 &6&l| &9&lRARE","&6* &c1x Exotic Ore Totem &6&l| &a&lCOMMON","&6* &e100x Legend Key &6&l| &a&lCOMMON"
+		else:
+			send ""
+			send "&7/monthlycrate give [player] [type] [amount]"
+			send ""
+
+on place:
+	if player's held item is an ender chest:
+		if name of player's held item is "&6&l*&e&l*&6&l* &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*":
+			cancel event
+
+
+
+on rightclick:
+	if player's held item is an ender chest named "&6&l*&e&l*&6&l* &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*" with lore "","&7&oUnlocked at &ecropied.tebex.io","","&e&lMAIN Rewards","&6* &e1x Diamond Rank &c&lEXOTIC","&6* &e1x Gold Rank &c&lEXOTIC","&6* &e25,000x Tokens &e&lLEGENDARY","&6* &eSellwand (2x) &e&lLEGENDARY","&6* &e20x Legend Keys &d&lEPIC","&6* &eSellwand (1.5x) &b&lRARE","","&e&lFINAL REWARDS","&6* &e1x Cropied Rank &c&lEXOTIC","&6* &e2x Cropied Crate &c&lEXOTIC","&6* &e1x Mega Cropied Crate &c&lEXOTIC","&6* &e5x Slime Gen &e&lLEGENDARY","&6* &eSellwand (3x) &e&lLEGENDARY","&6* &e90,000x Tokens &e&lLEGENDARY","&6* &e3x Sellwand &d&lEPIC","&6* &e2x Rank Key &d&lEPIC","&6* &e1x Exotic Key &b&lRARE","&6* &e35,000x Tokens &b&lRARE":
+		cancel event
+		openCropied(player)
+		remove 1 of player's held item from player's inventory
+	else if player's held item is an ender chest named "&6&l*&e&l*&6&l* &e&lM&6&le&e&lg&6&la &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*" with lore "","&7&oUnlocked at &ecropied.tebex.io","","&e&lMAIN Rewards","&6* &e1x Cropied Rank &c&lEXOTIC","&6* &e1x Emerald Rank &c&lEXOTIC","&6* &e60,000x Tokens &e&lLEGENDARY","&6* &eSellwand (3x) &e&lLEGENDARY","&6* &e1x Exotic Key &d&lEPIC","&6* &eSellwand (2.5x) &b&lRARE","&6* &e50x Legend Keys &b&lRARE","","&e&lFINAL REWARDS","&6* &e1x Cropied+ Rank &c&lEXOTIC","&6* &e2x Mega Cropied Crate &c&lEXOTIC","&6* &e1x Special Cropied Crate &c&lEXOTIC","&6* &e4x Quartz Gen &e&lLEGENDARY","&6* &e250,000x Tokens &e&lLEGENDARY","&6* &eSellwand (3.5x) &d&lEPIC","&6* &e10x Rank Key &d&lEPIC","&6* &e5x Exotic Key &b&lRARE","&6* &e100,000x Tokens &b&lRARE":
+		cancel event
+		openMegaCropied(player)
+		remove 1 of player's held item from player's inventory
+	else if player's held item is an ender chest named "&6&l*&e&l*&6&l* &e&lS&6&lp&e&le&6&lc&e&li&6&la&e&ll &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le &6&l*&e&l*&6&l*" with lore "","&eUnlocked at &6cropied.tebex.io","","&6&l&nOP Rewards","&6* &93x Special Sell Totem &6&l| &c&lGODLY","&6* &e2x Special Cropied Crate &6&l| &c&lGODLY","&6* &e10x Ender Gen &6&l| &5&lMYTHICAL","&6* &e500000x Tokens &6&l| &5&lMYTHICAL","&6* &a5x Exotic Keys &6&l| &9&lRARE","","&6&l&nMAIN REWARDS","","&6* &c1x Omega Key &6&l| &c&lGODLY","&6* &a2x Exotic Key &6&l| &c&lGODLY","&6* &e125000x Tokens &6&l| &5&lMYTHICAL","&6* &eSellwand (4x) &6&l| &5&lMYTHICAL","&6* &e$5,000,000,000 &6&l| &9&lRARE","&6* &c1x Exotic Ore Totem &6&l| &a&lCOMMON","&6* &e100x Legend Key &6&l| &a&lCOMMON":
+		cancel event
+		openSpecialCropied(player)
+		remove 1 of player's held item from player's inventory
+
+function openCropied(player: player):
+	loop 9 times:
+		set {_chance} to a random integer between 1 and 100
+		if {_chance} is between 1 and 2:
+			add 1 of paper named "&6Diamond Rank" with lore "&7Right-Click to redeem &bDiamond Rank&7!" to {_player}'s inventory
+			set {_reward} to "&bDiamond Rank"
+		else if {_chance} is between 3 and 5:
+			add 1 of paper named "&6Gold Rank" with lore "&7Right-Click to redeem &eGold Rank&7!" to {_player}'s inventory
+			set {_reward} to "&6Gold Rank"
+		else if {_chance} is between 6 and 15:
+			make console execute command "/tokens add %{_player}% 25000"
+			set {_reward} to "&a25,000x Tokens"
+		else if {_chance} is between 16 and 35:
+			make console execute command "/sellwand %{_player}% 2"
+			set {_reward} to "&aSellwand (2x)"
+		else if {_chance} is between 36 and 70:
+			make console execute command "/givekey %{_player}% legend 20"
+			set {_reward} to "&620x Legend Key"
+		else if {_chance} is between 71 and 100:
+			make console execute command "/sellwand %{_player}% 1.5"
+			set {_reward} to "&aSellwand (1.5x)"
+		send title "&aReward %loop-value%" to {_player}
+		send subtitle "%{_reward}%" to {_player}
+		add {_reward} to {_rewards::*}
+		wait 1 second
+	send title "&aFinal reward is..." to {_player}
+	wait 5 seconds
+	set {_chance} to a random integer between 1 and 100
+	if {_chance} is between 1 and 5:
+		add 1 of paper named "&6Cropied Rank" with lore "&7Right-Click to redeem &eC&6r&eo&6p&ei&6e&ed Rank&7!" to {_player}'s inventory
+		set {_reward} to "&eC&6r&eo&6p&ei&6e&ed Rank"
+	else if {_chance} is between 5 and 10:
+		make console execute command "/monthlycrate give %{_player}% cropied 2"
+		set {_reward} to "&62x &eC&6r&eo&6p&ei&6e&ed Crate"
+	else if {_chance} is between 11 and 20:
+		make console execute command "/givegen %{_player}% slime block 5"
+		set {_reward} to "&d5x Slime Gen"
+	else if {_chance} is between 21 and 30:
+		make console execute command "/tokens add %{_player}% 90000"
+		set {_reward} to "&a90,000x Tokens"
+	else if {_chance} is between 31 and 40:
+		make console execute command "/sellwand %{_player}% 3"
+		set {_reward} to "&aSellwand (3x)"
+	else if {_chance} is between 51 and 65:
+		make console execute command "/givekey %{_player}% rank 2"
+		set {_reward} to "&c1x Rank Key"
+	else if {_chance} is between 66 and 80:
+		make console execute command "/givekey %{_player}% exotic 1"
+		set {_reward} to "&a1x Exotic Key"
+	else if {_chance} is between 81 and 95:
+		make console execute command "/tokens add %{_player}% 35000"
+		set {_reward} to "&a35,000x Tokens"
+	else if {_chance} is greater than 95:
+		make console execute command "/monthlycrate give %{_player}% mega 1"
+		set {_reward} to "&61x &eM&6e&eg&6a &eC&6r&eo&6p&ei&6e&ed Crate"
+	send title "&aFinal reward is..." to {_player}
+	send subtitle "%{_reward}%!" to {_player}
+	add {_reward} to {_rewards::*}
+	broadcast "&b%{_player}% &6has opened a &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le and recieved rewards!"
+	broadcast "&e&m-----------------------------------------------------"
+	set {_colors::*} to "&6" and "&e" and "&b"
+	loop 10 times:
+		broadcast "%random element out of {_colors::*}%%uncolored {_rewards::%loop-value%}%"
+	broadcast "&e&m-----------------------------------------------------"
+	broadcast "&e&lGet yours at &6&lhttp://cropied.tebex.io/"
+
+
+function openMegaCropied(player: player):
+	loop 9 times:
+		set {_chance} to a random integer between 1 and 100
+		if {_chance} is between 1 and 2:
+			add 1 of paper named "&6Cropied Rank" with lore "&7Right-Click to redeem &eC&6r&eo&6p&ei&6e&ed Rank&7!" to {_player}'s inventory
+			set {_reward} to "&eC&6r&eo&6p&ei&6e&ed Rank"
+		else if {_chance} is between 3 and 5:
+			add 1 of paper named "&6Emerald Rank" with lore "&7Right-Click to redeem &aEmerald Rank&7!" to {_player}'s inventory
+			set {_reward} to "&aEmerald Rank"
+		else if {_chance} is between 6 and 15:
+			make console execute command "/tokens add %{_player}% 60000"
+			set {_reward} to "&a60,000x Tokens"
+		else if {_chance} is between 16 and 25:
+			make console execute command "/sellwand %{_player}% 3"
+			set {_reward} to "&aSellwand (3x)"
+		else if {_chance} is between 26 and 40:
+			make console execute command "/givekey %{_player}% exotic 1"
+			set {_reward} to "&a1x Exotic Key"
+		else if {_chance} is between 41 and 70:
+			make console execute command "/sellwand %{_player}% 2.5"
+			set {_reward} to "&aSellwand (2.5x)"
+		else if {_chance} is between 76 and 100:
+			make console execute command "/givekey %{_player}% legend 50"
+			set {_reward} to "&650x Legend Key"
+		send title "&aReward %loop-value%" to {_player}
+		send subtitle "%{_reward}%" to {_player}
+		add {_reward} to {_rewards::*}
+		wait 1 second
+	send title "&aFinal reward is..." to {_player}
+	wait 5 seconds
+	set {_chance} to a random integer between 1 and 100
+	if {_chance} is between 1 and 5:
+		add 1 of paper named "&6Cropied+ Rank" with lore "&7Right-Click to redeem &eC&6r&eo&6p&ei&6e&ed&6+ Rank&7!" to {_player}'s inventory
+		set {_reward} to "&eC&6r&eo&6p&ei&6e&ed&6+ Rank"
+	else if {_chance} is between 5 and 10:
+		make console execute command "/monthlycrate give %{_player}% mega 2"
+		set {_reward} to "&62x &eM&6e&eg&6a &eC&6r&eo&6p&ei&6e&ed Crate"
+	else if {_chance} is between 11 and 20:
+		make console execute command "/givegen %{_player}% honeycomb block 5"
+		set {_reward} to "&d5x Honey Gen"
+	else if {_chance} is between 21 and 35:
+		make console execute command "/tokens add %{_player}% 250000"
+		set {_reward} to "&a250,000x Tokens"
+	else if {_chance} is between 36 and 50:
+		make console execute command "/sellwand %{_player}% 3.5"
+		set {_reward} to "&aSellwand (3.5x)"
+	else if {_chance} is between 51 and 65:
+		make console execute command "/givekey %{_player}% rank 10"
+		set {_reward} to "&c10x Rank Key"
+	else if {_chance} is between 66 and 80:
+		make console execute command "/givekey %{_player}% exotic 5"
+		set {_reward} to "&c5x Exotic Key"
+	else if {_chance} is between 81 and 100:
+		make console execute command "/tokens add %{_player}% 100000"
+		set {_reward} to "&a100,000x Tokens"
+	send title "&aFinal reward is..." to {_player}
+	send subtitle "%{_reward}%!" to {_player}
+	add {_reward} to {_rewards::*}
+	broadcast "&b%{_player}% &6has opened a &e&lM&6&le&e&lg&6&la &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le and recieved rewards!"
+	broadcast "&e&m-----------------------------------------------------"
+	set {_colors::*} to "&6" and "&e" and "&b"
+	loop 10 times:
+		broadcast "%random element out of {_colors::*}%%uncolored {_rewards::%loop-value%}%"
+	broadcast "&e&m-----------------------------------------------------"
+	broadcast "&e&lGet yours at &6&lhttp://cropied.tebex.io/"   
+
+function openSpecialCropied(player: player):
+	loop 9 times:
+		set {_chance} to a random integer between 1 and 100
+		if {_chance} is between 1 and 2:
+			execute console command "/givekey %{_player}% omega 1"
+			set {_reward} to "&c1x Omega Key"
+		else if {_chance} is between 3 and 5:
+			execute console command "/givekey %{_player}% exotic 2"
+			set {_reward} to "&a2x Exotic Key"
+		else if {_chance} is between 6 and 15:
+			make console execute command "/tokens add %{_player}% 125000"
+			set {_reward} to "&a125000x Tokens"
+		else if {_chance} is between 16 and 25:
+			make console execute command "/sellwand %{_player}% 4"
+			set {_reward} to "&aSellwand (4x)"
+		else if {_chance} is between 26 and 40:
+			add 5000000000 to {_player}'s money
+			set {_reward} to "&a$5,000,000,000"
+		else if {_chance} is between 56 and 75:
+			make console execute command "/givekey %{_player}% legend 100"
+			set {_reward} to "&6100x Legend Key"
+		else:
+			make console execute command "/givetotem %{_player}% ore exotic 1"
+			set {_reward} to "&c1x Exotic Ore Totem"
+		send title "&aReward %loop-value%" to {_player}
+		send subtitle "%{_reward}%" to {_player}
+		add {_reward} to {_rewards::*}
+		wait 1 second
+	send title "&aFinal reward is..." to {_player}
+	wait 5 seconds
+	set {_chance} to a random integer between 1 and 100
+	if {_chance} is between 1 and 5:
+		make console execute command "/givetotem Sell Exotic %{_player}% 3"
+		set {_reward} to "&93x Exotic Sell Totem"
+	else if {_chance} is between 5 and 10:
+		make console execute command "/monthlycrate give %{_player}% special 2"
+		set {_reward} to "&62x &eS&6p&ee&6c&ei&6a&el &eC&6r&eo&6p&ei&6e&ed Crate"
+	else if {_chance} is between 11 and 25:
+		make console execute command "/givegen %{_player}% endstone 10"
+		set {_reward} to "&d10x Ender Gen"
+	else if {_chance} is between 26 and 40:
+		make console execute command "/tokens add %{_player}% 500000"
+		set {_reward} to "&a500000x Tokens"
+	else if {_chance} is between 71 and 100:
+		make console execute command "/givekey %{_player}% exotic 5"
+		set {_reward} to "&a5x Exotic Key"
+	send title "&aFinal reward is..." to {_player}
+	send subtitle "%{_reward}%!" to {_player}
+	add {_reward} to {_rewards::*}
+	broadcast "&b%{_player}% &6has opened a &e&lS&6&lp&e&le&6&lc&e&li&6&la&e&ll &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &6&lC&e&lr&6&la&e&lt&6&le and recieved rewards!"
+	broadcast "&e&m-----------------------------------------------------"
+	set {_colors::*} to "&6" and "&e" and "&b"
+	loop 10 times:
+		broadcast "%random element out of {_colors::*}%%uncolored {_rewards::%loop-value%}%"
+	broadcast "&e&m-----------------------------------------------------"
+	broadcast "&e&lGet yours at &6&lhttp://cropied.tebex.io/"   

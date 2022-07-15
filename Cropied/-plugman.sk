@@ -1,0 +1,2 @@
+on skript start:
+	execute console command "/plugman disable ViaVersion"

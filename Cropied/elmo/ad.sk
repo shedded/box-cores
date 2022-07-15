@@ -1,0 +1,11 @@
+command /ad:
+	aliases: ads
+	trigger:
+		send " "
+		send "<##bdfffd>&lAds"
+		send " "
+		send "&7Default Advertisement &b&l<tooltip:&fClick to receive default advertisement><suggest command:/ad cropied OP GENS | Free Rank! SUPER OP>[CLICK HERE]"
+		send "&a[VIP] &7Advertisement &b&l<tooltip:&fClick to receive VIP advertisement><suggest command:/ad Cropied &6OP GENS! | &5Custom Enchants | &eLag FREE! | &cFreeRank!>[CLICK HERE]"
+		send "&b[PRO] &7Advertisement &b&l<tooltip:&fClick to receive PRO advertisement><suggest command:/ad Cropied &6&l&nOP GENS&6 | &5Custom Enchants | &e&nLag FREE!&e | &c&lFreeRank> [CLICK HERE]"
+		send "&6[LEGEND] &7- &3[PATRON] &7Advertisement &b&l<tooltip:&fClick to receive LEGEND - PATRON advertisement><suggest command:/ad Cropied &d&l[CLICK] &6&l&nOP GENS&6 | &5Custom Enchants | &e&nLag FREE!&e | &c&lFreeRank>[CLICK HERE]"
+		send ""

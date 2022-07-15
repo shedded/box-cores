@@ -1,0 +1,15 @@
+command /resetallmines:
+	permission: resetall.mines
+	permission message: you dont have permission
+	trigger:
+		execute console command "/mrl reset Netherite"
+		execute console command "/mrl reset magma"
+		execute console command "/mrl reset bamboo"
+		execute console command "/mrl reset stone"
+		execute console command "/mrl reset diamond"
+		execute console command "/mrl reset wood"
+		execute console command "/mrl reset bones"
+		execute console command "/mrl reset endstone"
+		execute console command "/mrl reset beacon"
+		execute console command "/mrl reset iron"
+		execute console command "/mrl reset emerald"

@@ -1,0 +1,55 @@
+on right click on sign:
+	if player has permission "staff.sign":
+		if player is not sneaking:
+			if line 2 of target block is not "&b&l&oSignature":
+				set {_e::*} to prefix of player split at " " 
+				set line 1 of target block to "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+				set line 2 of target block to "&b&lSignature"
+				set line 3 of target block to "%{_e::1}%"
+				set line 4 of target block to "&3%player% %player's uuid%"
+			if line 4 doesn't contain player's uuid:
+				send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7This sign has been locked by the author of the sign" to player
+				cancel event
+			else if line 2 of target block is "&b&l&oSignature":
+				send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7You locked your sign earlier, shift left click to unlock it. Or do /unlocksign while looking at it"
+
+command locksign:
+	permission: staff.sign
+	trigger:
+		if player doesn't have permission "staff.sign":
+			stop
+		if line 4 of target block contains player's uuid:
+			set line 2 of target block to "&b&l&oSignature"
+			send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7You have locked your sign"
+		else if target block is sign:
+			send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7This sign is not yours"
+
+command unlocksign:
+	permission: staff.sign
+	trigger:
+		if line 4 of target block contains player's uuid:
+			set line 2 of target block to "&b&lSignature"
+			send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7You have unlocked your sign"
+		else if target block is sign:
+			send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7This sign is not yours"
+
+on command "/sign":
+	if player doesn't have permission "staff.sign":
+		stop
+	if line 2 of target block is "&b&l&oSignature":
+		send "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld &8| &7You may not use /sign on a locked sign"
+		cancel event
+
+
+on right click on sign:
+	if player doesn't have permission "staff.sign":
+		stop
+	if player is sneaking:
+		make player say "/locksign"
+
+on left click on sign:
+	if player doesn't have permission "staff.sign":
+		stop
+	if player is sneaking:
+		make player say "/unlocksign"
+		cancel event

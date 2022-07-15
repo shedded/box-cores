@@ -1,0 +1,33 @@
+on damage:
+  attacker is a player
+  victim is a player
+  if {newPlayer::%uuid of victim%} is true:
+    send "&cThis new player is protected for 30 minutes!" to attacker
+    cancel event
+  if {newPlayer::%uuid of attacker%} is true:
+    send "&cYou are a new player and have been given 30 minutes of protection, if you don't want this do /noprotection" to victim
+    cancel event
+on first join:
+  set {newPlayer::%uuid of player%} to true
+  set {time::%uuid of player%} to 1800
+  while {newPlayer::%uuid of player%} = true:
+    remove 1 from {time::%uuid of player%}
+    wait 1 second
+    if {time::%uuid of player%} < 1:
+      set {newPlayer::%uuid of player%} to false
+      send "&cYour new player protection is over!"
+
+command /noprotection:
+  permission: noprotection.off
+  trigger:
+    if {newPlayer::%uuid of player%} is true:
+      set {newPlayer::%uuid of player%} to false
+      send "&cYour new player protection is over!"
+    else:
+      send "&cYou don't have new player protection!"
+
+command /protection:
+  permission: noprotection.admin
+  trigger:
+    set {newPlayer::%uuid of player%} to true
+    send "&CEnabled your new player protection"

@@ -1,0 +1,19 @@
+command linkrewards <player>:
+	executable by: console
+	trigger:
+		addGens(arg-1, 20)
+		addMulti(arg-1, 0.3)
+		broadcast "%getPrefix()% &d%arg-1%&f Successfully linked their account. &e&l/link."
+
+command unlinkrewards <offlineplayer>:
+	executable by: console
+	trigger:
+		set {_u} to arg-1's uuid
+		arg-1 is not online:
+			load yaml "plugins/Gens/playerdata/%{_u}%.yml" as "plugins/Gens/playerdata/%{_u}%.yml"
+			load yaml "plugins/Gens/Economy/playerdata/%{_u}%.yml" as "plugins/Gens/Economy/playerdata/%{_u}%.yml"
+		set yaml value "Gens.Max" from "plugins/Gens/playerdata/%{_u}%.yml" to (yaml value "Gens.Max" from "plugins/Gens/playerdata/%{_u}%.yml") - 20
+		set yaml value "multi" from "plugins/Gens/Economy/playerdata/%{_u}%.yml" to (yaml value "multi" from "plugins/Gens/Economy/playerdata/%{_u}%.yml") - 0.3
+		arg-1 is not online:
+			save yaml "plugins/Gens/playerdata/%{_u}%.yml"
+			save yaml "plugins/Gens/Economy/playerdata/%{_u}%.yml"

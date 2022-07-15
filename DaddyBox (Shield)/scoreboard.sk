@@ -1,0 +1,31 @@
+on join:
+  if {kills::%player's uuid%} is not set:
+    set {kills::%player's uuid%} to 0
+  if {deaths::%player's uuid%} is not set:
+    set {deaths::%player's uuid%} to 0
+
+on death of player:
+    add 1 to {deaths::%victim's uuid%}
+    if attacker is a player:
+        add 1 to {kills::%attacker's uuid%}
+
+options: 
+  server: &f&lDaddy&7&lBox
+
+Every 1 second:
+  loop all players: 
+    set {_online} to number of all players
+    wipe loop-player's sidebar
+    set name of sidebar of loop-player to "{@server}" 
+    set score "&f&m>----------------<" in sidebar of loop-player to 15
+    set score "&f&l>> &7&lPlayer" in sidebar of loop-player to 14
+    set score "" in sidebar of loop-player to 13
+    set score " &f&l| &bPlayer &7> %loop-player%" in sidebar of loop-player to 12
+    set score " &7&l| &bKills &7> %{kills::%loop-player's uuid%}%" in sidebar of loop-player to 11
+    set score " &f&l| &bDeaths &7> %{deaths::%loop-player's uuid%}%" in sidebar of loop-player to 10
+    set score "" in sidebar of loop-player to 9
+    set score "&7&l>> &b&lServer" in sidebar of loop-player to 9
+    set score " &f&l| &bOnline &7> %amount of all players%" in sidebar of loop-player to 8
+    set score " &7&l| &bServer tps &7> %tps from the last minute%" in sidebar of loop-player to 7
+    set score "&7&m-------------------" in sidebar of loop-player to 6
+    set score "&f&oIP: &7&oDaddybox.Minehut.gg" in sidebar of loop-player to 5

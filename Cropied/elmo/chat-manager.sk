@@ -1,0 +1,490 @@
+options:
+	pre: &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld
+	main: 920352223408570478
+	interval: 1200
+
+command cm [<text>] [<text>]:
+	aliases: chatmanager
+	permission: staff
+	trigger:
+#HELP
+		if arg-1 is not set:
+			cmgui(player)
+
+#COOLDOWN
+		if arg-1 is "cdt" or "cooldowntimer":
+			if arg-2 is not set:
+				send "{@pre} You must set a time for the cooldown!"
+				send "&cUsage: &7/cdt <time>"
+				stop
+			set {serverdata::cooldown} to arg-2 parsed as timespan
+			set {lastcooldowntimerset} to now
+			set {cooldowntimerplayer} to sender
+			send "-------------------------------------------" to all players
+			send " " to all players
+			send "{@pre} &c&lChatCooldown timer was changed by &6%sender%" to all players
+			send ""
+			send "&e&lTimer: &7%{serverdata::cooldown}%"
+			send " " to all players
+			send "-------------------------------------------" to all players
+			make embed:
+				set title of embed to "**COOLDOWN TIMER CHANGED BY**: %sender's group% | %sender%"
+				set description of embed to "```Cooldown set to: %arg-2%```"
+				set color of the embed to yellow
+			send last created embed to channel with id "{@main}"
+
+		if arg-1 is "cd" or "cooldown":
+			if {cooldown} is not true:
+				if arg-2 is set:
+					set {cooldown} to true
+					set {cooldownplayer} to sender
+					set {cooldownreason} to arg-2
+					set {cooldownreasonset} to true
+					set {lastcooldown} to now
+					send "-------------------------------------------" to all players
+					send " " to all players
+					send "{@pre} &c&lChatCooldown was enabled by &6%sender%" to all players
+					send "" to all players
+					send "&e&lTimer: &7%{serverdata::cooldown}%" to all players
+					send " " to all players
+					send "&e&lReason: &7%arg-2%" to all players
+					send " " to all players
+					send "-------------------------------------------" to all players
+					make embed:
+						set title of embed to "**CHAT COOLDOWN UPDATE**"
+						set description of embed to "```Cooldown enabled```"
+						add field named "*Chat Cooldown enabled by*:" with value "%sender's group% | %sender%" to embed
+						add field named "*REASON*:" with value "``%{cooldownreason}%``" to embed
+						set color of the embed to green
+					send last created embed to channel with id "{@main}"
+					stop
+				else:
+					set {cooldown} to true
+					set {cooldownplayer} to sender
+					set {cooldownreasonset} to false
+					set {lastcooldown} to now
+					send "-------------------------------------------" to all players
+					send " " to all players
+					send "{@pre} &c&lChatCooldown was enabled by &6%sender%" to all players
+					send ""
+					send "&e&lTimer: &7%{serverdata::cooldown}%"
+					send " "
+					send "-------------------------------------------" to all players
+					make embed:
+						set title of embed to "**CHAT COOLDOWN UPDATE**"
+						set description of embed to "```Cooldown enabled```"
+						add field named "*Chat Cooldown enabled by:*:" with value "%sender's group% | %sender%" to embed
+						set color of the embed to green
+					send last created embed to channel with id "{@main}"
+					stop
+			if {cooldown} is true:
+				if arg-2 is set:
+					set {cooldowndisablereason} to arg-2
+					set {cooldowndisablereasonset} to true
+					set {cooldowndisableplayer} to sender
+					set {lastcooldowndisable} to now
+					set {cooldown} to false
+					send "-------------------------------------------" to all players
+					send " " to all players
+					send "{@pre} &c&lChatCooldown was disabled by &6%sender%" to all players
+					send " "
+					send "&e&lReason: &7%arg-2%" to all players
+					send " " to all players
+					send "-------------------------------------------" to all players
+					make embed:
+						set title of embed to "**CHAT COOLDOWN UPDATE**"
+						set description of embed to "```Cooldown disabled```"
+						add field named "*Chat Cooldown disabled by:*:" with value "%sender's group% | %sender%" to embed
+						add field named "*REASON*:" with value "``%{cooldowndisablereason}%``" to embed
+						set color of the embed to red
+					send last created embed to channel with id "{@main}"
+					stop
+				else:
+					set {cooldowndisablereason} to arg-2
+					set {cooldowndisableplayer} to sender
+					set {cooldowndisablereasonset} to true
+					set {lastcooldowndisable} to now
+					set {cooldown} to false
+					send "-------------------------------------------" to all players
+					send " " to all players
+					send "{@pre} &c&lChatCooldown was disabled by &6%sender%" to all players
+					send " "
+					send "-------------------------------------------" to all players
+					make embed:
+						set title of embed to "**CHAT COOLDOWN UPDATE**"
+						set description of embed to "```Cooldown disabled```"
+						add field named "*Chat Cooldown disabled by:*:" with value "%sender's group% | %sender%" to embed
+						set color of the embed to red
+					send last created embed to channel with id "{@main}"
+					stop
+
+
+#ANTI-SPAM
+		if arg-1 is "as" or "antispam":
+			if {antispam} is true:
+				if arg-2 is set:
+					set {lastantispamdisable} to now
+					set {antispam} to false
+					set {antispamdisableplayer} to sender
+					set {antispamdisablereasonset} to true
+					set {antispamdisablereason} to arg-2
+					send "-------------------------------------------" to all players
+					send " " to all players
+					send "{@pre} &c&lAntiSpam was disabled by &6%sender%" to all players
+					send " "
+					send "&e&lReason: &7%arg-2%" to all players
+					send " " to all players
+					send "-------------------------------------------" to all players
+					make embed:
+						set title of embed to "**ANTISPAM UPDATE**"
+						set description of embed to "```Antispam disabled```"
+						add field named "*AntiSpam disabled by*:" with value "%sender's group% | %sender%" to embed
+						add field named "*REASON*:" with value "``%{antispamdisablereason}%``" to embed
+						set color of the embed to red
+					send last created embed to channel with id "{@main}"
+				else:
+					set {antispam} to false
+					set {antispamdisableplayer} to sender
+					set {antispamdisablereasonset} to false
+					send "-------------------------------------------" to all players
+					send " " to all players
+					send "{@pre} &c&lAntiSpam was disabled by &6%sender%" to all players
+					send " " to all players
+					send "-------------------------------------------" to all players
+					make embed:
+						set title of embed to "**ANTISPAM UPDATE**"
+						set description of embed to "```Antispam disabled```"
+						add field named "*AntiSpam disabled by*:" with value "%sender's group% | %sender%" to embed
+						set color of the embed to red
+					send last created embed to channel with id "{@main}"
+				stop
+			if arg-2 is set:
+				set {lastantispam} to now
+				set {antispam} to true
+				set {antispamplayer} to sender
+				set {antispamreasonset} to true
+				set {antispamreason} to arg-2
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lAntiSpam was enabled by &6%sender%" to all players
+				send " "
+				send "&e&lReason: &7%arg-2%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				make embed:
+					set title of embed to "**ANTISPAM UPDATE**"
+					set description of embed to "```Antispam enabled```"
+					add field named "*AntiSpam enabled by*:" with value "%sender's group% | %sender%" to embed
+					add field named "*REASON*:" with value "``%{antispamreason}%``" to embed
+					set color of the embed to green
+				send last created embed to channel with id "{@main}"
+			else:
+				set {lastantispam} to now
+				set {antispam} to true
+				set {antispamplayer} to sender
+				set {antispamreasonset} to false
+				send "------------------------------"
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lAntiSpam was enabled by &6%sender%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				make embed:
+					set title of embed to "**ANTISPAM UPDATE**"
+					set description of embed to "```Antispam enabled```"
+					add field named "*AntiSpam enabled by*:" with value "%sender's group% | %sender%" to embed
+					set color of the embed to green
+				send last created embed to channel with id "{@main}"
+#BROADCAST
+		if arg-1 is "bc" or "broadcast":
+			if sender does not have permission "chatmanager.broadcast":
+				send "{@pre} You do not have permission to do this!"
+				stop			
+			if arg-2 is not set:
+				send "{@pre} You must put in something to broadcast!"
+				send "&cUsage: &7/cm bc <text>"
+				stop
+			send formatted " " to all players
+			send formatted "{@pre} &c&lANNOUNCEMENT" to all players
+			send formatted "  " to all players
+			send formatted "| %arg-2%" to all players
+			send formatted "  " to all players
+			set {broadcastplayer} to sender
+			make embed:
+				set title of embed to "**BROADCAST**"
+				set description of embed to "```%arg-2%```"
+				add field named "*Broadcasted by*:" with value "%sender's group% | %sender%" to embed
+				set color of the embed to orange
+			send last created embed to channel with id "{@main}"
+#CLEARCHAT
+		if arg-1 is "cc" or "clearchat":
+			if arg-2 is not set:
+				loop 500 times:
+					send " " to all players where [input does not have permission "chatmanager.clearchat.bypass"]
+					send "  " to all players where [input does not have permission "chatmanager.clearchat.bypass"]
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was cleared by &6%sender%" to all players
+				send " " to all players where [input has permission "chatmanager.clearchat.bypass"]
+				send "&eChat was not cleared for Staff" to all players where [input has permission "chatmanager.clearchat.bypass"]
+				send " " to all players
+				send "-------------------------------------------" to all players
+				set {lastclearchat} to now
+				set {clearchatplayer} to sender
+				set {clearchatreasonset} to false
+				make embed:
+					set title of embed to "**CLEARCHAT UPDATE**"
+					set description of embed to "```Cleared chat```"
+					add field named "*Clear chat by*:" with value "%sender's group% | %sender%" to embed
+					set color of the embed to red
+				send last created embed to channel with id "{@main}"
+			else:
+				loop 500 times:
+					send " " to all players where [input does not have permission "chatmanager.clearchat.bypass"]
+					send "  " to all players where [input does not have permission "chatmanager.clearchat.bypass"]
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was cleared by &6%sender%" to all players
+				send " " to all players
+				send "&e&lReason: &7%arg-2%" to all players
+				send " " to all players where [input has permission "chatmanager.mutechat.bypass"]
+				send "&eChat was not cleared for Staff" to all players where [input has permission "chatmanager.mutechat.bypass"]
+				send " " to all players
+				send "-------------------------------------------" to all players
+				set {lastclearchat} to now
+				set {clearchatplayer} to sender
+				set {clearchatreasonset} to true
+				set {clearchatreason} to arg-2
+				make embed:
+					set title of embed to "**CLEARCHAT UPDATE**"
+					set description of embed to "```Cleared chat```"
+					add field named "*Clear chat by*:" with value "%sender's group% | %sender%" to embed
+					add field named "*REASON*:" with value "``%{clearchatreason}%``" to embed
+					set color of the embed to red
+					send last created embed to channel with id "{@main}"
+#MUTECHAT
+		if arg-1 is "mc" or "mutechat" or "mute":
+			if {chatmute} is true:
+				send "{@pre} Chat is already muted"
+				stop
+			if arg-2 is set:
+				set {chatmute} to true
+				set {chatmuteplayer} to sender
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was muted by &6%sender%" to all players
+				send " "
+				send "&e&lReason: &7%arg-2%" to all players
+				send " " to all players where [input has permission "chatmanager.mutechat.bypass"]
+				send "&eChat was not muted for Staff" to all players where [input has permission "chatmanager.mutechat.bypass"]
+				send " " to all players
+				send "-------------------------------------------" to all players
+				set {lastchatmute} to now
+				set {chatmuteplayer} to sender
+				set {chatmutereasonset} to true
+				set {chatmutereason} to arg-2
+				make embed:
+					set title of embed to "**CHATMUTE UPDATE**"
+					set description of embed to "```Chat was muted```"
+					add field named "*Chat muted by*:" with value "%sender's group% | %sender%" to embed
+					add field named "*REASON*:" with value "``%{chatmutereason}%``" to embed
+					set color of the embed to red
+				send last created embed to channel with id "{@main}"
+			else:
+				set {chatmute} to true
+				set {chatmuteplayer} to sender
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was muted by &6%sender%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				set {lastchatmute} to now
+				set {chatmuteplayer} to sender
+				set {chatmutereasonset} to false
+				make embed:
+					set title of embed to "**CHATMUTE UPDATE**"
+					set description of embed to "```Chat was muted```"
+					add field named "*Chat muted by*:" with value "%sender's group% | %sender%" to embed
+					set color of the embed to red
+				send last created embed to channel with id "{@main}"
+#UNMUTECHAT	   
+		if arg-1 is "um" or "unmute" or "unmutechat":
+			if {chatmute} is not true:
+				send "{@pre} Chat was not muted"
+				stop
+			if arg-2 is set:
+				set {chatunmutereasonset} to true
+				set {chatunmutereason} to arg-2
+				set {lastchatunmute} to now
+				set {chatmute} to false
+				set {chatunmuteplayer} to sender
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was unmuted by &6%sender%" to all players
+				send " "
+				send "&e&lReason: &7%arg-2%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				make embed:
+					set title of embed to "**CHATMUTE UPDATE**"
+					set description of embed to "```Chat was unmuted```"
+					add field named "*Chat unmuted by*:" with value "%sender's group% | %sender%" to embed
+					add field named "*REASON*:" with value "``%{chatunmutereason}%``" to embed
+					set color of the embed to green
+				send last created embed to channel with id "{@main}"
+			else:
+				set {chatmutereasonset} to false
+				set {lastchatunmute} to now
+				set {chatmute} to false
+				set {chatunmuteplayer} to sender
+				send "-------------------------------------------" to all players
+				send " " to all players
+				send "{@pre} &c&lChat was unmuted by &6%sender%" to all players
+				send " " to all players
+				send "-------------------------------------------" to all players
+				make embed:
+					set title of embed to "**CHATMUTE UPDATE**"
+					set description of embed to "```Chat was unmuted```"
+					add field named "*Chat unmuted by*:" with value "%sender's group% | %sender%" to embed
+					set color of the embed to green
+				send last created embed to channel with id "{@main}"
+#CHATMUTE FEATURE
+on chat:
+	if sender does not have permission "chatmanager.mutechat.bypass":
+		if {chatmute} is true:
+			send "{@pre} &cChat was muted by &6%{chatmuteplayer}%"
+			cancel event
+#DISCORD FEATURES
+discord command !cmstatus:
+	trigger:
+		embedCm()
+
+every {@interval} seconds:
+	embedCm()
+
+function embedCm():
+	make embed:
+		set the title of embed to "**Cropied | CHATMANAGER STATUS**"
+		set the description of embed to "This displays the statusses of all chatmanager features"
+		set the color of embed to dark cyan
+		add field named "**AntiSpam**:" with value "%{antispam} ? ""Not set""%" to embed
+		add field named "**Chat Cooldown**:" with value "%{cooldown} ? ""Not set""%" to embed
+		add field named "**ChatCooldown timer**:" with value "%{serverdata::cooldown} ? ""Not set""%" to embed
+		add field named "**Chat Mute**:" with value "%{chatmute} ? ""Not set""%" to embed
+	send last created embed to channel with id "{@main}"
+
+#COMMAND OVERRIDES/SHORTCUTS
+command /broadcast [<text>]:
+	aliases: bc
+	permission: chatmanager.broadcast
+	trigger:
+		if arg-1 is not set:
+			send "{@pre} You must put in something to broadcast!"
+			send "&cUsage: /bc <text>"
+			stop
+		make player say "/cm bc %arg-1%"
+command /bcast [<text>]:
+	aliases: bc
+	permission: chatmanager.broadcast
+	trigger:
+		if arg-1 is not set:
+			send "{@pre} You must put in something to broadcast!"
+			send "&cUsage: /bc <text>"
+			stop
+		make player say "/cm bc %arg-1%"
+command /bc [<text>]:
+	aliases: bc
+	permission: chatmanager.broadcast
+	trigger:
+		if arg-1 is not set:
+			send "{@pre} You must put in something to broadcast!"
+			send "&cUsage: /bc <text>"
+			stop
+		make player say "/cm bc %arg-1%"
+command /bcastw [<text>]:
+	aliases: bc
+	permission: chatmanager.broadcast
+	trigger:
+		if arg-1 is not set:
+			send "{@pre} You must put in something to broadcast!"
+			send "&cUsage: /bc <text>"
+			stop
+		make player say "/cm bc %arg-1%"
+command /broadcastworld [<text>]:
+	aliases: bc
+	permission: chatmanager.broadcast
+	trigger:
+		if arg-1 is not set:
+			send "{@pre} You must put in something to broadcast!"
+			send "&cUsage: /bc <text>"
+			stop
+		make player say "/cm bc %arg-1%"
+command /clearchat:
+	aliases: cc, cm cc
+	permission: staff
+	trigger:
+		make player say "/cm cc"
+
+command /mchat [<text>]:
+	aliases: mutechat
+	permission: staff
+	trigger:
+		if arg-1 is set:
+			make player say "/cm mc %arg-1%"
+			stop
+		make player say "/cm mc"
+command /um [<text>]:
+	aliases: unmutechat
+	permission: staff
+	trigger:
+		if arg-1 is set:
+			make player say "/cm um %arg-1%"
+			stop
+		make player say "/cm um"
+command /as [<text>]:
+	aliases: antispam
+	permission: staff
+	trigger:
+		if arg-1 is set:
+			make player say "/cm as %arg-1%"
+			stop
+		make player say "/cm as"
+command /cd [<text>]:
+	aliases: cooldown
+	permission: staff
+	trigger: 
+		if arg-1 is set:
+			make player say "/cm cd %arg-1%"
+			stop
+		make player say "/cm cd"
+command /cdt [<timespan>]:
+	aliases: cooldowntimer
+	permission: staff
+	trigger:
+		if arg-1 is not a timespan:
+			send "{@pre} &cERROR &8| &7Invalid format"
+			send "&cUsage: &7/cdt <time> (1 second, 1 minute etc)"
+			stop
+		make player say "/cm cdt %arg-1%"
+#ANTISPAM
+on chat:
+	if sender has permission "chatmanager.antispam.bypass":
+		stop
+	if {antispam} is true:
+		if {lastchat} is message:
+			send "{@pre} AntiSpam is enabled, please dont send the same thing twice!"
+			cancel event
+			stop
+		set {lastchat} to message
+#COOLDOWN
+on chat:
+	if sender has permission "staff":
+		stop
+	if (difference between {-chatcooldown::%sender's uuid%} and now) < {serverdata::cooldown}:
+		send "{@pre} Cooldown is enabled, please wait &f%{serverdata::cooldown}% &7inbetween each message!"
+		cancel event
+		stop
+	set {-chatcooldown::%sender's uuid%} to now
+
+on tab complete of "cm" or "chatmanager":
+	set tab completions for position 1 to "mc", "um", "mutechat", "unmutechat", "cc", "clearchat" , "as" , "antispam" , "cooldown" , "cd" , "cdt", "status" and "cooldowntimer"

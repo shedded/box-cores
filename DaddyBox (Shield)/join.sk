@@ -1,0 +1,2 @@
+on first join: 
+    execute console command "goldencrates givekey %player% gear 1"

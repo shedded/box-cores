@@ -1,0 +1,494 @@
+
+#
+# Events
+#
+
+on connect:
+	if {punish::tempban::timespan::%uuid of player%} is set:
+		set {_waited} to difference between now and {punish::tempban::%uuid of player%}
+		if {_waited} is more than {punish::tempban::timespan::%uuid of player%}:
+			delete {punish::tempban::%uuid of player%}
+			add "&a&lBan Expired." to {history::%uuid of player%::bans::*}
+			delete {punish::tempban::timespan::%uuid of player%}
+			delete {punish::reason::%uuid of player%}
+		else:
+			set {_time} to "%difference between {punish::tempban::timespan::%uuid of player%} and {_waited}%"
+			kick player due to "&e&lYou're temporarily Banned from Cropied!%nl%&fReason: &7%{punish::reason::%uuid of player%}%%nl%&fExpiry time: &7%{_time}%%nl%%nl%&fContact: &7https://discord.gg/cropied"
+	if {punish::ban::%uuid of player%} is true:
+		kick player due to "&e&lYou're Permanently Banned from Cropied!%nl%&fReason: &7%{punish::reason::%uuid of player%}%%nl%&fExpiry time: &7Never.%nl%%nl%&fContact: &7https://discord.gg/cropied"
+
+on join:
+	if player has permission "staff":
+		if {staffchat.line::%player's uuid%} is not set:
+			set {staffchat.line::%player's uuid%} to true
+	else:
+		if {staffchat.line::%player's uuid%} is true:
+			delete {staffchat.line::%player's uuid%}
+
+
+
+
+#
+# Commands
+#
+
+command /staff [<text>]:
+	permission: admin
+	trigger:
+		if arg-1 is "list":
+			send {staff::*} to player
+			stop
+		else if {staff::*} contains arg-1:
+			set {_player} to arg-1 parsed as offline player
+			remove {_player} from {staff::*}
+			send "&aRemoved %{_player}% &afrom the staff list."
+			send "&aYou have been removed from the staff list." to {_player}
+		else:
+			set {_player} to arg-1 parsed as offline player
+			add {_player} to {staff::*}
+			send "&aAdded %{_player}% &ato the staff list."
+			send "&aYou have been added to the staff list." to {_player}
+
+command /clearallpunishments:
+	permission: admin
+	trigger:
+		delete {punish::*}
+		send "&aPunishments cleared"
+
+
+command /history [<offline player>]:
+	permission: helper
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			punishgui(player, arg-1, "history", "none")
+		else:
+			send "&cUsage: /history <player>"
+
+command /punish [<offline player>] [<text>]:
+	permission: helper
+	trigger:
+		if arg-1 is set:
+			punishgui(player, arg-1, "main", arg-2)
+		else:
+			send "&cUsage: /punish <player> [reason]"
+command /exempt [<offline player>]:
+	permission: admin
+	trigger:
+		if arg-1 is set:
+			exempt(player, arg-1)
+		else:
+			send "&cUsage: /exempt <player>"
+
+command /clearhistory [<offline player>]:
+	permission: admin
+	trigger:
+		delete {history::%uuid of arg-1%::bans::*}
+		delete {history::%uuid of arg-1%::mutes::*}
+		delete {history::%uuid of arg-1%::warns::*}
+		send "&aSuccesfully cleared history of %arg-1%&a."
+
+command /ban [<offline player>] [<text>]:
+	permission: mod
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			set {_reason} to arg-2
+			if {_reason} is not set:
+				set {_reason} to "Reason not defined."
+			ban(player, arg-1, {_reason})
+		else:
+			send "&cUsage: /ban <player> [reason]"
+
+command /tempban [<offline player>] [<text>]:
+	permission: mod
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			set {_reason} to arg-2
+			if {_reason} is not set:
+				set {_reason} to "Reason not defined."
+			punishgui(player, arg-1, "ban", {_reason})
+		else:
+			send "&cUsage: /tempban <player> [reason]"
+			
+command /mute [<offline player>] [<text>]:
+	permission: helper
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			set {_reason} to arg-2
+			if {_reason} is not set:
+				set {_reason} to "Reason not defined."
+			mute(player, arg-1, {_reason})
+		else:
+			send "&cUsage: /mute <player> [reason]"
+			
+command /tempmute [<offline player>] [<text>]:
+	permission: helper
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			set {_reason} to arg-2
+			if {_reason} is not set:
+				set {_reason} to "Reason not defined."
+			punishgui(player, arg-1, "mute", {_reason})
+		else:
+			send "&cUsage: /tempmute <player> [reason]"
+		
+command /unmute [<offline player>]:
+	permission: helper
+	permission message: &eUnable to execute
+	trigger:
+		if arg-1 is set:
+			unmute(player, arg-1)
+		else:
+			send "&eSpecify a player"
+	
+command /warn [<offline player>] [<text>]:
+	permission: helper
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			set {_reason} to arg-2
+			if {_reason} is not set:
+				set {_reason} to "Reason not defined."
+			warn(player, arg-1, {_reason})
+		else:
+			send "&cUsage: /warn <player> [reason]"
+
+command /unban [<offline player>]:
+	permission: mod
+	trigger:
+		if arg-1 is set:
+			unban(player, arg-1)
+		else:
+			send "&eSpecify a player"
+			
+command /revertwarn [<offline player>]:
+	aliases: /rw
+	permission: helper
+	permission message: &cMissing permission!
+	trigger:
+		if arg-1 is set:
+			revertwarn(player, arg-1)
+		else:
+			send "&cUsage: /revertwarn <player>"
+
+#
+# Functions
+#
+
+function exempt(request: player, p: player):
+	set {_uuid} to uuid of {_p}
+	if {exempt::*} contains {_p}:
+		send "&fRemoved %{_p}% from exempt list." to {_request}
+		remove {_p} from {exempt::*}
+	else:
+		send "Added %{_p}% to exempt list." to {_request}
+		add {_p} to {exempt::*}
+
+
+function revertwarn(p: player, offender: offline player):
+	set {_uuid} to uuid of {_offender}
+	if {punish::mute::reason::%{_uuid}%} is "Reached 3 Warnings.":
+		delete {punish::mute::reason::%{_uuid}%}
+		delete {punish::tempmute::timespan::%{_uuid}%}
+		send "&aWarning 3 has been removed so therefore the player has been unmuted." to {_p}
+		send "&aWarning 3 has been removed so you've been unmuted." to {_offender}
+		add "&f%{_p}% &freverted a warning mute." to {history::%{_uuid}%::warns::*}
+		add "&f%{_p}% &freverted automatic mute." to {history::%{_uuid}%::mutes::*}
+		delete {punish::tempmute::%{_uuid}%}
+		stop
+	if {punish::warns::%{_uuid}%} is greater than 0:
+		remove 1 from {punish::warns::%{_uuid}%}
+		add "&f%{_p}% &freverted a warning. [%{punish::warns::%{_uuid}%}%/3]" to {history::%{_uuid}%::warns::*}
+		send "&aOne of your warns have been reverted." to {_offender}
+		send "&aReverted one of &f%{_offender}%'s &awarnings." to {_p}
+	else:
+		send "&cThis player has no warnings to revert." to {_p}
+	
+
+
+
+
+function warn(p: player, offender: offline player, reason: text):
+	set {_uuid} to uuid of {_offender}
+	if {exempt::*} contains {_offender}:
+		add "&f%{_p}% attempted to warn. (exempted)" to {history::%{_uuid}%::warns::*}
+		send "&eYou're unable to punish that player. Logged to History." to {_p}
+		stop
+	if {punish::warns::%{_uuid}%} is not set:
+		set {punish::warns::%{_uuid}%} to 0
+	add 1 to {punish::warns::%{_uuid}%}
+	set {_warns} to {punish::warns::%{_uuid}%}
+	add "&f%{_p}%: &f%{_reason}% [%{punish::warns::%{_uuid}%}%/3]" to {history::%{_uuid}%::warns::*}
+	if {_reason} does not contain "Reason not defined":
+		broadcast "&6[Cropied] &e%{_p}% &fwarned &e%{_offender}% &ffor &e%{_reason}%&f! &7[&7%{punish::warns::%{_uuid}%}%&7/3]"
+	else:
+		broadcast "&6[Cropied] &e%{_p}% &fwarned &e%{_offender}%&f! &7[&7%{punish::warns::%{_uuid}%}%&7/3]"
+	if {punish::warns::%{_uuid}%} >= 3:
+		delete {punish::warns::%{_uuid}%}
+		set {punish::tempmute::timespan::%{_uuid}%} to 30 minutes
+		set {punish::tempmute::%{_uuid}%} to now
+		set {punish::mute::reason::%{_uuid}%} to "Reached 3 Warnings."
+		send "&aYou've reached 3 warnings so you've been silenced for 30 minutes." to {_offender}
+		add "&eAutomatic Mute (30 minutes)" to {history::%{_uuid}%::mutes::*}
+		
+		
+function tempmute(p: player, offender: offline player, time: timespan, reason: text):
+	set {_uuid} to uuid of {_offender}
+	if {exempt::*} contains {_offender}:
+		add "&f%{_p}% attempted to tempmute. (exempted)" to {history::%{_uuid}%::mutes::*}
+		send "&eYou're unable to punish that player. Logged to History." to {_p}
+		close {_p}'s inventory
+		stop
+	add "&f%{_p}%: &f%{_reason}% (%{_time}%)" to {history::%{_uuid}%::mutes::*}
+	set {punish::mute::reason::%{_uuid}%} to {_reason}
+	set {punish::tempmute::timespan::%{_uuid}%} to {_time}
+	set {punish::tempmute::%{_uuid}%} to now
+	if {_reason} contains "-s":
+		replace all "-s" in {_reason} with ""
+		set {punish::mute::reason::%{_uuid}%} to {_reason}
+		send "&6[Cropied] &e%{_p}% &ftemporarily muted &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7%{_time}%&7]" to {staff::*}
+		send "" to {_offender}
+		send "&e&lYou've been Temporarily Muted." to {_offender}
+		send "&fReason: &f%{_reason}%" to {_offender}
+		send "&fExpiry time: &f%{_time}%" to {_offender}
+		send "" to {_offender}
+	else if {_reason} does not contain "Reason not defined":
+		broadcast "&6[Cropied] &e%{_p}% &fmuted &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7%{_time}%&7]"
+	else:
+		broadcast "&6[Cropied] &e%{_p}% &fmuted &e%{_offender}%&f. &7[&7%{_time}%&7]"
+
+function mute(p: player, offender: offline player, reason: text):
+	set {_uuid} to uuid of {_offender}
+	if {exempt::*} contains {_offender}:
+		add "&f%{_p}% attempted to mute. (exempted)" to {history::%{_uuid}%::mutes::*}
+		send "&eYou're unable to punish that player. Logged to History." to {_p}
+		close {_p}'s inventory
+		stop
+	add "&f%{_p}%: &f%{_reason}% (perm)" to {history::%{_uuid}%::mutes::*}
+	set {punish::mute::reason::%{_uuid}%} to {_reason}
+	delete {punish::tempmute::%{_uuid}%}
+	delete {punish::tempmute::timespan::%{_uuid}%}
+	set {punish::mute::%{_uuid}%} to true
+	if {_reason} contains "-s":
+		replace all "-s" in {_reason} with ""
+		set {punish::mute::reason::%{_uuid}%} to {_reason}
+		send "&6[Cropied] &e%{_p}% &fmuted &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7Forever&7]" to {staff::*}
+		send "" to {_offender}
+		send "&e&lYou've been Permanently Muted." to {_offender}
+		send "&fReason: &f%{_reason}%" to {_offender}
+		send "" to {_offender}
+	else if {_reason} does not contain "Reason not defined":
+		broadcast "&6[Cropied] &e%{_p}% &fmuted &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7Forever&7]"
+	else:
+		broadcast "&6[Cropied] &e%{_p}% &fmuted &e%{_offender}%&f. &7[&7Forever&7]"
+		
+function unmute(p: player, offender: offline player):
+	set {_uuid} to uuid of {_offender}
+	delete {punish::mute::reason::%{_uuid}%}
+	delete {punish::tempmute::%{_uuid}%}
+	delete {punish::tempmute::timespan::%{_uuid}%}
+	delete {punish::mute::%{_uuid}%}
+	set {_now} to now
+	if {_p} is not set:
+		set {_p} to "CONSOLE"
+	add "&a%{_p}% &aunmuted @ %{_now}%" to {history::%{_uuid}%::mutes::*}
+	broadcast "&6[Cropied] &e%{_p}% &funmuted &e%{_offender}%&f."
+	
+
+function unban(p: player, offender: offline player):
+	set {_uuid} to uuid of {_offender}
+	delete {punish::ban::%{_uuid}%}
+	delete {punish::reason::%{_uuid}%}
+	delete {punish::tempban::%{_uuid}%}
+	delete {punish::tempban::timespan::%{_uuid}%}
+	set {_now} to now
+	if {_p} is not set:
+		set {_p} to "CONSOLE"
+	add "&a%{_p}% &aunbanned @ %{_now}%" to {history::%{_uuid}%::bans::*}
+	broadcast "&6[Cropied] &e%{_p}% &funbanned &e%{_offender}%&f."
+	
+function ban(p: player, offender: offline player, reason: text):
+	set {_uuid} to uuid of {_offender}
+	if {exempt::*} contains {_offender}:
+		add "&f%{_p}% attempted to ban. (exempted)" to {history::%{_uuid}%::warns::*}
+		send "&eYou're unable to punish that player. Logged to History." to {_p}
+		stop
+	add "&f%{_p}%: &f%{_reason}% (perm)" to {history::%{_uuid}%::bans::*}
+	delete {punish::tempban::%{_uuid}%}
+	kick {_offender} due to "&e&lYou've been Permanently Banned!%nl%&fReason: &f%{_reason}%%nl%&fExpiry time: &fNever."
+	delete {punish::tempban::timespan::%{_uuid}%}
+	set {punish::reason::%{_uuid}%} to {_reason}
+	set {punish::ban::%{_uuid}%} to true
+	if {_reason} contains "-s":
+		replace all "-s" in {_reason} with "&7[-s]"
+		send "&6[Cropied] &e%{_p}% &fbanned &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7Forever&7]" to {staff::*}
+		replace all "&7[-s]" in {_reason} with ""
+		set {punish::mute::reason::%{_uuid}%} to {_reason}
+	else if {_reason} does not contain "Reason not defined":
+		broadcast "&6[Cropied] &e%{_p}% &fbanned &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7Forever&7]"
+	else:
+		broadcast "&6[Cropied] &e%{_p}% &fbanned &e%{_offender}%&f. &7[&7Forever&7]"
+	
+	
+function tempban(p: offline player, offender: offline player, time: timespan, reason: text):
+	set {_uuidPunisher} to uuid of {_p}
+	set {_uuidOffender} to uuid of {_offender}
+	kick {_offender} due to "&e&lYou've been Temporarily Banned!%nl%&fReason: &f%{_reason}%%nl%&fExpiry time: &f%{_time}%"
+	add "&f%{_p}%: &f%{_reason}% (%{_time}%)" to {history::%{_uuidOffender}%::bans::*}
+	set {punish::tempban::%{_uuidOffender}%} to now
+	set {punish::reason::%{_uuidOffender}%} to {_reason}
+	set {punish::tempban::timespan::%{_uuidOffender}%} to {_time}
+	if {_reason} contains "-s":
+		replace all "-s" in {_reason} with "&7[-s]"
+		send "&6[Cropied] &e%{_p}% &ftemporarily banned &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7%{_time}%&7]" to {staff::*}
+		replace all "&7[-s]" in {_reason} with ""
+		set {punish::reason::%{_uuidOffender}%} to {_reason}
+	else:
+		if {_reason} contains "Reason not defined":
+			broadcast "&6[Cropied] &e%{_p}% &fbanned &e%{_offender}%&f. &7[&7%{_time}%&7]"
+		else:
+			broadcast "&6[Cropied] &e%{_p}% &fbanned &e%{_offender}% &ffor &e%{_reason}%&f. &7[&7%{_time}%&7]"
+
+function punishgui(p: offline player, offender: offline player, menu: text, reason: text):
+	set {_uuidPunisher} to uuid of {_p}
+	set {_uuidOffender} to uuid of {_offender}
+	
+	if {_menu} is "main":
+	
+		if {history::%{_uuidOffender}%::bans::*} is set:
+			loop {history::%{_uuidOffender}%::bans::*}:
+				add "&8- &f%loop-value%" to {_bans::*}
+		else:
+			add "&8- &fNone." to {_bans::*}
+		if {history::%{_uuidOffender}%::mutes::*} is set:
+			loop {history::%{_uuidOffender}%::mutes::*}:
+				add "&8- &f%loop-value%" to {_mutes::*}
+		else:
+			add "&8- &fNone." to {_mutes::*}
+		if {history::%{_uuidOffender}%::warns::*} is set:
+			loop {history::%{_uuidOffender}%::warns::*}:
+				add "&8- &f%loop-value%" to {_warns::*}
+		else:
+			add "&8- &fNone." to {_warns::*}
+		
+		if {_reason} is not set:
+			set {_reason} to "Reason not defined."
+		create a gui with virtual chest inventory with 3 rows named "Punishing: &4%{_offender}%":
+			if {_p} has permission "mod":
+				make gui slot 12 with totem of undying named "&e&lBan %{_offender}%" with lore "&fView timespan times here.":
+					punishgui({_p}, {_offender}, "ban", {_reason})
+			else:
+				make gui slot 12 with totem of undying named "&e&lBan %{_offender}%" with lore "&fView timespan times here."
+			make gui slot 14 with book and quill named "&e&lSilence %{_offender}%" with lore "&fView timespan times here.":
+				punishgui({_p}, {_offender}, "mute", {_reason})
+			
+			make gui slot 18 with oak sign named "&e&lView History" with lore "&fGives per Category.":
+				punishgui({_p}, {_offender}, "history", {_reason})
+			
+			make gui slot 8 with skull of "%{_offender}%" parsed as offline player named "&e%{_offender}%&e's history" with lore "&eBans:",{_bans::*},"&eMutes:",{_mutes::*},"&eWarns:" and {_warns::*}
+		open last gui to {_p}
+	else if {_menu} is "history":
+	
+		if {history::%{_uuidOffender}%::bans::*} is set:
+			loop {history::%{_uuidOffender}%::bans::*}:
+				add "&8- &f%loop-value%" to {_bans::*}
+		else:
+			add "&8- &fNone." to {_bans::*}
+		if {history::%{_uuidOffender}%::mutes::*} is set:
+			loop {history::%{_uuidOffender}%::mutes::*}:
+				add "&8- &f%loop-value%" to {_mutes::*}
+		else:
+			add "&8- &fNone." to {_mutes::*}
+		if {history::%{_uuidOffender}%::warns::*} is set:
+			loop {history::%{_uuidOffender}%::warns::*}:
+				add "&8- &f%loop-value%" to {_warns::*}
+		else:
+			add "&8- &fNone." to {_warns::*}
+		create a gui with virtual chest inventory with 3 rows named "History Of: &4%{_offender}%":
+			make gui slot 11 with skull of "%{_offender}%" parsed as offline player named "&e&l%{_offender}%&e&l's Ban History" with lore {_bans::*}
+			make gui slot 13 with skull of "%{_offender}%" parsed as offline player named "&e&l%{_offender}%&e&l's Mute History" with lore {_mutes::*}
+			make gui slot 15 with skull of "%{_offender}%" parsed as offline player named "&e&l%{_offender}%&e&l's Warning History" with lore {_warns::*}
+			if {_p} has the permission "mod":
+				make gui slot 26 with arrow named "&eGo back to Punishing":
+					if {_reason} is "none":
+						set {_reason} to "Reason not defined."
+					punishgui({_p}, {_offender}, "main", {_reason})
+		open last gui to {_p}
+	else if {_menu} is "ban":
+		create a gui with virtual chest inventory with 4 rows named "Punishing: &4%{_offender}%":
+			if {exempt::*} contains {_offender}:
+				add "&f%{_p}% attempted to ban. (exempted)" to {history::%{_uuidOffender}%::bans::*}
+				send "&eYou're unable to punish that player. Logged to History." to {_p}
+				close {_p}'s inventory
+				stop
+				
+			make gui slot 10 with empty map named "&e&lTemp ban: &f1 day":
+				tempban({_p}, {_offender}, 1 day, {_reason})
+				close player's inventory
+			make gui slot 11 with empty map named "&e&lTemp ban: &f3 days":
+				tempban({_p}, {_offender}, 3 days, {_reason})
+				close player's inventory
+			make gui slot 12 with empty map named "&e&lTemp ban: &f5 days":
+				tempban({_p}, {_offender}, 5 days, {_reason})
+				close player's inventory
+			make gui slot 14 with empty map named "&e&lTemp ban: &f7 days":
+				tempban({_p}, {_offender}, 7 days, {_reason})
+				close player's inventory
+			make gui slot 15 with empty map named "&e&lTemp ban: &f14 days":
+				tempban({_p}, {_offender}, 14 days, {_reason})
+				close player's inventory
+			make gui slot 16 with empty map named "&e&lTemp ban: &f30 days":
+				tempban({_p}, {_offender}, 30 days, {_reason})
+				close player's inventory
+			make gui slot 20 with emerald block named "&a&lUnban %{_offender}%":
+				unban({_p}, {_offender})
+				close player's inventory
+			make gui slot 24 with redstone block named "&4&lPermanent Ban":
+				ban({_p}, {_offender}, {_reason})
+				close player's inventory
+			make gui slot 35 with arrow named "&eGo back":
+				punishgui({_p}, {_offender}, "main", {_reason})
+		open last gui to {_p}
+	else if {_menu} is "mute":
+		create a gui with virtual chest inventory with 4 rows named "Punishing: &4%{_offender}%":
+			make gui slot 10 with empty map named "&e&lTemp mute: &f30 minutes":
+				tempmute({_p}, {_offender}, 30 minutes, {_reason})
+				close player's inventory
+			make gui slot 11 with empty map named "&e&lTemp mute: &f2 hours":
+				tempmute({_p}, {_offender}, 2 hours, {_reason})
+				close player's inventory
+			make gui slot 12 with empty map named "&e&lTemp mute: &f5 hours":
+				tempmute({_p}, {_offender}, 5 hours, {_reason})
+				close player's inventory
+			make gui slot 13 with empty map named "&e&lTemp mute: &f10 hours":
+				tempmute({_p}, {_offender}, 10 hours, {_reason})
+				close player's inventory
+			make gui slot 16 with emerald block named "&a&lUnmute %{_offender}%":
+				unmute({_p}, {_offender})
+				close player's inventory
+			make gui slot 12 with empty map named "&e&lTemp mute: &f5 hours":
+				tempmute({_p}, {_offender}, 5 hours, {_reason})
+				close player's inventory
+			make gui slot 20 with empty map named "&e&lTemp mute: &f24 hours":
+				tempmute({_p}, {_offender}, 24 hours, {_reason})
+				close player's inventory
+			make gui slot 21 with redstone block named "&4&lPermanent Mute":
+				mute({_p}, {_offender}, {_reason})
+				close player's inventory
+			make gui slot 35 with arrow named "&eGo back":
+				punishgui({_p}, {_offender}, "main", {_reason})
+		open last gui to {_p}
+
+
+command /onlinestaff:
+	permission: staff
+	trigger:
+		loop {staff::*}:
+			set {_player} to loop-value
+			if {_player} is online:
+				add {_player} to {_online::*}
+		send "&aOnline Staff: &f%{_online::*}%"

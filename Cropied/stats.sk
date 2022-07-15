@@ -1,0 +1,61 @@
+command /stats [<player = %player%>]:
+    cooldown: 3 seconds
+    cooldown message: &6&lC&e&lr&6&lo&e&lp&6&li&e&le&6&ld &8> &fPlease slow down!
+    trigger:
+        set {_player} to arg-1
+        create a gui with virtual chest inventory with 6 rows named "Stats of &e%{_player}%":
+
+            make gui slot (integers from 0 to 53) with black stained glass pane named ""
+            set {_pick} to 1 of unbreakable diamond pickaxe named "&e&lORE CRUSHER" with lore "&8¬ &fEfficiency 1", "&8¬ &fOreGrabber 1", "&8¬ &fTokenGrabber 1", "&8¬ &fKeyGrabber 1", "", and "&8Right-Click to upgrade" with all flags hidden
+
+            loop {_player}'s inventory:
+                if name of loop-value is "&e&lORE CRUSHER":
+                    set {_pick} to loop-value
+                else if name of loop-value is "&e&lSILVER REEL":
+                    set {_rod} to loop-value
+                else if name of loop-value is "&e&lHARVESTING OMNITOOL":
+                    set {_axe} to loop-value 
+
+            set {_oregrabber} to level of unbreaking on {_pick} 
+            set {_tokengrabber} to level of protection on {_pick}
+            set {_keygrabber} to level of thorns on {_pick}
+            set {_uid} to {_player}'s uuid
+            set {_items} to yaml value "Gens.Sold" from "plugins/Gens/playerdata/%{_uid}%.yml" ? 0
+            set {_index} to 1
+
+            loop {totems::%{_player}%::*}:
+                set {_totem} to "%loop-value%"
+                set {_totemsplit::*} to split {_totem} at "named "
+                set {_totem} to uncolored {_totemsplit::2}
+                if {_totem} contains "ORE":
+                    add getTotemValue(loop-value) to {_oregrabber}
+                else if {_totem} contains "TOKEN":
+                    add getTotemValue(loop-value) to {_tokengrabber}
+                else if {_totem} contains "KEY":
+                    add getTotemValue(loop-value) to {_keygrabber}
+                set {_slot} to 28 + {_index} - 1
+                make gui slot {_slot} with {totems::%{_player}%::%loop-index%}
+                add 1 to {_index}
+
+            make gui slot 10 with chest named "&6&l• &e&lCRATES &6&l•" with lore "&fCrates Opened: &e%cratesOpened({_player}, ""All"") ? 0%", "", "&bRare Opened: &e%cratesOpened({_player}, ""Rare"") ? 0%", "&dMythic Opened: &e%cratesOpened({_player}, ""Mythic"") ? 0%", "&eLegend Opened: &e%cratesOpened({_player}, ""Legend"") ? 0%", "&aExotic Opened: &e%cratesOpened({_player}, ""Exotic"") ? 0%", "&cOmega Opened: &e%cratesOpened({_player}, ""Omega"") ? 0%", and "&9Ore Opened: &e%cratesOpened({_player}, ""Ore"") ? 0%"
+            set {_gens} to yaml value "Gens.Placed" from "plugins/Gens/playerdata/%{_player}'s uuid%.yml"
+            make gui slot 11 with hay bale named "&6&l• &e&lGENS &6&l•" with lore "&fGens: &e%{_gens} ? 0%/&e%getGens({_player})%" and "&fItems Sold: &e%format({_items}) ? 0%"
+            make gui slot 12 with netherite sword named "&6&l• &e&lCOMBAT &6&l•" with lore "&fPlayers Killed: &e%{killed::%{_player}%} ? 0%", "&fBosses Killed: &e%{bosseskilled::%{_player}%} ? 0%", "&fKOTHs Won: &e%{kothswon::%{_player}%} ? 0%" and "&fBarrels Opened: &e%{barrels::%{_player}%} ? 0%" with all flags hidden
+            make gui slot 13 with {_player}'s skull named "&6&l• &e&lPLAYER &6&l•" with lore "&fName: %display name of {_player}%", "&fBalance: &e%format(money of {_player})%", "&fTokens: &e%getTokens({_player})%&e⭐", and "&fMultiplier: &e%getMulti({_player})%x"
+            make gui slot 14 with diamond pickaxe named "&6&l• &e&lMINING &6&l•" with lore "&fOres Mined: &e%{mined::%{_player}%} ? 0%", "", "&8Coal Ore Chance: &e%(15 + {_oregrabber})%&e%%", "&fIron Ore Chance: &e%(10 + ({_oregrabber} * 0.75))%&e%%", "&6Gold Ore Chance: &e%(8 + ({_oregrabber} * 0.5))%&e%%", "&bDiamond Ore Chance: &e%(5 + ({_oregrabber} * 0.35))%&e%%", "&aEmerald Ore Chance: &e%(2 + ({_oregrabber} * 0.25))%&e%%", and "&cRedstone Ore Chance: &e%(1 + ({_oregrabber} * 0.15))%&e%%" with all flags hidden
+            set {_c} to yaml value "Crops.Harvested" of "plugins/Gens/Economy/playerdata/%{_uid}%.yml"
+            make gui slot 15 with diamond axe named "&6&l• &e&lFARMING &6&l•" with lore "&fCrops Harvested: &e%{_c}%" with all flags hidden
+            set {_f} to yaml value "Fish.Caught" of "plugins/Gens/Economy/playerdata/%{_uid}%.yml"
+            make gui slot 16 with fishing rod named "&6&l• &e&lFISHING &6&l•" with lore "&fFish Caught: &e%{_f}%"
+            
+            make gui slot 39 with {_pick}
+            make gui slot 40 with {_axe}
+            make gui slot 41 with {_rod}
+
+        open last gui to player
+		
+		
+		
+function cratesOpened(p: player, c: text) :: integer:
+	set {_u} to {_p}'s uuid
+	return (yaml value "Crates.%{_c}%" from "plugins/Gens/playerdata/%{_u}%.yml" ? 0)

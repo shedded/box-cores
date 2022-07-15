@@ -1,0 +1,448 @@
+options:
+	prefix: %getPrefix()%
+	rareKey: tripwire hook named "&bRare Key" with lore "&7Use at /crates"
+	mythicKey: tripwire hook named "&dMythic Key" with lore "&7Use at /crates"
+	legendKey: tripwire hook named "&eLegend Key" with lore "&7Use at /crates"
+	rankKey: tripwire hook named "&cRank Key" with lore "&7Use at /crates"
+	exoticKey: tripwire hook named "&aExotic Key" with lore "&7Use at /crates"
+	omegaKey: nether star named "&6Omega Key" with lore "&7Use at /crates"
+	oreKey: tripwire hook named "&eO&dr&ae &eCr&d&aa&et&de" with lore "&7Use at /crates"
+	demonicKey: wither skeleton skull named "&8Demonic Key" with lore "&7Use at /crates"
+	
+command /tokens [<text>] [<offlineplayer>] [<integer>]:
+	usage: /tokens
+	aliases: /token
+	trigger:
+		if arg-1 is set:
+			sender has permission "tokens.admin"
+			if arg-2 is set:
+				if arg-3 is set:
+					if arg-1 is "add":
+						if arg-3 is greater than 0:
+							addTokens(arg-2, arg-3)
+							send "&aYou added %arg-3%&a token(s) to %arg-2%&a's balance." to sender where [sender is not console]
+							send "&a%arg-3%&a token(s) have been added to your balance." to arg-2
+						else:
+							send "&cYou must add more than 0 to the players balance." to sender
+					else if arg-1 is "remove":
+						set {_current} to getTokens(arg-2)
+						set {_new} to {_current} - arg-3
+						if {_new} is less than 1:
+							removeTokens(arg-2, arg-3)
+							send "&aYou removed %arg-3%&a token(s) from %arg-2%&a's balance." to sender
+							send "&aThey now have %getTokens(arg-2)%&a token(s)." to sender
+							send "&c%arg-3%&c token(s) have been taken from your balance." to arg-2
+							send "&cYou now have %getTokens(arg-2)%&c token(s)." to arg-2
+						else:
+							removeTokens(arg-2, arg-3)
+							send "&aYou removed %arg-3%&a token(s) from %arg-2%&a's balance." to sender
+							send "&aThey now have %getTokens(arg-2)%&a token(s)." to sender
+							send "&c%arg-3%&c token(s) have been taken from your balance." to arg-2
+							send "&cYou now have %getTokens(arg-2)%&c token(s)." to arg-2
+					if arg-1 is "set":
+						if arg-3 is greater than or equal to 0:
+							setTokens(arg-2, arg-3)
+							send "&aYou set %arg-2%&a's balance to %arg-3%&a tokens(s)" to sender
+							send "&aYou're token balance has been set to %arg-3%&a" to arg-2
+						else:
+							send "&cYou must set the player's balance to more than 0" to sender
+					else:
+						send "&cUnknown action <add/remove/set>" to sender where [sender is not console]
+				else:
+					send "&cMissing arguments &f/tokens <add/remove/set> <player> <integer>" to sender where [sender is not console]
+			else:
+				send "&cMissing arguments &f/tokens <add/remove/set> <player> <integer>" to sender where [sender is not console]
+		else:
+			send "%getPrefix()% You have &e%getTokens(sender)%&e⭐" to sender
+			playSound(sender, "level", 0.5, 1.25)
+
+command /settokens <player> <integer>:
+	permission: admin
+	trigger:
+		setTokens(arg-1, arg-2)
+		send "%getPrefix()% Complete!"
+
+command /tokenpay <player> <integer>:
+	trigger:
+		if arg-1 or arg-2 is not set:
+			send "%getPrefix()% /tokenpay <player> <amount>"
+			playSound(player, "no", 1, 1)
+			stop
+		if arg-2 <= 0:
+			send "%getPrefix()% Token pay must be above 0!"
+			playSound(player, "no", 1, 1)
+			stop
+		if arg-2 > getTokens(player):
+			send "%getPrefix()% You don't have that much!"
+			playSound(player, "no", 1, 1)
+			stop
+		addTokens(arg-1, arg-2)
+		removeTokens(player, arg-2)
+		send "%getPrefix()% You were sent &e%arg-2%&e⭐ &ffrom &e%player%" to arg-1
+		send "%getPrefix()% You sent &e%arg-2%&e⭐ &fto &e%arg-1%"
+		playSound(player, "experience", 1, 1.25)
+		playSound(arg-1, "experience", 1, 1.25)
+
+function addTokens(p: player, amt: integer):
+	set {_uid} to {_p}'s uuid
+	set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" to yaml value "tokens" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" + {_amt}
+
+function setTokens(p: player, amt: integer):
+	set {_uid} to {_p}'s uuid
+	set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" to {_amt}
+
+function removeTokens(p: player, amt: integer) :: boolean:
+	set {_uid} to {_p}'s uuid
+	set {_t} to (yaml value "tokens" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" - {_amt}) 
+	{_t} < 0:
+		return false
+	set yaml value "tokens" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" to getTokens({_p}) - {_amt}
+	return true
+	
+function getTokens(p: player) :: integer:
+	set {_uid} to {_p}'s uuid
+	return yaml value "tokens" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" ? 0
+
+command /spawn [<text>]:
+	trigger:
+		teleport player to {warps::spawn}
+		send "%getPrefix()% &7Sending you to &eSpawn&7."
+		playSound(player, "warp", 1, 1)
+
+command /crates [<text>]:
+	trigger:
+		teleport player to {warps::crates}
+		send "%getPrefix()% &7Sending you to &eCrates&7."
+		playSound(player, "warp", 1, 1)
+
+command /mine [<text>]:
+	trigger:
+		if {combatlog::*} contains player:
+			stop
+		else:
+			teleport player to {warps::mine}
+			send "%getPrefix()% &7Sending you to &eMine&7."
+			playSound(player, "warp", 1, 1)
+
+
+command /dungeon:
+	trigger:
+		if {combatlog::*} contains player:
+			stop
+		else:
+			teleport player to {warps::dungeon}
+			send "%getPrefix()% &7Sending you to &eDungeon&7."
+			playSound(player, "warp", 1, 1)
+
+command /setwarp [<text>]:
+	permission: admin
+	trigger:
+		if arg-1 is set:
+			set {warps::%arg-1%} to location of player
+			send "&aSuccessfully set &f%arg-1% &aas a warp."
+		else:
+			send "&cUsage: /setwarp [name]"
+
+command /delwarp [<text>]:
+	permission: admin
+	trigger:
+		if arg-1 is set:
+			if {warps::%arg-1%} is set:
+				send "&aDeleted warp &f%arg-1%&a."
+				delete {warps::%arg-1%}
+			else:
+				send "&cThere is no warp with that name."
+		else:
+			send "&cUsage: /delwarp [name]"
+
+
+
+function helpMenu(p: player):
+	create a gui with virtual chest inventory with 3 rows named "&fWelcome to &6&lC&e&lr&6&lo&e&lp&6&li&e&le&6&ld&f!":
+
+		make gui slot 10 with glowing book named "&e&lGeneral" with lore "", "&e&l| &fTo get started, &fplease type &e/start&f!", "", "&6&l| &fThis will create a plot and give you a ", "&e&l| &eWheat Generator&f! Place this down on your plot to begin!", "&6&l| &fYou can get back to your plot by typing &e/plot home&f! " and ""
+
+		make gui slot 12 with glowing sunflower named "&e&lTokens" with lore "", "&6&l| &fTokens are another form of currency besides money&f!", "", "&e&l| &fThey can be spent in our &e/tokenshop&f.", "&6&l| &fAn example of an upgrade you can buy is &fpermanent &eGenerator Slots&f!", "&e&l| &fTokens can be obtained by mining", "&6&l| &fGo to the mine by typing &e/mine&f" and ""   
+
+		make gui slot 14 with glowing diamond pickaxe with all flags hidden named "&e&lMining" with lore "", "&e&l| &fMining is an &eessential &faspect of Cropied.", "", "&6&l| &fInformation about tokens can be found above", "&e&l| &fDifferent ores in &e/mine &fgive a different amount of tokens" and "&6&l| &fDepending on the ones you mine. Keep that in mind", "&e&l| &fType &e/mine&f to get to the mine" and ""
+
+		make gui slot 16 with glowing diamond sword with all flags hidden named "&e&lPvP" with lore "" and "&6&l| &fComing soon..."
+	open last gui to {_p}
+
+command /help:
+	trigger:
+		helpMenu(player)
+		
+		
+		
+command /tokenshop:
+	aliases: /ts, /te, /et
+	trigger:
+		tokenMain(player)
+
+function tokenMain(player: player):
+	create a gui with virtual chest inventory with 5 row named "Token Shop":
+		#Extra slots (someone tidy this up)
+		loop 45 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+		
+		make gui slot 10 with white stained glass pane named "&7"
+		make gui slot 12 with white stained glass pane named "&7"
+		make gui slot 14 with white stained glass pane named "&7"
+		make gui slot 16 with white stained glass pane named "&7"
+		make gui slot 28 with white stained glass pane named "&7"
+		make gui slot 30 with white stained glass pane named "&7"
+		make gui slot 32 with white stained glass pane named "&7"
+		make gui slot 34 with white stained glass pane named "&7"
+		make gui slot 31 with red stained glass pane named "&cComing Soon"
+		make gui slot 33 with red stained glass pane named "&cComing Soon"
+		
+
+		make gui slot 11 with glowing blaze rod named "&6&lSell Wands &7(Click)":
+			tokenWands(player)
+
+		make gui slot 13 with glowing tripwire hook named "&6&lKeys &7(Click)":
+			tokenKeys(player)
+
+		make gui slot 15 with glowing diamond hoe named "&6&lTools &7(Click)" with all flags hidden:
+			tokenTools(player)
+
+		make gui slot 29 with glowing feather named "&6&lMisc &7(Click)":
+			tokenMisc(player)
+
+		make gui slot 31 with glowing paper named "&6&lRanks &7(Click)":
+			tokenRanks(player)
+
+		make gui slot 33 with quartz block named "&6&lGenerators &7(Click)":
+			tokenGenerators(player)
+
+		
+	open last gui to {_player}
+
+function tokenMisc(player: player):
+	add "&7¬ &b&l20k Tokens%nl%" to {_prizes2::*}
+	add "&7¬ &b&l50k Tokens%nl%" to {_prizes2::*}
+	add "&7¬ &b&l100k Tokens%nl%" to {_prizes2::*}
+	add "&7¬ &b&l$1 Billion%nl%" to {_prizes2::*}
+	add "&7¬ &b&l32x Legend Crate Keys%nl%" to {_prizes2::*}
+	add "&7¬ &b&l1x Exotic Crate Keys%nl%" to {_prizes2::*}
+	add "&6¬ &f&l500k Tokens%nl%" to {_jackpot2::*}
+	add "&6¬ &f&l1x Omega Crate Keys%nl%" to {_jackpot2::*}
+	add "&6¬ &f&l+1x Multiplier%nl%" to {_jackpot2::*}
+	add "&6¬ &f&l10x Emerald Ore%nl%" to {_jackpot2::*}
+	create a gui with virtual chest inventory with 3 rows named "Misc Exchange":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+		
+		make gui slot 12 with red stained glass pane named "&cComing soon.."
+		make gui slot 14 with red stained glass pane named "&cComing soon.."
+		make gui slot 16 with red stained glass pane named "&cComing soon.."
+		make gui slot 26 with arrow named "&a&lGo Back &7(Click)":
+			tokenMain(player)
+		make gui slot 10 with 1 of paper named "&3&lSlot Ticket" with lore "&7Right-click to use.", "&7Cost: &e50.0k Tokens", "&7&lContains &f&n1&7&l of the following:", "", {_prizes2::*}, "", "&6&lJackpot Items &7&l(&f&nLow Chance&7&l)" and {_jackpot2::*}:
+		
+			if getTokens({_player}) is greater than or equal to 50000:
+				send "{@prefix} You have purchased a &dSlot Ticket&7!"
+				make console execute command "/giveslot %player% 1"
+				removeTokens({_player}, 50000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%50000-getTokens({_player})% &7more!"
+
+
+		open last gui to {_player}
+
+function tokenWands(player: player):
+	create a gui with virtual chest inventory with 3 rows named "Sell Wand Exchange":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+		
+		make gui slot 16 with red stained glass pane named "&cComing soon.."
+		make gui slot 26 with arrow named "&a&lGo Back &7(Click)":
+			tokenMain(player)
+
+
+		make gui slot 10 with 1 of glowing blaze rod named "&eSell Wand (x1)" with lore "&7Cost: &e5.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 5000:
+				send "{@prefix} You have purchased a &dSell Wand (x1)&7!"
+				give player 1 of blaze rod named "&6&lSell Wand &7&o(x1)" with lore "&eMultiplier: &71x" and "" and "&7Right-Click a chest to" and "&7sell of all it's contents!"
+				removeTokens({_player}, 5000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%5000-getTokens({_player})% &7more!"
+		make gui slot 12 with 1 of glowing blaze rod named "&eSell Wand (x1.5)" with lore "&7Cost: &e15.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 15000:
+				send "{@prefix} You have purchased a &dSell Wand (x1.5)&7!"
+				give player 1 of blaze rod named "&6&lSell Wand &7&o(x1.5)" with lore "&eMultiplier: &71.5x" and "" and "&7Right-Click a chest to" and "&7sell of all it's contents!"
+				removeTokens({_player}, 15000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%15000-getTokens({_player})% &7more!"
+		make gui slot 14 with 1 of glowing blaze rod named "&eSell Wand (x2)" with lore "&7Cost: &e30.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 30000:
+				send "{@prefix} You have purchased a &dSell Wand (x2)&7!"
+				give player 1 of blaze rod named "&6&lSell Wand &7&o(x2)" with lore "&eMultiplier: &72x" and "" and "&7Right-Click a chest to" and "&7sell of all it's contents!"
+				removeTokens({_player}, 30000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%30000-getTokens({_player})% &7more!"
+		make gui slot 16 with 1 of glowing blaze rod named "&eSell Wand (x3)" with lore "&7Cost: &e200.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 200000:
+				send "{@prefix} You have purchased a &dSell Wand (x3)&7!"
+				give player 1 of blaze rod named "&6&lSell Wand &7&o(x3)" with lore "&eMultiplier: &73x" and "" and "&7Right-Click a chest to" and "&7sell of all it's contents!"
+				removeTokens({_player}, 200000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%200000-getTokens({_player})% &7more!"
+
+
+		open last gui to {_player}
+
+function tokenKeys(player: player):
+	create a gui with virtual chest inventory with 3 rows named "Key Exchange":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+#		make gui slot 14 with red stained glass pane named "&cComing soon.."
+#		make gui slot 16 with red stained glass pane named "&cComing soon.."
+		make gui slot 26 with arrow named "&a&lGo Back &7(Click)":
+			tokenMain(player)
+
+
+		make gui slot 10 with 1 of glowing tripwire hook named "&dMythic Key" with lore "&7Cost: &e250.0 Tokens":
+			if getTokens({_player}) is greater than or equal to 250:
+				send "{@prefix} You have purchased a &dMythic Key&7!"
+				give player 1 of {@mythicKey}
+				removeTokens({_player}, 250)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%250-getTokens({_player})% &7more!"
+		make gui slot 12 with 1 of glowing tripwire hook named "&eLegend Key" with lore "&7Cost: &e2.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 2000:
+				send "{@prefix} You have purchased a &eLegend Key&7!"
+				give player 1 of {@legendKey}
+				removeTokens({_player}, 2000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%2000-getTokens({_player})% &7more!"
+		make gui slot 14 with 1 of glowing tripwire hook named "&aExotic Key" with lore "&7Cost: &e750.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 750000:
+				send "{@prefix} You have purchased a &6Exotic Key&7!"
+				give player 1 of {@exoticKey}
+				removeTokens({_player}, 750000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%750000-getTokens({_player})% &7more!"
+		make gui slot 16 with 1 of glowing tripwire hook named "&eO&dr&ae &eK&de&ey" with lore "&7Cost: &e400.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 400000:
+				send "{@prefix} You have purchased a &eO&dr&ae &eK&de&ey&7!"
+				give player 1 of {@oreKey}
+				removeTokens({_player}, 400000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%400000-getTokens({_player})% &7more!"
+		open last gui to {_player}
+
+function tokenTools(player: player):
+	create a gui with virtual chest inventory with 3 rows named "Tool Exchange":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+		make gui slot 26 with arrow named "&a&lGo Back &7(Click)":
+			tokenMain(player)
+
+		make gui slot 10 with 1 of glowing fishing rod named "&d&lFishing Rod" with lore "&7Catch Tokens & Keys" and "&7Cost: &e5.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 5000:
+				send "{@prefix} You have purchased a &d&lFishing Rod&7!"
+				make console execute command "/fishingrod %{_player}%"
+				removeTokens({_player}, 5000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%5000-{tokens::%{_player}%}% &7more!"
+		make gui slot 12 with 1 of glowing shears named "&3&lGlass Breaker &4&l[Disabled]" with lore "&7Break Glass With Ease!" and "&7Cost: &e5.0K"
+		make gui slot 14 with 1 of glowing diamond axe named "&e&lCROP HARVESTER" with lore "&7Cost: &e10.0K Tokens" and "&7Improves the farming experience :)" with all flags hidden:
+			if getTokens({_player}) is greater than or equal to 10000:
+				send "{@prefix} You have purchased a &e&lCROP HARVESTER!"
+				removeTokens({_player}, 10000)
+				make console execute command "/axe %player%"
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%10000-getTokens({_player})% &7more!"
+		make gui slot 16 with 1 of glowing diamond pickaxe named "&c&lMiner Pickaxe" with lore "&7Efficiency 3" and "&7Cost: &e500.0 Tokens" with all flags hidden:
+			if getTokens({_player}) is greater than or equal to 500:
+				send "{@prefix} You have purchased a &eMiner Pickaxe&7!"
+				removeTokens({_player}, 500)
+				execute console command "/pick %player%"
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%500-getTokens({_player})% &7more!"
+		open last gui to {_player}
+
+function tokenRanks(player: player):
+	create a gui with virtual chest inventory with 3 rows named "Rank Exchange":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+#		make gui slot 14 with red stained glass pane named "&cComing soon.."
+#		make gui slot 16 with red stained glass pane named "&cComing soon.."
+		make gui slot 26 with arrow named "&a&lGo Back &7(Click)":
+			tokenMain(player)
+
+		make gui slot 10 with 1 of coal named "&8&lCoal Rank" with lore "&7Cost: &e5.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 5000:
+				send "{@prefix} You have purchased &8Coal Rank&7!"
+				removeTokens({_player}, 5000)
+				add 1 of paper named "&6Coal Rank" with lore "&7Right-Click to redeem &8Coal Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%5000-getTokens({_player})% &7more!"
+		make gui slot 11 with 1 of iron ingot named "&f&lIron Rank" with lore "&7Cost: &e25.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 25000:
+				send "{@prefix} You have purchased &fIron Rank&7!"
+				removeTokens({_player}, 25000)
+				add 1 of paper named "&6Iron Rank" with lore "&7Right-Click to redeem &fIron Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%25000-getTokens({_player})% &7more!"
+		make gui slot 12 with 1 of gold ingot named "&e&lGold Rank" with lore "&7Cost: &e65.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 65000:
+				send "{@prefix} You have purchased &eGold Rank&7!"
+				removeTokens({_player}, 65000)
+				add 1 of paper named "&6Gold Rank" with lore "&7Right-Click to redeem &eGold Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%65000-getTokens({_player})% &7more!"
+		make gui slot 13 with 1 of diamond named "&b&lDiamond Rank" with lore "&7Cost: &e100.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 100000:
+				send "{@prefix} You have purchased &bDiamond Rank&7!"
+				removeTokens({_player}, 100000)
+				add 1 of paper named "&6Diamond Rank" with lore "&7Right-Click to redeem &bDiamond Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%100000-getTokens({_player})% &7more!"
+		make gui slot 14 with 1 of emerald named "&a&lEmerald Rank" with lore "&7Cost: &e170.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 170000:
+				send "{@prefix} You have purchased &aEmerald Rank&7!"
+				removeTokens({_player}, 170000)
+				add 1 of paper named "&6Emerald Rank" with lore "&7Right-Click to redeem &aEmerald Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%170000-getTokens({_player})% &7more!"
+		make gui slot 15 with 1 of wheat named "&6&lCropied Rank" with lore "&7Cost: &e300.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 300000:
+				send "{@prefix} You have purchased &6Cropied Rank&7!"
+				removeTokens({_player}, 300000)
+				add 1 of paper named "&6Cropied Rank" with lore "&7Right-Click to redeem &6Cropied Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%600000-getTokens({_player})% &7more!"
+		make gui slot 16 with 1 of wheat named "&6&lCropied+ Rank" with lore "&7Cost: &e500.0K Tokens":
+			if getTokens({_player}) is greater than or equal to 500000:
+				send "{@prefix} You have purchased &6Cropied+ Rank&7!"
+				removeTokens({_player}, 500000)
+				add 1 of paper named "&6Cropied+ Rank" with lore "&7Right-Click to redeem &6Cropied+ Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%500000-getTokens({_player})% &7more!"
+		open last gui to {_player}
+
+function tokenGenerators(player: player):
+	stop
+	create a gui with virtual chest inventory with 3 rows named "Generator Exchange":
+		loop 27 times:
+			make gui slot (loop-value - 1) with black stained glass pane named "&7"
+		
+		make gui slot 12 with red stained glass pane named "&cComing soon.."
+		make gui slot 14 with red stained glass pane named "&cComing soon.."
+		make gui slot 16 with red stained glass pane named "&cComing soon.."
+		make gui slot 26 with arrow named "&a&lGo Back &7(Click)":
+			tokenMain(player)
+		make gui slot 10 with 1 of quartz block named "&e&lQuartz Generator" with lore "&7Cost: &e25.0k Tokens":
+		
+			if getTokens({_player}) is greater than or equal to 25000:
+				send "{@prefix} You have purchased a &eQuartz Generator&7!"
+				make console execute command "/gen quartz 1 %player%"
+				removeTokens({_player}, 25000)
+			else:
+				send "{@prefix} You don't have enough tokens! You need &e%25000-getTokens({_player})% &7more!"
+
+
+		open last gui to {_player}

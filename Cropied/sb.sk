@@ -1,0 +1,117 @@
+#{koth::active}
+on join:
+	while player is online:
+		set {_bmined} to "%{mined::%player%}%"
+		set {_bal} to balance of player
+		replace all ",", " " and "$" with "" in {_bal}
+		set {_bal} to format({_bal})
+		set {_gensMax} to getGens(player)
+		set {_gens} to yaml value "Gens.Placed" from "plugins/Gens/playerdata/%player's uuid%.yml"
+		set {_lv} to yaml value "Level.Current" of "plugins/Gens/playerdata/%player's uuid%.yml"
+		set {_multi} to getMulti(player)
+		set {_title} to getScoreboardTitle(player)
+		set title of player's scoreboard to "%{_title}% &7| &e&lS2"
+		set line 12 of player's scoreboard to "" 
+		set line 11 of player's scoreboard to "&e&lStats" 
+		set line 10 of player's scoreboard to "&6&l| &f&fBalance &7⪼ &a$%{_bal} ? ""0""%"
+		set line 9 of player's scoreboard to "&6&l| &fTokens &7⪼ &e%format(getTokens(player)) ? ""0""%&e⭐"
+		set line 8 of player's scoreboard to "&6&l| &fMultiplier &7⪼ &d%{_multi} ? ""1""%x"
+		set line 7 of player's scoreboard to "&6&l| &fLevel &7⪼ &b%{_lv} ? ""1""%"
+		set line 6 of player's scoreboard to "&f"
+
+		if "%region at player%" contains "mine":
+			set line 5 of player's scoreboard to "&e&lMine"
+			set line 4 of player's scoreboard to "&6&l| &fMined &7⪼ &f%{mined::%player%} ? ""0""%"
+			set line 3 of player's scoreboard to "&6&l| &fKOTH &7⪼ &a%{koth::active} ? ""&cfalse""%"
+			set line 2 of player's scoreboard to "&9"
+			set line 1 of player's scoreboard to "&7Cropied.minehut.gg"
+		else:
+			set line 5 of player's scoreboard to "&e&lPlot"
+			set line 4 of player's scoreboard to "&6&l| &fGenerators &7⪼ &9%{_gens} ? 0%&8/&9%getGens(player)%"
+			set line 3 of player's scoreboard to "&6&l| &fMultiplier &7⪼ &d%{_multi} ? ""1""%&dx"
+			set line 2 of player's scoreboard to "&1"
+			set line 1 of player's scoreboard to "&7Cropied.minehut.gg"
+		wait 3 seconds
+
+on hunger meter change:
+	cancel event
+
+function getMulti(p: player) :: number:
+	set {_uuid} to uuid of {_p}
+	set {_multi} to 0
+	if {_p} has permission "cropiedplusplus":
+		add 1.50 to {_multi}
+	else if {_p} has permission "cropiedplus":
+		add 1.00 to {_multi}
+	else if {_p} has permission "cropied":
+		add 0.75 to {_multi}
+	else if {_p} has permission "emerald":
+		add 0.5 to {_multi}
+	else if {_p} has permission "diamond":
+		add 0.4 to {_multi}
+	else if {_p} has permission "gold":
+		add 0.3 to {_multi}
+	else if {_p} has permission "iron":
+		add 0.2 to {_multi}
+	else if {_p} has permission "coal":
+		add 0.1 to {_multi}
+	else if {_p} has permission "stone":
+		add 0.05 to {_multi}
+	loop {totems::%{_p}%::*}:
+		set {_totem} to "%loop-value%"
+		set {_totemsplit::*} to split {_totem} at "named "
+		set {_totem} to uncolored {_totemsplit::2}
+		if {_totem} is "SELL TOTEM":
+			add getTotemValue(loop-value) to {_multi}
+	if {marketBooster::%{_p}%::Sell::time} is set:
+		if difference between {marketBooster::%{_p}%::Sell::time} and now > 30 minutes:
+			delete {marketBooster::%{_p}%::Sell::time}
+			delete {marketBooster::%{_p}%::Sell::booster}
+			send "%getPrefix()% &fYour &6Market &fboost has expired!" to {_p}
+		else:
+			add {marketBooster::%{_p}%::Sell::booster}-1 to {_multi}
+	add yaml value "multi" from "plugins/Gens/Economy/playerdata/%{_uuid}%.yml" + 1 to {_multi}
+	set {_multi} to {_multi} * ({purchased::Sell::%{_uuid}%} ? 1)
+	return {_multi}
+
+function getGens(p: player) :: number:
+	set {_uuid} to uuid of {_p}
+	set {_gens} to 50
+	if {_p} has permission "cropiedplusplus":
+		add 300 to {_gens}
+	else if {_p} has permission "cropiedplus":
+		add 150 to {_gens}
+	else if {_p} has permission "cropied":
+		add 100 to {_gens}
+	else if {_p} has permission "emerald":
+		add 70 to {_gens}
+	else if {_p} has permission "diamond":
+		add 50 to {_gens}
+	else if {_p} has permission "gold":
+		add 30 to {_gens}
+	else if {_p} has permission "iron":
+		add 20 to {_gens}
+	else if {_p} has permission "coal":
+		add 10 to {_gens}
+	else if {_p} has permission "stone":
+		add 5 to {_gens}
+	set {_gens} to yaml value "Gens.Max" from "plugins/Gens/playerdata/%{_uuid}%.yml" + {_gens}
+	return {_gens}
+
+function addMulti(p: player, amt: number):
+	set {_uid} to {_p}'s uuid
+	set yaml value "multi" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" to yaml value "multi" from "plugins/Gens/Economy/playerdata/%{_uid}%.yml" + {_amt}
+	
+command /addmulti <player> <number>:
+	permission: admin
+	trigger:
+		addMulti(arg-1, arg-2)
+
+function getScoreboardTitle(player: player) :: text:
+	set {_title} to {title::%{_player}%} ? "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+	if {_title} is "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld":
+		set {_title} to "&6&lC&e&lr&6&lo&e&lp&6&li&e&le&6&ld"
+	else:
+		set {_title} to "&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld"
+	set {title::%{_player}%} to {_title}
+	return {_title}

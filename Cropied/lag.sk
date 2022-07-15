@@ -1,0 +1,82 @@
+options:
+	Prefix: &e&lClear Lag &6●
+	PrefixWarning: &e&lClear Lag &6●
+	Warning: &7Entities will be cleared in
+
+every 60 seconds:
+	set {_items::*} to wheat and melon slice and pumpkin pie and coal and iron ingot and gold ingot and redstone and lapis lazuli and diamond and emerald and magma cream and flint and netherite ingot and nether star and gunpowder and ghast tear and prismarine shard and honeycomb and slimeball and netherite scrap and ender eye
+	loop entities:
+		{_items::*} contains loop-entity
+		delete loop-entity
+
+every 3 minutes:
+	broadcast "{@PrefixWarning} {@Warning} &b10 seconds&7."
+	wait 10 seconds
+	broadcast "{@PrefixWarning} {@Warning} &b3 seconds&7."
+	wait 3 seconds
+	make server execute command "/clear lag"
+
+command /clearlag [<text>] [<integer>]:
+	permission: op
+	trigger:
+		if arg-1 is not set:
+			message "&6-----------(&e&lClearlag Options&6)-----------"
+			message " &8/&6clearlag &eclear &f- (Clears entities from your worlds)"
+			message " &8/&6clearlag &earea &f- (Clears entities from your radius)"
+			message " &8/&6clearlag &ekillmobs &f- (Clears mobs from your worlds)"
+			message "&6--------------------------------------------------------------"
+		if player has permission "clear.lag":
+			if arg 1 is "clear":
+				clear {_count}
+				loop all projectiles:
+					clear loop-entity
+					add 1 to {_count}
+				loop entities:
+					loop-entity is a dropped item
+					clear loop-entity
+					add 1 to {_count}
+				if {_count} is not set:
+					set {_count} to 0
+				broadcast "{@Prefix} &eYou just removed &6%{_count}% &eentities!"
+
+		if player has permission "lagg.killmobs":
+			if arg 1 is "killmobs":
+				broadcast "{@Prefix} &eMobs have been removed!"
+				loop entities:
+					if loop-entity is a creature:
+						clear loop-entity
+					clear all slimes
+
+		if arg 1 is "area":
+			if arg 2 is not set:
+				send "&cWrong usage &8/&7Lagg <area> <radius>"
+
+		if player has permission "lagg.area":	
+			if arg 1 is "area":
+				if arg 2 is set:
+					clear {_count}
+					loop all projectiles in radius arg-2 around player:
+						clear loop-entity
+						add 1 to {_count}
+					loop entities in radius arg-2 around player:
+						loop-entity is a dropped item
+						clear loop-entity
+						add 1 to {_count}
+					if {_count} is not set:
+						set {_count} to 0
+					broadcast "{@Prefix} &6%{_count}% &eEntities have been removed within a radius of &6%arg-2%!"
+command /clear [<text>]: 
+	permission: op
+	trigger:	
+		if arg 1 is "lag":
+			clear {_count}
+			loop all projectiles:
+				clear loop-entity
+				add 1 to {_count}
+			loop entities:
+				loop-entity is a dropped item
+				clear loop-entity
+				add 1 to {_count}
+			if {_count} is not set:
+				set {_count} to 0
+			broadcast "{@Prefix} &7%{_count}% entities have been cleared."

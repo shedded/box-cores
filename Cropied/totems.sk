@@ -1,0 +1,149 @@
+command /totems:
+    aliases: /totem, /totembag
+    trigger:
+        create a gui with virtual chest inventory with 3 rows named "Totems":
+            set {_index} to 10
+            set {_loops} to 7
+            loop {totems::%player%::*}:
+                set {_loopindex} to loop-index
+                make gui slot {_index} with loop-value:
+                    if cursor slot of player is not air:
+                        give player cursor slot of player
+                    set cursor slot of player to {totems::%player%::%{_loopindex}%}
+                    remove {totems::%player%::%{_loopindex}%} from {totems::%player%::*}
+                    playSound(player, "forge", 0.75, 0.75)
+                    make player execute command "/totems"
+                add 1 to {_index}
+                remove 1 from {_loops}
+            loop {_loops} times:
+                make gui slot {_index} with red stained glass pane named "&e&lEMPTY SLOT" with lore "&fDrag a Totem into this Slot to equip!" and "&fUse &e/forge &fto create totems":
+                    if cursor slot of player is totem of undying:
+                        if name of cursor slot of player contains "TOTEM":
+                            add cursor slot of player to {totems::%player%::*}
+                            remove cursor slot of player from cursor slot of player
+                            execute player command "/totems"
+                            playSound(player, "forge", 0.75, 1.1)
+                        else:
+                            send "%getPrefix()% That is not a Totem!"
+                            playSound(player, "no", 1, 1)
+                    else:
+                        send "%getPrefix()% That is not a Totem!"
+                        playSound(player, "no", 1, 1)
+                add 1 to {_index}
+        open last gui to player
+
+command /givetotem <player> <text> <text> <integer>:
+    permission: admin
+    trigger:
+        if arg-1 or arg-2 or arg-3 or arg-4 is not set:
+            send "%getPrefix()% /givetotem <player> <sell|key|ore|token> <common|rare|epic|legendary|exotic> <amount>"
+            stop
+        if arg-2 is "sell":
+            give arg-1 arg-4 of getSellTotem(arg-3)
+            send "%getPrefix()% Sent %arg-4% of a %arg-3% %arg-2% Totem to %arg-1%"
+            send "%getPrefix()% You received &e%arg-4%&ex &fof &e%arg-3% &e%arg-2% &eTotem&f!" to arg-1
+        else if arg-2 is "ore":
+            give arg-1 arg-4 of getOreTotem(arg-3)
+            send "%getPrefix()% Sent %arg-4% of a %arg-3% %arg-2% Totem to %arg-1%"
+            send "%getPrefix()% You received &e%arg-4%&ex &fof &e%arg-3% &e%arg-2% &eTotem&f!" to arg-1
+        else if arg-2 is "key":
+            give arg-1 arg-4 of getKeyTotem(arg-3)
+            send "%getPrefix()% Sent %arg-4% of a %arg-3% %arg-2% Totem to %arg-1%"
+            send "%getPrefix()% You received &e%arg-4%&ex &fof &e%arg-3% &e%arg-2% &eTotem&f!" to arg-1
+        else if arg-2 is "token":
+            give arg-1 arg-4 of getTokenTotem(arg-3)
+            send "%getPrefix()% Sent %arg-4% of a %arg-3% %arg-2% Totem to %arg-1%"
+            send "%getPrefix()% You received &e%arg-4%&ex &fof &e%arg-3% &e%arg-2% &eTotem&f!" to arg-1
+
+function getSellTotem(rarity: text) :: item:
+
+    if {_rarity} is "common":
+        set {_random} to random number between 0.1 and 0.2
+    else if {_rarity} is "rare":
+        set {_random} to random number between 0.2 and 0.3
+    else if {_rarity} is "epic":
+        set {_random} to random number between 0.3 and 0.4
+    else if {_rarity} is "legendary":
+        set {_random} to random number between 0.4 and 0.5
+    else:
+        set {_random} to random number between 0.5 and 0.75
+
+    return totem of undying named "&e&lSELL TOTEM" with lore "&f+%{_random}%x &fSell Multiplier", "&8Equip this Totem in /totems", and getRarityText({_rarity})
+
+function getOreTotem(rarity: text) :: item:
+
+    if {_rarity} is "common":
+        set {_random} to 1
+    else if {_rarity} is "rare":
+        set {_random} to 1
+    else if {_rarity} is "epic":
+        set {_random} to random integer between 1 and 2
+    else if {_rarity} is "legendary":
+        set {_random} to random integer between 2 and 3
+    else:
+        set {_random} to random integer between 3 and 4
+
+    return totem of undying named "&e&lORE TOTEM" with lore "&f+%{_random}%x &fOreGrabber Levels", "&8Equip this Totem in /totems", and getRarityText({_rarity})
+
+function getTokenTotem(rarity: text) :: item:
+
+    if {_rarity} is "common":
+        set {_random} to 1
+    else if {_rarity} is "rare":
+        set {_random} to 1
+    else if {_rarity} is "epic":
+        set {_random} to random integer between 1 and 2
+    else if {_rarity} is "legendary":
+        set {_random} to random integer between 2 and 3
+    else:
+        set {_random} to random integer between 3 and 4
+
+    return totem of undying named "&e&lTOKEN TOTEM" with lore "&f+%{_random}%x &fTokenGrabber Levels", "&8Equip this Totem in /totems", and getRarityText({_rarity})
+
+
+function getKeyTotem(rarity: text) :: item:
+
+    if {_rarity} is "common":
+        set {_random} to 1
+    else if {_rarity} is "rare":
+        set {_random} to 1
+    else if {_rarity} is "epic":
+        set {_random} to random integer between 1 and 2
+    else if {_rarity} is "legendary":
+        set {_random} to random integer between 2 and 3
+    else:
+        set {_random} to random integer between 3 and 4
+
+    return totem of undying named "&e&lKEY TOTEM" with lore "&f+%{_random}%x &fKeyGrabber Levels", "&8Equip this Totem in /totems", and getRarityText({_rarity})
+
+
+function getRandomRarity() :: text:
+    set {_random} to random integer between 1 and 100
+    if {_random} <= 55:
+        return "common"
+    else if {_random} <= 75:
+        return "rare"
+    else if {_random} <= 90:
+        return "epic"
+    else if {_random} <= 96:
+        return "legendary"
+    return "exotic"
+
+function getRarityText(rarity: text) :: text:
+    if {_rarity} is "rare":
+        return "&b&lRARE"
+    else if {_rarity} is "epic":
+        return "&d&lEPIC"
+    else if {_rarity} is "legendary":
+        return "&e&lLEGENDARY"
+    else if {_rarity} is "exotic":
+        return "&a&lEXOTIC"
+    return "&7&lCOMMON"
+        
+function getTotemValue(totem: item) :: number:
+    set {_line} to uncolored line 1 of lore of {_totem}
+    set {_split::*} to split {_line} at " "
+    set {_line} to {_split::1}
+    replace all "+" with "" in {_line}
+    replace all "x" with "" in {_line}
+    return {_line} parsed as number

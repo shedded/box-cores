@@ -1,0 +1,13 @@
+options:
+	anchorItem: respawn anchor named "&6&lC&e&lr&6&lo&e&lp &6&lV&e&la&6&lu&e&ll&6&lt" with lore "&2&kii&a&lUsage&2&kii&r", "&2&l| &aRight-Click when placed to open", "  &ayour Crop Vault!", "&2&l| &aHold a sellwand while opening to gain", "  &aa bigger sell multiplier!", "&2&l| &aLeft-Click to pick me up!", "", "&5&kii&d&lUpgrades&5&kii&r" and "&5&l| &dComing soon.."
+
+
+command /givetank [<player>]:
+	permission: *
+	trigger:
+		giveTank(arg-1)
+
+function giveTank(p: player):
+	add 1 of {@anchorItem} to {_p}'s inventory
+
+

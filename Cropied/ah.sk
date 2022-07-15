@@ -1,0 +1,176 @@
+command /ahtest:
+	permission: op
+	aliases: /auctionhouse
+	trigger:
+		play sound "entity.chicken.egg" with pitch 0.5 at player for player
+		AuctionHouse(player, 1)  
+
+command /auctest [<text>] [<text>] [<number>]:
+	permission: op
+	aliases: /auction
+	trigger:
+		if arg-1 is "sell":
+			if arg-2 is not set:
+				send "&c[ERROR] &fCurrency type not found. Use &f'&e/auc sell <money|tokens> <price>&f'!" to player
+				stop
+			if arg-2 is not "money" or "tokens":
+				send "&c[ERROR] &fUnknown currency type. Use &f'&e/auc sell <money|tokens> <price>&f'!" to player
+				stop
+			if arg-3 is not set:
+				send "&c[ERROR] &fPrice not found. Use &f'&e/auc sell %arg-2%&e <price>&f'!" to player
+				stop
+			if arg-3 is less than 1:
+				send "&c[ERROR] &fPrice must be higher than '&e1&f'!" to player
+				stop
+			if player's tool is air:
+				send "&c[ERROR] &fYou cannot sell air on the auction house!" to player
+				stop
+			if player has permission "cropied":
+				set {_max} to 7
+			if player has permission "emerald":
+				set {_max} to 6
+			else if player has permission "diamond":
+				set {_max} to 5
+			else if player has permission "gold":
+				set {_max} to 4
+			else if player has permission "iron":
+				set {_max} to 3
+			else if player has permission "coal":
+				set {_max} to 2
+			else:
+				set {_max} to 1
+			if size of {auctions::%uuid of player%::items::*} is greater than or equal to {_max}:
+				send "&c[ERROR] &fYou can only have &a%{_max}% &fitems in the auction house!" to player
+				stop
+			add player's held item to {ah::%uuid of player%::items::*}
+			send "%player's held item%"
+			add "%arg-2%/-\%arg-3%" to {ah::%uuid of player%::info::*}
+			remove player's held item from player's inventory
+			send "&6[AUCTION] &fYou've auction off your held item for &e%arg-3% &e%arg-2 in lowercase%&f!"
+		else:
+			send "&c[ERROR] &fUnknown command argument. Use &f'&e/auc sell <money|tokens> <price>&f'!" to player
+			
+
+function AuctionHouse(p: player, page: integer):
+	create a gui with virtual chest inventory with 5 rows named "Auction House &8● &rPage %{_page}%":
+		set {_info::*} to page {_page} of (indexes of {ah::*}) with 36 lines
+		set {_nextinfo::*} to page ({_page} + 1) of (indexes of {ah::*}) with 36 lines
+		set {_previnfo::*} to page ({_page} - 1) of (indexes of {ah::*}) with 36 lines
+		if {_nextinfo::*} is set:
+			format gui slot 44 with lime dye named "&e&lPAGE %{_page} + 1%":
+				set {_nextpage} to {_page} + 1
+				play sound "ui.button.click" at {_p} for {_p}
+				AuctionHouse({_p}, {_nextpage})
+		if {_previnfo::*} is set:
+			format gui slot 36 with red dye named "&e&lPAGE %{_page} - 1%":
+				set {_prevpage} to {_page} - 1
+				play sound "ui.button.click" at {_p} for {_p}
+				AuctionHouse({_p}, {_nextpage})
+		format gui slot 40 with clock named "&e&lREFRESH ITEMS" with lore "&fClick to refresh all items!":
+			play sound "ui.button.click" at {_p} for {_p}
+			AuctionHouse({_p}, {_page})
+		if {_info::*} is not set:
+			format gui slot 13 with barrier named "&e&lAUCTIONHOUSE" with lore "" and "&fStart an auction using &e/auc&f!"
+		else:
+			set {_slot} to 0
+			loop {_info::*}:
+				set {_aucUUID} to loop-value
+				set {_aucOWNER} to {_aucUUID} parsed as an offline player
+				set {_amountofitems} to "%amount of {ah::%{_aucUUID}%::info::*}%" parsed as an integer
+				format gui slot {_slot} with skull of {_aucOWNER} named "&7Seller: &a%{_aucOWNER}%" with lore "", "&8&m-------------------------", "", "&7Seller Information:", " &8► &7Items Selling: &a%{_amountofitems} ? 0%", "", " &8► &7Items Sold: &a%{auctionsold::%{_aucUUID}%} ? 0%", "", "&8&m-------------------------", "", and "&fClick to view auctions!":
+					play sound "ui.button.click" at {_p} for {_p}
+					viewAuctions({_p}, {_aucOWNER})
+				add 1 to {_slot}
+	open last gui for {_p}
+
+function viewAuctions(p: player, aucOWNER: offline player):
+	set {_uuid} to uuid of {_p}
+	set {_aucUUID} to uuid of {_aucOWNER}
+	create a gui with virtual chest inventory with 2 rows named "Viewing &a%{_aucOWNER}%&a's&r items...":
+		format gui slot (integers from 0 to 8) with gray dye named "&8Empty Auction Slot"
+		format gui slot 13 with clock named "&2Refresh":
+			play sound "ui.button.click" at {_p} for {_p}
+			viewAuctions({_p}, {_aucOWNER})
+		format gui slot 9 with arrow named "&6Go Back" with lore "&7Go back to the &eAuction House":
+			play sound "ui.button.click" at {_p} for {_p}
+			AuctionHouse({_p}, 1)
+		set {_slot} to 0
+		loop {ah::%{_aucUUID}%::items::*}:
+			set {_index} to loop-index
+			set {_item} to loop-value
+			set {_split::*} to {ah::%{_aucUUID}%::info::%loop-index%} split at "/-\"
+			set {_currency} to {_split::1}
+			set {_price} to {_split::2} parsed as a number
+			set {_displayprice} to "%{_price}%"
+			if {_currency} is "money":
+				set {_display} to "&a%{_displayprice}% &a%{_currency} in strict proper case%"
+			else if {_currency} is "tokens":
+				set {_display} to "&b%{_displayprice}% &b%{_currency} in strict proper case%"
+			if {_aucOWNER} is {_p}:
+				set {_display2} to "&fClick to cancel this auction!"
+			else:
+				set {_display2} to "&fClick to purchase from %{_aucOWNER}%&f!"
+			send "%{_item}%" to {_p}
+			format gui slot {_slot} with {_item} with lore (lore of {_item}), "&8&m-------------------------", "", "&7Price: %{_display}%", "%{_display2}%", "" and "&8&m-------------------------":
+				if {_aucOWNER} is {_p}:
+					if {_p} doesn't have space for {_item} :
+						play sound "entity.villager.no" at {_p} for {_p}
+						send "&c[ERROR] &fYou don't have enough inventory space for that!" to {_p}	
+						stop
+					play sound "entity.experience_orb.pickup" at {_p} for {_p}
+					give {_p} {_item}
+					send "%lore of {_item}%" to {_p}
+					delete {ah::%{_aucUUID}%::items::%{_index}%}
+					delete {ah::%{_aucUUID}%::info::%{_index}%}
+					if {ah::%{_aucUUID}%::items::*} is not set:
+						delete {ah::%{_aucUUID}%::*}
+					send "&6[AUCTION] &fYou canceled an auction!" to {_p}
+					loop all players:
+						if uncolored name of inventory of loop-player is "Viewing %{_aucOWNER}%'s items...":
+							viewAuctions(loop-player, {_aucOWNER})
+							send action bar "&6[AUCTION] &e%{_aucOWNER}%&e's &fauctions were automatically updated!" to loop-player
+						if uncolored name of inventory of loop-player contains "Auction House":
+							AuctionHouse(loop-player, {_nextpage})
+							send action bar "&6[AUCTION] &fAuction house was automatically updated!" to loop-player
+				else:
+					if {_currency} is "tokens":
+						if getTokens({_p}) is less than {_price}:
+							play sound "entity.villager.no" at {_p} for {_p}
+							send "&c[ERROR] &fYou don't have enough %{_currency} in lowercase% &ffor that!"
+							stop
+					else if {_currency} is "money":
+						if player's money is less than {_price}:
+							play sound "entity.villager.no" at {_p} for {_p}
+							send "&c[ERROR] &fYou don't have enough %{_currency} in lowercase% &ffor that!"
+							stop
+					if {_p} doesn't have space for {_item}:
+						play sound "entity.villager.no" at {_p} for {_p}
+						send "&c[ERROR] &fYou don't have enough inventory space for that!" to {_p}	
+						stop
+					play sound "entity.experience_orb.pickup" at {_p} for {_p}
+					play sound "entity.experience_orb.pickup" at {_aucOWNER} for {_aucOWNER}
+					give {_p} {_item}
+					delete {ah::%{_aucUUID}%::items::%{_index}%}
+					delete {ah::%{_aucUUID}%::info::%{_index}%}
+					if {ah::%{_aucUUID}%::items::*} is not set:
+						delete {ah::%{_aucUUID}%::*}
+					send "&6[AUCTION] &fYou purchased an auction from &e%{_aucOWNER}%&f!" to {_p}
+					set {_displayname} to name of {_item} ? "%type of {_item}%"
+					send "&6[AUCTION] &e%{_p}% &fpurchased your %{_displayname}% &ffrom the auction house!" to {_aucOWNER}
+					loop all players:
+						if uncolored name of inventory of loop-player is "Viewing %{_aucOWNER}%'s items...":
+							viewAuctions(loop-player, {_aucOWNER})
+							send action bar "&6[AUCTION] &e%{_aucOWNER}%&e's &fauctions were automatically updated!" to loop-player
+						if uncolored name of inventory of loop-player contains "Auction House":
+							AuctionHouse(loop-player, 1)
+							send action bar "&6[AUCTION] &fAuction house was automatically updated!" to loop-player
+					wait 5 ticks
+					add 1 to {auctionsold::%{_aucUUID}%}
+					if {_currency} is "tokens":
+						removeTokens({_p}, {_price})
+						addTokens({_aucOWNER}, {_price})
+					else if {_currency} is "money":
+						remove {_price} from {_p}'s money
+						add {_price} to {_aucOWNER}'s money
+			add 1 to {_slot}
+	open last gui for {_p}

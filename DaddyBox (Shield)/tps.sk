@@ -1,0 +1,25 @@
+command /tps:
+  trigger:
+    if tps >= 19:
+      send ""
+      send "      &bServer TPS: &f%tps%"
+      send "               &3Status: &aGood"
+      send ""
+    else:
+      if tps >= 16:
+        send ""
+        send "      &bServer TPS: &f%tps%"
+        send "               &3Status: &eModerate"
+        send ""
+      else:
+        if tps >= 13:
+          send ""
+          send "      &bServer TPS: &f%tps%"
+          send "               &3Status: &cBad"
+          send ""
+        else:
+          if tps >= 0:
+            send ""
+            send "      &bServer TPS: &f%tps%"
+            send "               &3Status: &4Really Bad"
+            send ""

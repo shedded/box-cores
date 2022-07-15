@@ -1,0 +1,3 @@
+on tab complete of "sk" or "skript":
+	set tab completions for position 1 to "reload", "enable", "disable", "update", "info" and "help"
+	set tab completions for position 2 to enabled scripts

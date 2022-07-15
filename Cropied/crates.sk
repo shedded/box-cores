@@ -1,0 +1,540 @@
+options:
+	prefix: %getPrefix()%
+	wheatItem: hay bale named "&eWheat Generator" with lore "&7Output: &e$5" and "&7Tier: &e1"
+	melonItem: melon block named "&eMelon Generator" with lore "&7Output: &e$10" and "&7Tier: &e2"
+	pumpkinItem: pumpkin named "&ePumpkin Generator" with lore "&7Output: &e$20" and "&7Tier: &e3"
+	coalItem: coal block named "&eCoal Generator" with lore "&7Output: &e$35" and "&7Tier: &e4"
+	ironItem: iron block named "&eIron Generator" with lore "&7Output: &e$50" and "&7Tier: &e5"
+	goldItem: gold block named "&eGold Generator" with lore "&7Output: &e$75" and "&7Tier: &e6"
+	redstoneItem: redstone block named "&eRedstone Generator" with lore "&7Output: &e$100" and "&7Tier: &e7"
+	lapisItem: lapis block named "&eLapis Generator" with lore "&7Output: &e$150" and "&7Tier: &e8"
+	diamondItem: diamond block named "&eDiamond Generator" with lore "&7Output: &e$200" and "&7Tier: &e9"
+	emeraldItem: emerald block named "&eEmerald Generator" with lore "&7Output: &e$250" and "&7Tier: &e10"
+	magmaItem: magma block named "&eMagma Generator" with lore "&7Output: &e$300" and "&7Tier: &e11"
+	obsidianItem: obsidian named "&eObsidian Generator" with lore "&7Output: &e$400" and "&7Tier: &e12"
+	netheriteItem: netherite block named "&eNetherite Generator" with lore "&7Output: &e$500" and "&7Tier: &e13"
+	starItem: beacon named "&eStar Generator" with lore "&7Output: &e$750" and "&7Tier: &e14"
+	abyssItem: crying obsidian named "&eAbyss Generator" with lore "&7Output: &e$1000" and "&7Tier: &e15"
+	rareKey: tripwire hook named "&bRare Key" with lore "&7Use at /crates"
+	mythicKey: tripwire hook named "&dMythic Key" with lore "&7Use at /crates"
+	legendKey: tripwire hook named "&eLegend Key" with lore "&7Use at /crates"
+	rankKey: tripwire hook named "&cRank Key" with lore "&7Use at /crates"
+	exoticKey: tripwire hook named "&aExotic Key" with lore "&7Use at /crates"
+	omegaKey: nether star named "&6Omega Key" with lore "&7Use at /crates"
+	oreKey: tripwire hook named "&eO&dr&ae &eCr&d&aa&et&de" with lore "&7Use at /crates"
+	demonicKey: wither skeleton skull named "&8Demonic Key" with lore "&7Use at /crates"
+	coalOre: coal ore named "&eCoal Ore" with lore "&7&lCOMMON"
+	ironOre: iron ore named "&eIron Ore" with lore "&7&lCOMMON"
+	goldOre: gold ore named "&eGold Ore" with lore "&b&lRARE"
+	diamondOre: diamond ore named "&eDiamond Ore" with lore "&d&lEPIC"
+	emeraldOre: emerald ore named "&eEmerald Ore" with lore "&e&lLEGENDARY"
+	redstoneOre: redstone ore named "&eRedstone Ore" with lore "&a&lEXOTIC"
+	
+command /givekey [<player>] [<text>] [<integer>]:
+	permission: admin
+	trigger:
+		if arg-1 and arg-2 and arg-3 are set:
+			if arg-2 is "rare":
+				set {_key} to {@rareKey}
+			else if arg-2 is "mythic":
+				set {_key} to {@mythicKey}
+			else if arg-2 is "legend":
+				set {_key} to {@legendKey}
+			else if arg-2 is "rank":
+				set {_key} to {@rankKey}
+			else if arg-2 is "exotic":
+				set {_key} to {@exoticKey}
+			else if arg-2 is "omega":
+				set {_key} to {@omegaKey}
+			else if arg-2 is "ore":
+				set {_key} to {@oreKey}
+			else if arg-2 is "demonic":
+				set {_key} to {@demonicKey}
+			else:
+				send "&cCorrect usage: /givekey (player) (key) (amount)"
+				stop
+			give arg-1 arg-3 of {_key}
+		else:
+			send "&cCorrect usage: /givekey (player) (key) (amount)"
+
+
+command /setcrate <text>:
+	permission: admin
+	trigger:
+		set {_location} to location of target block of player
+		if arg-1 is "rare":
+			set {rare} to {_location}
+			send "&6[Cropied] &7Updated the location for the Rare Crate"
+		else if arg-1 is "mythic":
+			set {mythic} to {_location}
+			send "&6[Cropied] &7Updated the location for the Mythic Crate"
+		else if arg-1 is "legend":
+			set {legend} to {_location}
+			send "&6[Cropied] &7Updated the location for the Legend Crate"
+		else if arg-1 is "rank":
+			set {rank} to {_location}
+			send "&6[Cropied] &7Updated the location for the Rank Crate"
+		else if arg-1 is "exotic":
+			set {exotic} to {_location}
+			send "&6[Cropied] &7Updated the location for the Exotic Crate"
+		else if arg-1 is "omega":
+			set {omega} to {_location}
+			send "&6[Cropied] &7Updated the location for the Omega Crate"
+		else if arg-1 is "ore":
+			set {ore} to {_location}
+			send "&6[Cropied] &7Updated the location for the Ore Crate"
+		else if arg-1 is "demonic":
+			set {demonic} to {_location}
+			send "&6[Cropied] &7Updated the location for the Demonic Crate"
+
+command /keyall <text> <integer>:
+	usage: /keyall [key] [amount]
+	permission: *
+	trigger:
+		if arg-1 is "Rare":
+			give arg-2 of {@rareKey} to all players
+		else if arg-1 is "Mythic":
+			give arg-2 of {@mythicKey} to all players		   
+		else if arg-1 is "Legend":
+			give arg-2 of {@legendKey} to all players			   
+		else if arg-1 is "Exotic":
+			give arg-2 of {@exoticKey} to all players			   
+		send "&6[Cropied]&7 You recieved %arg-2% of %arg-1% keys"
+
+on rightclick:
+	if event-location is {rare}:
+		if player's tool is equal to {@rareKey}:
+			set yaml value "Crates.Rare" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Rare" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			cancel event
+			remove 1 of player's tool from player's tool
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 35:
+				send "{@prefix} You won &a$2,500!"
+				add 2500 to player's balance
+			else if {_random} is less than or equal to 65:
+				send "{@prefix} You won &a$5,000!"
+				add 5000 to player's balance
+			else if {_random} is less than or equal to 90:
+				send "{@prefix} You won a &eMelon Generator!"
+				add 1 of {@melonItem} to player's inventory
+			else:
+				send "{@prefix} You won a &dMythic Key!"
+				add 1 of {@mythicKey} to player's inventory
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {mythic}:
+		if player's tool is equal to {@mythicKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Mythic" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Mythic" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 35:
+				send "{@prefix} You won &a$40,000!"
+				add 40000 to player's balance
+			else if {_random} is less than or equal to 65:
+				send "{@prefix} You won an &eIron Generator!"
+				add 1 of {@ironItem} to player's inventory
+			else if {_random} is less than or equal to 90:
+				send "{@prefix} You won a &eRedstone Generator!"
+				add 1 of {@redstoneItem} to player's inventory
+			else:
+				send "{@prefix} You won a &eLegend Key!"
+				add 1 of {@legendKey} to player's inventory
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {legend}:
+		if player's tool is equal to {@legendKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Legend" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Legend" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 50:
+				send "{@prefix} You won &e2x Emerald Generator!"
+				add 2 of {@emeraldItem} to player's inventory
+			else if {_random} is less than or equal to 56:
+				send "{@prefix} You won a &eGenerator Slot"
+				addGens(player, 1)
+			else if {_random} is less than or equal to 69:
+				send "{@prefix} You won &e250x Tokens"
+				make console execute command "/tokens add %player% 250"
+			else if {_random} is less than or equal to 89:
+				send "{@prefix} You won &e500x Tokens"
+				make console execute command "/tokens add %player% 500"
+			else if {_random} is less than or equal to 99:
+				send "{@prefix} You won a &e2x Legend Key!"
+				add 2 of {@legendKey} to player's inventory
+			else:
+				send "{@prefix} You won &a+0.01 Multiplier&7!"
+				addMulti(player, 0.01)
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {rank}:
+		if player's tool is equal to {@rankKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Rank" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Rank" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 45:
+				send "{@prefix} You won &8Coal Rank&7!"
+				broadcast "{@prefix} &7%player% just won &8Coal Rank &7from a &cRank Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Coal Rank" with lore "&7Right-Click to redeem &8Coal Rank&7!" to player's inventory
+			else if {_random} is less than or equal to 80:
+				send "{@prefix} You won &fIron Rank&7!"
+				broadcast "{@prefix} &7%player% just won &fIron Rank &7from a &cRank Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Iron Rank" with lore "&7Right-Click to redeem &fIron Rank&7!" to player's inventory
+			else if {_random} is less than or equal to 90:
+				send "{@prefix} You won &eGold Rank&7!"
+				broadcast "{@prefix} &7%player% just won &eGold Rank &7from a &cRank Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Gold Rank" with lore "&7Right-Click to redeem &eGold Rank&7!" to player's inventory
+			else if {_random} is less than or equal to 95:
+				send "{@prefix} You won &bDiamond Rank&7!"
+				broadcast "{@prefix} &7%player% just won &bDiamond Rank &7from a &cRank Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Diamond Rank" with lore "&7Right-Click to redeem &bDiamond Rank&7!" to player's inventory
+			else if {_random} is less than or equal to 98:
+				send "{@prefix} You won &aEmerald Rank&7!"
+				broadcast "{@prefix} &7%player% just won &aEmerald Rank &7from a &cRank Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Emerald Rank" with lore "&7Right-Click to redeem &aEmerald Rank&7!" to player's inventory
+			else:
+				send "{@prefix} You won &eC&6r&eo&6p&ei&6e&ed Rank&7!"
+				broadcast "{@prefix} &7%player% just won &eC&6r&eo&6p&ei&6e&ed Rank &7from a &cRank Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Cropied Rank" with lore "&7Right-Click to redeem &eC&6r&eo&6p&ei&6e&ed Rank&7!" to player's inventory
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {exotic}:
+		if player's tool is equal to {@exoticKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Exotic" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Exotic" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 50:
+				send "{@prefix} You won a &a+0.1 Multiplier&7!"
+				broadcast "{@prefix} &7%player% just won a &a+0.1 Multiplier &7from an &aExotic Crate&7! Get yours now at &e/buy&7!"
+				addMulti(player, 0.1)
+			else if {_random} is less than or equal to 90:
+				send "{@prefix} You won a &a+0.15 Multiplier&7!"
+				broadcast "{@prefix} &7%player% just won a &a+0.15 Multiplier &7from an &aExotic Crate&7! Get yours now at &e/buy&7!"
+				addMulti(player, 0.15)
+			else if {_random} is less than or equal to 95:
+				send "{@prefix} You won a &6Cropied Crate&7!"
+				broadcast "{@prefix} &7%player% just won a &6Cropied Crate &7from an &aExotic Crate&7! Get yours now at &e/buy&7!"
+				make console execute command "/monthlycrate give %player% cropied 1"
+			else:
+				send "{@prefix} You won a &a2x Exotic Key&7!"
+				broadcast "{@prefix} &7%player% just won &a2x Exotic Key &7from an &aExotic Crate&7! Get yours now at &e/buy&7!"
+				give player 2 of {@exoticKey}
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {omega}:
+		if player's tool is equal to {@omegaKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Omega" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Omega" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 50:
+				send "{@prefix} You won a &a+0.75 Multiplier&7!"
+				broadcast "{@prefix} &7%player% just won a &a+0.75 Multiplier &7from an &6Omega Crate&7! Get yours now at &e/buy&7!"
+				addMulti(player, 0.75)
+			else if {_random} is less than or equal to 70:
+				send "{@prefix} You won a &b4x Slot Ticket"
+				execute console command "/giveslot %player% 4"
+				broadcast "{@prefix} &7%player% just won a &b4x Slot Ticket &7from an &6Omega Crate&7! Get yours now at &e/buy&7!"
+			else if {_random} is less than or equal to 90:
+				send "{@prefix} You won a &6Mega Cropied Crate&7!"
+				broadcast "{@prefix} &7%player% just won a &6Mega Cropied Crate &7from an &6Omega Crate&7! Get yours now at &e/buy&7!"
+				make console execute command "/monthlycrate give %player% mega 1"
+			else if {_random} is less than or equal to 95:
+				send "{@prefix} You won a &62x Omega Key&7!"
+				broadcast "{@prefix} &7%player% just won &62x Omega Key &7from an &6Omega Crate&7! Get yours now at &e/buy&7!"
+				give player 2 of {@omegaKey}
+			else:
+				send "{@prefix} You won &eC&6r&eo&6p&ei&6e&ed&6+ Rank&7!"
+				broadcast "{@prefix} &7%player% just won &eC&6r&eo&6p&ei&6e&ed&6+ Rank &7from an &6Omega Crate&7! Get yours now at &e/buy&7!"
+				add 1 of paper named "&6Cropied+ Rank" with lore "&7Right-Click to redeem &eC&6r&eo&6p&ei&6e&ed&6+ Rank&7!" to player's inventory
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {ore}:
+		if player's tool is equal to {@oreKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Ore" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Ore" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 110
+			if {_random} is less than or equal to 1:
+				send "{@prefix} You won &a45x Coal Ore!"
+				make console execute command "/material coal 45 %player%"
+			else if {_random} is less than or equal to 3:
+				send "{@prefix} You won &a100x Coal Ore!"
+				make console execute command "/material coal 100 %player%"
+			else if {_random} is less than or equal to 6:
+				send "{@prefix} You won &a200x Coal Ore!"
+				make console execute command "/material coal 200 %player%"
+			else if {_random} is less than or equal to 10:
+				send "{@prefix} You won &a300x Coal Ore!"
+				make console execute command "/material coal 300 %player%"
+			else if {_random} is less than or equal to 13:
+				send "{@prefix} You won &a40x Iron Ore!"
+				make console execute command "/material iron 40 %player%"
+			else if {_random} is less than or equal to 18:
+				send "{@prefix} You won &a80x Iron Ore!"
+				make console execute command "/material iron 80 %player%"
+			else if {_random} is less than or equal to 25:
+				send "{@prefix} You won &a130x Iron Ore!"
+				make console execute command "/material iron 130 %player%"
+			else if {_random} is less than or equal to 30:
+				send "{@prefix} You won &a200x Iron Ore!"
+				make console execute command "/material iron 200 %player%"
+			else if {_random} is less than or equal to 35:
+				send "{@prefix} You won &a30x Gold Ore!"
+				make console execute command "/material gold 30 %player%"
+			else if {_random} is less than or equal to 45:
+				send "{@prefix} You won &a50x Gold Ore!"
+				make console execute command "/material gold 50 %player%"
+			else if {_random} is less than or equal to 60:
+				send "{@prefix} You won &a100x Gold Ore!"
+				make console execute command "/material gold 100 %player%"
+			else if {_random} is less than or equal to 65:
+				send "{@prefix} You won &a15x Diamond Ore!"
+				make console execute command "/material diamond 15 %player%"
+			else if {_random} is less than or equal to 70:
+				send "{@prefix} You won &a25x Diamond Ore!"
+				make console execute command "/material diamond 25 %player%"
+			else if {_random} is less than or equal to 75:
+				send "{@prefix} You won &a40x Diamond Ore!"
+				make console execute command "/material diamond 40 %player%"
+			else if {_random} is less than or equal to 80:
+				send "{@prefix} You won &a50x Diamond Ore!"
+				make console execute command "/material diamond 50 %player%"
+			else if {_random} is less than or equal to 85:
+				send "{@prefix} You won &a5x Emerald Ore!"
+				make console execute command "/material emerald 5 %player%"
+			else if {_random} is less than or equal to 90:
+				send "{@prefix} You won &a10x Emerald Ore!"
+				make console execute command "/material emerald 10 %player%"
+			else if {_random} is less than or equal to 95:
+				send "{@prefix} You won &a15x Emerald Ore!"
+				make console execute command "/material emerald 15 %player%"
+			else if {_random} is less than or equal to 100:
+				send "{@prefix} You won &a25x Emerald Ore!"
+				make console execute command "/material emerald 25 %player%"
+			else if {_random} is less than or equal to 103:
+				send "{@prefix} You won &a3x Redstone Ore!"
+				make console execute command "/material redstone 3 %player%"
+			else if {_random} is less than or equal to 106:
+				send "{@prefix} You won &a10x Redstone Ore!"
+				make console execute command "/material redstone 10 %player%"
+			else if {_random} is less than or equal to 110:
+				send "{@prefix} You won &a20x Redstone Ore!"
+				make console execute command "/material redstone 20 %player%"
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+	else if event-location is {demonic}:
+		if player's tool is equal to {@demonicKey}:
+			cancel event
+			remove 1 of player's tool from player's tool
+			set yaml value "Crates.Demonic" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.Demonic" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			set yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" to yaml value "Crates.All" from "plugins/Gens/playerdata/%player's uuid%.yml" + 1
+			play sound "entity.firework_rocket.twinkle" with volume 10 and pitch 1 at player's location for player
+			set {_random} to a random number between 1 and 100
+			if {_random} is less than or equal to 50:
+				send "{@prefix} You won a &a+2.0 Multiplier&7!"
+				broadcast "{@prefix} &7%player% just won a &a+2.0 Multiplier &7from an &8Demonic Crate&7! Get yours now at &e/forge&7!"
+				addMulti(player, 2.00)
+			else if {_random} is less than or equal to 75:
+				if player has permission "glow":
+					send "{@prefix} You won a &a+2.0 Multiplier&7!"
+					broadcast "{@prefix} &7%player% just won a &a+2.0 Multiplier &7from an &8Demonic Crate&7! Get yours now at &e/forge&7!"
+					addMulti(player, 2.00)
+				else:
+					send "{@prefix} You won a &fGlow Effect"
+					execute console command "/lp user %player% permission set glow"
+					broadcast "{@prefix} &7%player% just won a &fGlow Effect &7from an &8Demonic Crate&7! Get yours now at &e/forge&7!"
+			else:
+				if {rank::%player%} is not "Demon":
+					set {rank::%player%} to "Demon"
+					addGens(player, 35)
+					addMulti(player, 0.50)
+					broadcast "{@prefix} &7%player% just won a &cDemon Rank &7from an &8Demonic Crate&7! Get yours now at &e/forge&7!"
+					add 150000 to {tokens::%player%}
+					send "{@prefix} You won a &cDemon Rank"
+				else:
+					send "{@prefix} You won a &a+2.0 Multiplier&7!"
+					broadcast "{@prefix} &7%player% just won a &a+2.0 Multiplier &7from an &8Demonic Crate&7! Get yours now at &e/forge&7!"
+					addMulti(player, 2.00)
+		else:
+			send "{@prefix} Hold a key to open this crate!"
+			cancel event
+
+
+
+on leftclick:
+	if event-location is {rare}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Rare Crate":
+			make next gui slot with 1 of paper named "&e$2,500" with lore "&fChance: &e35%%"
+			make next gui slot with 1 of paper named "&e$5,000" with lore "&fChance: &e30%%"
+			make next gui slot with 1 of melon block named "&eMelon Generator" with lore "&fChance: &e25%%"
+			make next gui slot with 1 of tripwire hook named "&dMythic Key" with lore "&fChance: &e10%%"
+		open last gui to player
+	else if event-location is {mythic}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Mythic Crate":
+			make next gui slot with 1 of paper named "&e$7,500" with lore "&fChance: &e35%%"
+			make next gui slot with 1 of paper named "&e$15,000" with lore "&fChance: &e30%%"
+			make next gui slot with 1 of iron block named "&eIron Generator" with lore "&fChance: &e25%%"
+			make next gui slot with 1 of tripwire hook named "&eLegend Key" with lore "&fChance: &e10%%"
+		open last gui to player
+	else if event-location is {legend}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Legend Crate":
+			make next gui slot with 1 of emerald block named "&e2x Emerald Generator" with lore "&fChance: &e50%%"
+			make next gui slot with 1 of glowing magma cream named "&e250x Tokens" with lore "&fChance: &e12%%"
+			make next gui slot with 1 of glowing magma cream named "&e500x Tokens" with lore "&fChance: &e20%%"
+			make next gui slot with 1 of magenta glazed terracotta named "&eGenerator Slot" with lore "&fChance: &e7%%"
+			make next gui slot with 1 of tripwire hook named "&e2x Legend Key" with lore "&fChance: &e10%%"
+			make next gui slot with 1 of blaze rod named "&e0.01x Multiplier" with lore "&fChance: &e1%%"
+		open last gui to player
+	else if event-location is {rank}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Rank Crate":
+			make next gui slot with 1 of gray dye named "&8Coal Rank" with lore "&fChance: &e45%%"
+			make next gui slot with 1 of bone meal named "&fIron Rank" with lore "&fChance: &e35%%"
+			make next gui slot with 1 of yellow dye named "&eGold Rank" with lore "&fChance: &e10%%"
+			make next gui slot with 1 of light blue dye named "&bDiamond Rank" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of lime dye named "&aEmerald Rank" with lore "&fChance: &e3%%"
+			make next gui slot with 1 of glowing orange dye named "&eC&6r&eo&6p&ei&6e&ed Rank" with lore "&fChance: &e2%%"
+	else if event-location is {exotic}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Exotic Crate":
+			make next gui slot with 1 of blaze rod named "&e0.1 Multiplier" with lore "&fChance: &e50%%"
+			make next gui slot with 1 of blaze rod named "&e0.15 Multiplier" with lore "&fChance: &e40%%"
+			make next gui slot with 1 of ender chest named "&6Cropied Crate" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of tripwire hook named "&e2x Exotic Key" with lore "&fChance: &e5%%"
+	else if event-location is {omega}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Omega Crate":
+			make next gui slot with 1 of glowing blaze rod named "&e0.75 Multiplier" with lore "&fChance: &e50%%"
+			make next gui slot with 1 of glowing magenta glazed terracotta named "&e4x Slot Tickets" with lore "&fChance: &e20%%"
+			make next gui slot with 1 of glowing ender chest named "&6Mega Cropied Crate" with lore "&fChance: &e20%%"
+			make next gui slot with 1 of glowing tripwire hook named "&e2x Omega Key" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of glowing orange dye named "&eC&6r&eo&6p&ei&6e&ed&6+ Rank" with lore "&fChance: &e5%%"
+	else if event-location is {ore}:
+		cancel event
+		create a gui with virtual chest inventory with 3 rows named "Ore Crate":
+			make next gui slot with 1 of coal named "&e45x Coal Ore" with lore "&fChance: &e1%%"
+			make next gui slot with 1 of coal named "&e100x Coal Ore" with lore "&fChance: &e2%%"
+			make next gui slot with 1 of coal named "&e200x Coal Ore" with lore "&fChance: &e3%%"
+			make next gui slot with 1 of coal named "&e300x Coal Ore" with lore "&fChance: &e4%%"
+			make next gui slot with 1 of iron ore named "&e40x Iron Ore" with lore "&fChance: &e3%%"
+			make next gui slot with 1 of iron ore named "&e80x Iron Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of iron ore named "&e130x Iron Ore" with lore "&fChance: &e7%%"
+			make next gui slot with 1 of iron ore named "&e200x Iron Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of gold ore named "&e30x Gold Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of gold ore named "&e50x Gold Ore" with lore "&fChance: &e10%%"
+			make next gui slot with 1 of gold ore named "&e60x Gold Ore" with lore "&fChance: &e15%%"
+			make next gui slot with 1 of diamond ore named "&e15x Diamond Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of diamond ore named "&e25x Diamond Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of diamond ore named "&e40x Diamond Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of diamond ore named "&e50x Diamond Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of emerald ore named "&e5x Emerald Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of emerald ore named "&e10x Emerald Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of emerald ore named "&e15x Emerald Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of emerald ore named "&e25x Emerald Ore" with lore "&fChance: &e5%%"
+			make next gui slot with 1 of redstone ore named "&e3x Redstone Ore" with lore "&fChance: &e3%%"
+			make next gui slot with 1 of redstone ore named "&e10x Redstone Ore" with lore "&fChance: &e3%%"
+			make next gui slot with 1 of redstone ore named "&e20x Redstone Ore" with lore "&fChance: &e4%%"
+	else if event-location is {demonic}:
+		cancel event
+		create a gui with virtual chest inventory with 1 rows named "Demonic Crate":
+			make next gui slot with 1 of glowing wither skeleton skull named "&eDemon Rank &7(/ranks)" with lore "","&7+100 Gen Slots","&7+1.5x Sell Multiplier","&7150,000x Tokens on rankup.","" and "&fChance: &e25%%"
+			make next gui slot with 1 of glowing blaze rod named "&e2.0 Multiplier" with lore "&fChance: &e50%%"
+			make next gui slot with 1 of glowing milk bucket named "&eGlow Effect &7(/glow)" with lore "&fChance: &e25%%"
+			make next gui slot with 1 of air
+			make next gui slot with 1 of glowing popped chorus fruit named "&6Guarenteed: &e1x Frenzy" with lore "","&eFor 10 minutes:","&7+10x Sell Multiplier","&7+Double Ores &7&o(/mine)","" and "&fChance: &e100%% &7(Guarenteed)"
+	open last gui to player
+
+on place of tripwire hook:
+	cancel event
+
+on rightclick:
+	if player's tool is paper:
+		if name of player's tool is "&6Coal Rank":
+			if player has permission "coal":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Coal rank or above!"
+				stop
+			execute console command "lp user %player% parent add coal"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed a &8[COAL] &7rank voucher!"
+
+		else if name of player's tool is "&6Iron Rank":
+			if player has permission "iron":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Iron rank or above!"
+				stop
+			execute console command "lp user %player% parent add iron"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed an &F[IRON] &7rank voucher!"
+
+		else if name of player's tool is "&6Gold Rank":
+			if player has permission "gold":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Gold rank or above!"
+				stop
+			execute console command "lp user %player% parent add gold"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed a &e[GOLD] &7rank voucher!"
+
+		else if name of player's tool is "&6Diamond Rank":
+			if player has permission "diamond":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Diamond rank or above!"
+				stop
+			execute console command "lp user %player% parent add diamond"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed a &b[DIAMOND] &7rank voucher!"
+
+		else if name of player's tool is "&6Emerald Rank":
+			if player has permission "emerald":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Emerald rank or above!"
+				stop
+			execute console command "lp user %player% parent add emerald"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed an &a[EMERALD] &7rank voucher!"
+
+		else if name of player's tool is "&6Cropied Rank":
+			if player has permission "cropied":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Cropied rank or above!"
+				stop
+			execute console command "lp user %player% parent add cropied"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed an &6[&eC&6R&eO&6P&eI&6E&eD&6] &7rank voucher!"
+		else if name of player's tool is "&6Cropied+ Rank":
+			if player has permission "cropiedplus":
+				send "&cYou cannot use this rank voucher."
+				send "&fYou already have Cropied+ rank or above!"
+				stop
+			execute console command "lp user %player% parent add cropiedplus"
+			remove 1 of player's tool from player's tool
+			send "{@prefix} You redeemed an &6[&eC&6R&eO&6P&eI&6E&eD&6+&6] &7rank voucher!"

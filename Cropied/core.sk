@@ -1,0 +1,121 @@
+# -=-=-=-=-=-=-=-=- CORE FEATURES -=-=-=-=-=-=-=-=- #
+
+function getPrefix() :: text:
+	return "&6&lC&e&lr&6&lo&e&lp&6&li&e&le&6&ld &8>&f"
+
+function playSound(player: player, sound: text, volume: number, pitch: number):
+	if {_sound} is "experience":
+		play sound "entity.experience_orb.pickup" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "level":
+		play sound "entity.player.levelup" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "teleport":
+		play sound "item.chorus_fruit.teleport" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "pling":
+		play sound "block.note_block.pling" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "no":
+		play sound "entity.villager.no" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "chest":
+		play sound "block.chest.open" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "dragon":
+		play sound "entity.ender_dragon.growl" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "work":
+		play sound "entity.villager.work_shepherd" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "bell":
+		play sound "block.note_block.bell" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "forge":
+		play sound "block.smithing_table.use" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "enderchest":
+		play sound "block.ender_chest.open" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "hurt":
+		play sound "minecraft:entity.enderman.hurt" with volume {_volume} with pitch {_pitch} to {_player}
+	else if {_sound} is "egg":
+		play sound "minecraft:entity.chicken.egg" with volume {_volume} with pitch {_pitch} to {_player}
+
+function format(n: number) :: text:
+	set {_data} to "SX,21|QT,18|Q,15|T,12|B,9|M,6|k,3"
+	loop split {_data} at "|":
+		set {_s::*} to split loop-value at ","
+		{_n} >= 10 ^ {_s::2} parsed as number
+		return "%{_n} / 10 ^ {_s::2} parsed as number%%{_s::1}%"
+	return "%{_n}%"
+
+function time(t: text) :: text:
+	if {_t} contains "hours" or "minutes":
+		set {_time::*} to {_t} split at " "
+		set {_time2::*} to {_time::4} split at "."
+		return "%{_time::1}% %{_time::2}% %{_time::3}% %{_time2::1}% %{_time::5}%"
+	else if {_t} contains "seconds":
+		set {_time::*} to {_t} split at " "
+		set {_time2::*} to {_time::1} split at "."
+		return "%{_time2::1}% %{_time::2}%"
+	return {_t}
+
+# -=-=-=-=-=-=-=-=- MINI FEATURES -=-=-=-=-=-=-=-=- #
+
+on craft of anvil:
+	cancel event
+	
+on right click on anvil or damaged anvil or chipped anvil:
+	if "%player's world%" contains "plots":
+		send "%getPrefix()% Anvils are disabled!"
+	else:
+		make player execute command "/forge"
+	cancel event
+
+on place of redstone dust:
+	cancel event
+
+on place of tripwire hook:
+	cancel event
+
+on craft:
+	if event-item is hopper minecart or minecart or redstone comparator or oak boat or spruce boat or birch boat or jungle boat or acacia boat or dark oak boat:	
+		cancel event
+
+command /buy [<text>]:
+	trigger:
+		send "%getPrefix()% Buy Ranks, Keys, Bundles & more at &e<tooltip:&e[Click Here]><link:http://cropied.tebex.io/>http://cropied.tebex.io/<reset>"
+		playSound(player, "level", 1, 1.25)
+
+command /discord [<text>]:
+	trigger:
+		send "%getPrefix()% Join our Discord at &e<tooltip:&e[Click Here]><link:https://discord.gg/sgTW8x5e93>https://discord.gg/sgTW8x5e93<reset>"
+		playSound(player, "level", 1, 1.25)
+
+command /rules [<text>]:
+	trigger:
+		send "%getPrefix()% View our rules at &e<tooltip:&e[Click Here]><link:https://discord.gg/sgTW8x5e93/>https://discord.gg/sgTW8x5e93<reset>"
+		playSound(player, "level", 1, 1.25)
+options:
+	pre: &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld
+command sc <text>:
+	permission: staff
+	aliases: staffchat, staff
+	trigger:
+		set {_s::*} to split arg-1 at " "
+		if {_s::1} is "lines":
+			if {_s::2} is set:
+				send "   " to all players where [{staffchat.lines::%input's uuid%}]
+				send colored "&9&l[!] STAFF &7| &f%player% &8» &f%arg-1%" to all players where [input has permission "staff"]
+				send "	" to all players where [{staffchat.lines::%input's uuid%}]
+			if {staffchat.lines::%player's uuid%} isn't true:
+				set {staffchat.lines::%player's uuid%} to true
+				send "{@pre} &aEnabled &7staffchat lines!"
+				stop
+			else:
+				set {staffchat.lines::%player's uuid%} to false
+				send "{@pre} &cDisabled &7staffchat lines!"
+				stop		  
+		send "   " to all players where [{staffchat.lines::%input's uuid%} = true]
+		send colored "&9&l[!] STAFF &7| &f%player% &8» &f%arg-1%" to all players where [input has permission "staff"]
+		send "	" to all players where [{staffchat.lines::%input's uuid%}]
+
+on tab complete of "sc" or "staffchat" or "staff":
+	set tab completions for position 1 to "lines" and "<text>"
+#on command:
+#	if command starts with "2" or "p" or "p2" or "plot" or "plotme" or "plots" or "plotsquared" or "ps":
+#		if arguments contains "del" or "delete" or "dispose" or "clear" or "reset":
+#			if getGens(player) > 0:
+#				send "%getPrefix()% Pick up all your generators to delete a plot!"
+#				playSound(player, "no", 1, 1)
+#				cancel event

@@ -1,0 +1,211 @@
+#  ______ _                 _____            
+# |  ____| |               |  __ \           
+# | |__  | |_ __ ___   ___ | |__) |__   __ _ 
+# |  __| | | '_ ` _ \ / _ \|  ___/ _ \ / _` |
+# | |____| | | | | | | (_) | |  | (_) | (_| |
+# |______|_|_| |_| |_|\___/|_|   \___/ \__, |
+#                                       __/ |
+#  ElmoPog#0001 on discord             |___/ 
+# 
+
+#Discord bot for Cropied, made with DiSky
+
+options:
+	token: OTIwMzI4Mjg4OTI3MzcxMjg0.Ybiwgg.klNSfc7gcQRhifw4mfIyXtM4Lbc
+
+on load:
+	login to "{@token}" with id "920328288927371284"
+	purge last 10 messages from channel with id "920355418574827630"
+	send "** **" to channel with id "920355418574827630" and store it in {statistics}
+	
+function makeEmbed(id: string, title: string, description: string, color: string = "green", field: string = "none", fieldval: string = "none", field2: string = "none", fieldval2: string = "none", field3: string = "none", fieldval3: string = "none"):
+	make new embed:
+		set title of embed to "%{_title}%" if {_title} is not "none"
+		set description of embed to "%{_description}%" if {_description} is not "none"
+		if {_field} is not "none":
+			add field named "%{_field}%" with value "%{_fieldval}%" to embed
+		if {_field2} is not "none":
+			add field named "%{_field2}%" with value "%{_fieldval2}%" to embed
+		if {_field3} is not "none":
+			add field named "%{_field3}%" with value "%{_fieldval3}%" to embed
+		set color of embed to ({_color} parsed as color)
+	send last created embed to text channel with id "%{_id}%"
+
+on chat:
+	makeEmbed("920338585629118484", "**%unformatted player's prefix% %player%:**", message, "orange")
+
+on join:
+	makeEmbed("920338585629118484", "**[+] %player%**", "%player% has joined the server!", "light green")
+
+on quit:
+	makeEmbed("920338585629118484", "**[-] %player%**", "%player% has left the server!", "red")
+
+on command:
+	if player is set:
+		if player has permission "staff":
+			set {_e::*} to full command split at " "
+			makeEmbed("920330320547561552", "**%player%**", "*%player% executed `/%command%`*", "red", "**Command:**", "`/%full command%`")
+		else:
+			if command is not "sk" or "skript":
+				if player is set:
+					makeEmbed("920330320547561552", "**%player%**", "*%player% executed `/%command%`*", "green", "**Command:**", "`/%full command%`")
+				else:
+					stop
+			else:
+				set {_e::*} to full command split at " "
+				makeEmbed("920330320547561552", "**%player%**", "none", "green","%player% reloaded a skript!" ,"*Skript path:* `%{_e::3}%`")
+
+on command "/sc" or "/staffchat":
+	set {_e} to full command
+	stop if 1st element of command = "lines"
+	replace all "sc" or "staffchat" in {_e} with ""
+	makeEmbed("920343105910218772", "**%unformatted player's prefix% %player%:**", "%{_e}%", "red")
+
+on guild message receive:
+	stop if id of event-member = "920328288927371284"
+	id of event-channel = "920343105910218772"
+	send "   " to all players where [{staffchat.lines::%input's uuid%}]
+	send formatted "&9&l[!] <##5865F2>&lDISCORD&9&l-STAFF &7| &f%event-user% &8» &f%event-message%" to all players where [input has permission "staff"]
+	send "    " to all players where [{staffchat.lines::%input's uuid%}]
+
+
+
+on guild message receive:
+	stop if id of event-member = "920328288927371284"
+	id of event-channel = "920332495642329108"
+	if event-member has permission administrator:
+		make console execute command "%event-message%"
+		set {_e::*} to event-message split at " "
+		makeEmbed("920332495642329108", "**Console command executed**", "none", "orange", "**%event-user%##%tag of event-user%** made console execute:", "`/%event-message%`")
+		makeEmbed("920330320547561552", "**Console**", "*%event-user%##%tag of event-user% made console execute `/%{_e::1}%`*", "orange", "**Command:**", "`/%event-message%`")
+	else:
+		makeEmbed("920330320547561552", "**CROPIED**", "Sorry but you require `Administrator` permissions for this!", "red")
+
+on guild message receive:
+	stop if id of event-member = "920328288927371284"
+	id of event-channel = "920338585629118484"
+	broadcast "<##5865F2>&lDISCORD &r&f%event-user% &8» &f%event-message%"
+
+every 2 seconds:
+	stop if {statistics} is not set
+	set {_uptime} to placeholder "server_uptime"
+	set {_ram} to placeholder "server_ram_used"
+	set {_ram1} to placeholder "server_ram_total"
+	set {_ram2} to placeholder "server_ram_free"
+	set {_totalram} to "%{_ram}%/%{_ram1}% (%{_ram2}% RAM free)"
+	set {_entities} to placeholder "server_total_entities"
+	set {_p::*} to all players where [input has permission "staff"]
+	make embed:
+		set the title of embed to "**CROPIED** | __Server Statistics__"
+		set the description of embed to "Server stats"
+		set the color of the embed to cyan
+		add inline field named "**Server TPS**" with value "**%tps%**" to embed
+		add inline field named "**Server RAM**" with value "**%{_totalram}%**" to embed
+		add inline field named "**Server uptime**" with value "`%{_uptime}%`" to embed
+		add inline field named "**Server entities**" with value "`%{_entities}%`" to embed
+		add field named "**Online Players** (%size of online players%/%maximum players%)" with value "`%all players%`" to embed
+		add field named "**Online staff**" with value "`%{_p::*}%`" to embed
+	edit {statistics} to show last embed
+
+
+#LINKING
+
+options:
+	bot: OTIwMzI4Mjg4OTI3MzcxMjg0.Ybiwgg.klNSfc7gcQRhifw4mfIyXtM4Lbc
+	linked-role-id: 920740233006415882
+	link: 920740189691846686
+	pre: &e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld
+
+command link [<text>]:	
+	trigger:
+		if arg-1 is "info":
+			if {islinked::%uuid of player%} = false:
+				send "{@pre} You are not linked to the discord yet!"
+				send "&7Type &f/link &7to get linking instructions!"
+				stop
+			send " " 
+			send "{@pre} <##14ff9d>&lLINKED INFO"
+			send " "
+			send formatted "<##dbdbdb>You are currently linked to:"
+			send "<##14ff9d>%{linkbyid::%uuid of player%}%"
+			send " "
+			send "<##dbdbdb>Not you? <tooltip:If this isn't your account, make a ticket in /discord!><##14ff9d>&l[HOVER]"
+			stop
+		set {_p} to player
+		{islinked::%player's uuid%} is true:
+			send "{@pre} You're already linked to the discord! (&f/link info&7)"
+			stop
+		set {_c} to generateCode({_p})
+		send " " 
+		send "{@pre} <##14ff9d>&lLINKING"
+		send " "
+		send formatted "<##dbdbdb>Your unique linking code is: <tooltip:<##14ff9d>%{_c}%><suggest command:!link %{_c}%><##14ff9d>&lCLICK TO COPY CODE"
+		send "<##dbdbdb>Type <##14ff9d>!link %{_c}% <##dbdbdb>in ##link to link your account!"
+		send " "
+
+discord command !unlink [<text>]:
+	trigger:
+		stop if event-member doesn't have permission administrator
+		if arg-1 is not set:
+			reply with "**CROPIED** | Please provide a IGN of the user you want to unlink!"
+			stop
+		set {_i} to arg-1 parsed as player
+		set {_d} to uuid of {_i}
+		if {islinked::%{_d}%} = false:
+			reply with "**CROPIED** | This player isn't linked!"
+			stop
+		reply with "**CROPIED** | Succesfully unlinked %{_i}% from %unformatted {linkbyid::%{_d}%}%"
+		send "{@pre} You've been unlinked from &f%{linkbyid::%{_d}%}%" to {_i}
+		set {_t} to {linkdiscordid::%{_d}%}
+		set {islinked::%{_d}%} to false
+		delete {linkbyid::%{_d}%}
+
+#MakeEmbed id title desc color field fieldval
+discord command !link [<text>]: 
+	trigger:
+		stop if id of event-channel is not equal to "{@link}"
+		if arg-1 is not set:
+			makeEmbed(id of event-channel, "**ERROR**", "**NO CODE PROVIDED**", "red", "How do I get a code?", "Do `/link` ingame!")
+			stop
+		if {codeofplayer::*} doesn't contain arg-1:
+			makeEmbed(id of event-channel, "**ERROR**", "**INVALID CODE PROVIDED**", "red", "What code do I use?", "Use the one from `/link`!")
+			stop
+		set {_i} to getIGNByCode(arg-1)
+		set {_d} to uuid of {_i}
+		if {islinked::%{_d}%} = true:
+			makeEmbed(id of event-channel, "**ERROR**", "**ALREADY LINKED**", "red", "Was it not you who linked?", "Do `/link info` to find out who it was!")
+			stop
+		makeEmbed(id of event-channel, "**SUCCESS**", "**LINKED**", "green", "Succesfully linked account to:", "%{_i}%")
+		set {islinked::%{_d}%} to true
+		send "{@pre} You've succesully linked your account to ""&f%discord name of event-member%&f##%discord tag of event-member%&7""" to {_i}
+		broadcast "{@pre} &f%{_i}% &7has linked their discord account and got: "
+		add role with id "920740233006415882" to roles of event-member
+		set discord nick name of event-member to "[✓] %{_i}%"
+		#REWARDS HERE
+		#
+		set {linkbyid::%{_d}%} to "&f%discord name of event-member%&f##%discord tag of event-member%&7"
+		set {linkdiscordid::%{_d}%} to discord id of event-member
+
+on member leave guild:
+	loop {linkbyid::*}:
+		loop-value = unformatted "%discord name of event-member%##%discord tag of event-member%"
+		delete {linkbyid::%loop-index%}
+		delete {islinked::%loop-index%}
+		delete {linkdiscordid::%loop-index%}
+		broadcast "{@pre} &f%loop-index parsed as player% &7left the server and lost their linking rewards."
+
+function getIGNByCode(id: string) :: player:
+	loop {codeofplayer::*}:
+		if loop-value contains {_id}:
+			set {_r} to loop-index
+	return {_r} parsed as player
+
+function getCode(p: player) :: string:
+	set {_d} to uuid of {_p}
+	return {codeofplayer::%{_d}%}
+
+function generateCode(p: player) :: string:
+	set {_d} to uuid of {_p}
+	set {_t} to (1st element of (random uuid split at "-"))
+	set {codeofplayer::%{_d}%} to {_t}
+	return {_t}

@@ -1,0 +1,97 @@
+#
+#
+#						MARKET
+#					BY kai1846456#0987
+#
+#
+
+options:
+	redstoneOre: redstone ore named "&eRedstone Ore" with lore "&a&lEXOTIC"
+
+
+#
+#				Market refresh
+#
+
+every hour:
+	refreshMarket()
+
+function refreshMarket():
+	broadcast ""
+	broadcast "%getPrefix()% The market has just reset! /Spawn!"
+	broadcast ""
+	delete {purchased::*}
+	set {market::refresh} to 1 hour from now
+
+
+#
+# Market gui
+#
+
+function marketGUI(p: player):
+	create a gui with virtual chest inventory with size 3 named "Market" with shape "---------" and "-1-2-3-4-" and "---------":
+		make gui slot "-" with black stained glass pane
+		make gui slot "1" with emerald named "&e&lSELL BOOST" with lore "&fMultiplies by your sell multiplier" and "" and "&fRange: &e1.5x-3x" and "&fNext Refresh: &e%difference between now and {market::refresh}%" and "" and "&eCost:" and "&8¬ &c5x Redstone Ore" and "&8¬ &e15,000⭐" and "&7&o(Click to purchase)":
+			buyMarket({_p}, "Sell")
+		make gui slot "2" with diamond ore named "&e&lMINING BOOST" with lore "&fIncreases all Ore Crusher enchantment levels" and "" and "&fRange: &e2x-4x" and "&fNext Refresh: &e%difference between now and {market::refresh}%" and "" and "&eCost:" and "&8¬ &c5x Redstone Ore" and "&8¬ &e15,000⭐" and "&7&o(Click to purchase)":
+			buyMarket({_p}, "Mine")
+		make gui slot "3" with wheat named "&e&lFARMING BOOST" with lore "&fIncreases all Crop Harvester enchantment levels" and "" and "&fRange: &e2x-4x" and "&fNext Refresh: &e%difference between now and {market::refresh}%" and "" and "&eCost:" and "&8¬ &c5x Redstone Ore" and "&8¬ &e15,000⭐" and "&7&o(Click to purchase)":
+			buyMarket({_p}, "Farm")
+		make gui slot "4" with raw cod named "&e&lFISHING BOOST" with lore "&fIncreases all Silver Reel enchantment levels" and "" and "&fRange: &e2x-4x" and "&fNext Refresh: &e%difference between now and {market::refresh}%" and "" and "&eCost:" and "&8¬ &c5x Redstone Ore" and "&8¬ &e15,000⭐" and "&7&o(Click to purchase)":
+			buyMarket({_p}, "Fish")
+	open last gui to {_p}
+
+#
+# Purchase Market Buffs
+#
+on right click on cartography table:
+	cancel event
+	marketGUI(player)
+	
+function buyMarket(p: player, t: text):
+	set {_u} to uuid of {_p}
+	{purchased::%{_t}%::%{_p}%} is set:
+		send "%getPrefix()% You have already purchased this! Wait until the market refreshes." to {_p}
+		stop
+	getTokens({_p}) is less than 15000:
+		send "%getPrefix()% Not enough resources to purchase this." to {_p}
+		stop
+	{_p}'s inventory don't contain 5 {@redstoneOre}:
+		send "%getPrefix()% Not enough resources to purchase this." to {_p}
+		stop
+	remove 5 of {@redstoneOre} from {_p}'s inventory
+	removeTokens({_p}, 15000)
+	{_t} is "Sell":
+		set {_r} to a random number between 1.5 and 3
+		set {purchased::%{_t}%::%{_u}%} to {_r}
+		send "%getPrefix()% You purchased a &a%{_r}%x &fSell multiplier from the market!" to {_p}
+		stop
+	{_t} is "Mine":
+		set {_r} to a random integer between 2 and 4
+		set {purchased::%{_t}%::%{_u}%} to {_r}
+		send "%getPrefix()% You purchased &a%{_r}%x &fMining levels from the market!" to {_p}
+		stop
+	{_t} is "Fish":
+		set {_r} to a random integer between 2 and 4
+		set {purchased::%{_t}%::%{_u}%} to {_r}
+		send "%getPrefix()% You purchased &a%{_r}%x &fFishing levels from the market!" to {_p}
+		stop
+	{_t} is "Farm":
+		set {_r} to a random integer between 2 and 4
+		set {purchased::%{_t}%::%{_u}%} to {_r}
+		send "%getPrefix()% You purchased &a%{_r}%x &fFarming levels from the market!" to {_p}
+		stop
+
+#
+# CMDS
+#
+
+
+command /market:
+	trigger:
+		send "%getPrefix()% Market is currently disabled due to some bugs"
+
+command /refreshmarket:
+	permission: *
+	trigger:
+		refreshMarket()

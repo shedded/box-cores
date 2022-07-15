@@ -1,0 +1,58 @@
+command /start:
+	trigger:
+		reset player's title
+		wait 3 seconds
+		make sender execute command "/p2 auto"
+		wait 2 seconds
+		send "&6[Cropied] &fWelcome to &6Cropied! &fTo start, place your generator on your plot."
+		wait 2 seconds
+		send "&6[Cropied] &fTo sell items, type &e/sell"
+		wait 2 seconds
+		send "&6[Cropied] &fTo open crate keys, type &e/crates"
+		wait 2 seconds
+		send "&6[Cropied] &fTo get back to your plot, use &e/plot home"
+		wait 2 seconds
+		send "&6[Cropied] &fTo upgrade your generator, &eshift right click&f the generator."
+		wait 2 seconds
+		send "&6[Cropied] &fTo purchase more generators, use &e/shop"
+		wait 2 seconds
+		send "&6[Cropied] &fTo access your gen items, place your item tank or use /tank."
+		wait 2 seconds
+		send "&6[Cropied] &fTo craft armour sets for buffs, use &eThe anvil at spawn."
+		wait 2 seconds
+		send "&6[Cropied] &fGood Luck. :)"
+		make console execute command "/lp user %player% permission set -start true"
+
+
+on join:
+	if player has not played before:
+		make console execute command "/lp user %player% group set default"
+		set join message to "&6&l&k[&r&e&lC&6&lr&e&lo&6&lp&e&li&6&le&e&ld&6&l&k] &f%player% &7has joined &e&lNEW &7(&e##%amount of offline players%&7)"
+		genGive(player, hay block, 5)
+		execute console command "/givetank %player%"
+		send title "%getPrefix()%" with subtitle "&fPlease use &c&l&n/start!" to player for 20 seconds
+	else:
+		if player has permission "staff":
+			set join message to "&c[Staff] &f%player% &fhas joined!"
+		else if player has permission "coal":
+			set join message to "&b[Donator] &f%player% &fhas joined!"
+		else:
+			set join message to "&8[&a+&8] &b%player%"
+	if {level::%player%} is not set:
+		set {level::%player%} to 1
+	wait 1 tick
+	make player execute command "/spawn"
+
+on quit:
+	if player has permission "staff":
+		set quit message to "&c[Staff] &f%player% &fhas left!"
+	else if player has permission "coal":
+		set quit message to "&b[Donator] &f%player% &fhas left!"
+	else:
+		set quit message to "&8[&4-&8] &b%player%"
+
+command /freerank:
+	trigger:
+		player don't have permission "stone":
+			execute console command "/lp user %Player% group add stone"
+			broadcast "%getPrefix()% %player% just claimed their free rank! &a&n/freerank&f."

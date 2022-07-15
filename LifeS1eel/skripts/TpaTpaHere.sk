@@ -1,0 +1,72 @@
+#Tpa and TpaHERE
+#Version 1.1
+#Author: muyao
+
+
+on load:
+    delete {request::*}
+
+
+#-------------------------------- TPA --------------------------------
+
+
+command /tpa <player>:
+	cooldown: 2 seconds
+	trigger:
+		if arg-1 is not player:
+			send "&4&lTPA &8| &7%player% has requested to teleport to you! &c/tpaccept to accept" to arg-1
+			send "&4&lTPA &8| &7You have send a tpa request to %arg-1%" to player
+			set {request::player::%arg-1's uuid%} to player
+			wait 30 seconds
+			if {request::player::%arg-1's uuid%} is set:
+				delete {request::player::%arg-1's uuid%}
+				send "&cYour tpa request to %arg-1% has expired" to player
+				send "&cYour tpa request from %player% has expired" to arg-1
+		else:
+			send "&cYou can't tpa to yourself!" to player
+
+
+command /tpaccept:
+	trigger:
+		if {request::player::%player's uuid%} is set:
+			set {_p} to {request::player::%player's uuid%}
+			teleport {_p} to location of player
+			send "&4&lTPA &8| &7Teleporting..." to {_p}
+			send "&cYou have accepted the teleportation request from %{_p}%" to player
+			delete {request::player::%player's uuid%}
+		else:
+			send "&cYou have no teleportation requests to accept!" to player
+
+
+#-------------------------------- TPA HERE --------------------------------
+			
+
+command /tpahere <player>:
+	cooldown: 2 seconds
+	trigger:
+		if arg-1 is not player:
+			send "&4&lTPA &8| &7%player% wants you to teleport to them! &c/tphereaccept to accept" to arg-1
+			send "&4&lTPA &8| &7You have send a tpahere request to %arg-1%" to player
+			set {requesthere::player::%arg-1's uuid%} to player
+			wait 30 seconds
+			if {requesthere::player::%arg-1's uuid%} is set:
+				delete {requesthere::player::%arg-1's uuid%}
+				send "&cYour tpahere request to %arg-1% has expired" to player
+				send "&cYour tpahere request from %player% has expired" to arg-1
+		else:
+			send "&cYou can't tpa to yourself!" to player
+
+
+command /tphereaccept:
+	trigger:
+		if {requesthere::player::%player's uuid%} is set:
+			set {_p} to {requesthere::player::%player's uuid%}
+			teleport player to location of {_p}
+			send "&4&lTPA &8| &7Teleporting..." to {_p}
+			send "&cYou have accepted the teleportation request from %{_p}%" to player
+			delete {requesthere::player::%player's uuid%}
+		else:
+			send "&cYou have no teleportation requests to accept!" to player
+
+
+#-------------------------------- END --------------------------------
